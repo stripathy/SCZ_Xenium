@@ -1,0 +1,66 @@
+# ──────────────────────────────────────────────────────────────────────
+# Data files (see DATA.md for download instructions)
+# ──────────────────────────────────────────────────────────────────────
+
+# Raw Xenium data (download from GEO: GSE307404)
+data/raw/
+
+# Reference datasets (download from Allen Brain Cell Atlas)
+data/reference/*.h5ad
+data/reference/*.h5
+
+# Documentation PDFs (copyrighted; cite DOIs instead)
+docs/
+
+# ──────────────────────────────────────────────────────────────────────
+# Generated pipeline outputs (regenerate by running pipeline steps 00-05)
+# ──────────────────────────────────────────────────────────────────────
+
+# Annotated h5ad files
+output/h5ad/
+output/all_samples_annotated.h5ad
+output/Br8667_corr_annotated.h5ad
+
+# Trained models
+output/depth_model*.pkl
+
+# Viewer data (regenerate with step 05)
+output/viewer/*.json
+output/viewer/xenium_viewer_standalone.html
+
+# Per-sample summary plots (regenerate with step 04)
+output/plots/
+
+# Benchmark h5ad and large JSON (regenerate with benchmark script)
+output/benchmark/*.h5ad
+output/benchmark/*.json
+
+# Top-level plots directory
+plots/
+
+# ──────────────────────────────────────────────────────────────────────
+# Generated figures (regenerate by running analysis scripts)
+# ──────────────────────────────────────────────────────────────────────
+output/**/*.png
+output/*.png
+output/**/*.pptx
+
+# ──────────────────────────────────────────────────────────────────────
+# System / IDE / temporary files
+# ──────────────────────────────────────────────────────────────────────
+.DS_Store
+__pycache__/
+*.pyc
+~$*
+*.tmp
+
+# ──────────────────────────────────────────────────────────────────────
+# Project notes (not part of the codebase)
+# ──────────────────────────────────────────────────────────────────────
+plan.md
+PLAN.md
+presentation_storyboard.md
+GSE307404_series_matrix*
+
+# Claude Code artifacts
+.claude/
