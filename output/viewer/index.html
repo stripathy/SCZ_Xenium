@@ -118,6 +118,12 @@ canvas { position: absolute; top: 0; left: 0; }
     <input type="range" id="point-size" min="1" max="8" value="2" step="0.5">
     <label style="margin-top:6px;">Opacity: <span id="opacity-val">0.8</span></label>
     <input type="range" id="point-opacity" min="0.1" max="1" value="0.8" step="0.05">
+    <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+      <label style="margin:0; cursor:pointer; display:flex; align-items:center; gap:4px;">
+        <input type="checkbox" id="layer-overlay-toggle">
+        <span>Show layer regions</span>
+      </label>
+    </div>
   </div>
 
   <div class="section">
@@ -136,7 +142,7 @@ canvas { position: absolute; top: 0; left: 0; }
   <div id="tooltip"></div>
   <div id="legend-overlay"></div>
   <div id="status">
-    <span id="status-left">Scroll to zoom | Drag to pan | Hover for cell info</span>
+    <span id="status-left">Scroll to zoom | Drag to pan | Hover for info | L=layers</span>
     <span id="status-right"></span>
   </div>
 </div>
@@ -178,6 +184,78 @@ for (let i = 0; i <= 256; i++) {
 const GLIA_TYPES = new Set(['Astrocyte', 'Oligodendrocyte', 'OPC', 'Microglia-PVM', 'Endothelial', 'VLMC']);
 const NEURON_TYPES = new Set(['L2/3 IT','L4 IT','L5 IT','L5 ET','L5/6 NP','L6 IT','L6 IT Car3','L6 CT','L6b',
   'Sst','Sst Chodl','Pvalb','Vip','Lamp5','Lamp5 Lhx6','Sncg','Pax6','Chandelier']);
+
+// ── Supertype → Subclass resolution ──
+// Maps abbreviated supertype prefixes to their canonical subclass names
+const SUPERTYPE_SUBCLASS_FALLBACK = {
+  'Astro': 'Astrocyte', 'Oligo': 'Oligodendrocyte', 'Micro-PVM': 'Microglia-PVM',
+  'Endo': 'Endothelial', 'Pericyte': 'VLMC', 'SMC': 'VLMC',
+};
+
+function supertypeToSubclass(supertype) {
+  // Try using the map from index.json first
+  const stMap = (indexData && indexData.supertype_subclass_map) || {};
+  // Strip trailing _N, _N_N-SEAAD, -SEAAD patterns to get the base
+  const base = supertype.replace(/[-_]\d+(?:[-_]\d+)*(?:-SEAAD)?$/, '').replace(/-SEAAD$/, '');
+  // Direct match in subclass_colors?
+  const palette = (indexData && indexData.subclass_colors) || {};
+  if (palette[base]) return base;
+  if (palette[supertype]) return supertype;
+  // Check fallback map
+  if (stMap[base]) return stMap[base];
+  if (SUPERTYPE_SUBCLASS_FALLBACK[base]) return SUPERTYPE_SUBCLASS_FALLBACK[base];
+  return base;
+}
+
+// ── Distinct color generation for supertypes ──
+function hexToHSL(hex) {
+  let r = parseInt(hex.slice(1,3), 16) / 255;
+  let g = parseInt(hex.slice(3,5), 16) / 255;
+  let b = parseInt(hex.slice(5,7), 16) / 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h, s, l = (max + min) / 2;
+  if (max === min) { h = s = 0; }
+  else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+  return [h * 360, s * 100, l * 100];
+}
+
+function hslToCSS(h, s, l) {
+  return `hsl(${h.toFixed(0)}, ${s.toFixed(0)}%, ${l.toFixed(0)}%)`;
+}
+
+function generateSupertypeColor(supertype, supertypeList) {
+  const subclass = supertypeToSubclass(supertype);
+  const palette = (indexData && indexData.subclass_colors) || {};
+  const baseHex = palette[subclass] || '#666666';
+  const [baseH, baseS, baseL] = hexToHSL(baseHex);
+
+  // Find all supertypes sharing this subclass
+  const siblings = supertypeList.filter(st => supertypeToSubclass(st) === subclass);
+  const idx = siblings.indexOf(supertype);
+  const n = siblings.length;
+
+  if (n <= 1) return hslToCSS(baseH, baseS, baseL);
+
+  // Spread hue +-20deg around base, vary lightness +-15%
+  const hueSpread = Math.min(40, 15 * n);
+  const hueShift = (idx / (n - 1) - 0.5) * hueSpread;
+  const lightShift = (idx / (n - 1) - 0.5) * 30;
+
+  const h = (baseH + hueShift + 360) % 360;
+  const s = Math.max(20, Math.min(100, baseS));
+  const l = Math.max(25, Math.min(85, baseL + lightShift));
+
+  return hslToCSS(h, s, l);
+}
+
+// Layer overlay state
+let showLayerOverlay = false;
 
 // ── Init ──
 async function init() {
@@ -253,16 +331,9 @@ function precomputeColors() {
       sampleData._colors[i] = catColors[sampleData.subclass[i]];
     }
   } else if (colorMode === 'supertype') {
-    // Generate colors for supertypes based on parent subclass
+    // Generate distinct colors for supertypes using hue/lightness variation
     const cats = sampleData.supertype_cats;
-    const palette = indexData.subclass_colors;
-    const catColors = cats.map(c => {
-      const parent = c.replace(/_\d+$/, '');
-      const base = palette[parent] || '#666';
-      // Slightly vary brightness per supertype number
-      const num = parseInt(c.match(/_(\d+)$/)?.[1] || '1');
-      return adjustBrightness(base, 0.7 + (num % 5) * 0.1);
-    });
+    const catColors = cats.map(c => generateSupertypeColor(c, cats));
     for (let i = 0; i < n; i++) {
       sampleData._colors[i] = catColors[sampleData.supertype[i]];
     }
@@ -347,11 +418,15 @@ function buildCellTypeFilter() {
       render();
     };
 
-    const palette = colorMode === 'layer' ? indexData.layer_colors :
-                    colorMode === 'class' ? indexData.class_colors :
-                    indexData.subclass_colors;
-    const parentName = name.replace(/_\d+$/, '');
-    const color = palette[name] || palette[parentName] || '#666';
+    let color;
+    if (colorMode === 'supertype') {
+      color = generateSupertypeColor(name, cats);
+    } else {
+      const palette = colorMode === 'layer' ? indexData.layer_colors :
+                      colorMode === 'class' ? indexData.class_colors :
+                      indexData.subclass_colors;
+      color = palette[name] || '#666';
+    }
 
     const swatch = document.createElement('div');
     swatch.className = 'ct-swatch';
@@ -405,7 +480,7 @@ function selectNeurons() {
   activeTypes._explicitEmpty = true;
   const cats = getFilterCats();
   cats.forEach(c => {
-    const parent = c.replace(/_\d+$/, '');
+    const parent = supertypeToSubclass(c);
     if (NEURON_TYPES.has(parent) || NEURON_TYPES.has(c)) activeTypes.add(c);
   });
   if (activeTypes.size > 0) delete activeTypes._explicitEmpty;
@@ -418,7 +493,7 @@ function selectGlia() {
   activeTypes._explicitEmpty = true;
   const cats = getFilterCats();
   cats.forEach(c => {
-    const parent = c.replace(/_\d+$/, '');
+    const parent = supertypeToSubclass(c);
     if (GLIA_TYPES.has(parent) || GLIA_TYPES.has(c)) activeTypes.add(c);
   });
   if (activeTypes.size > 0) delete activeTypes._explicitEmpty;
@@ -448,6 +523,89 @@ function resizeCanvas() {
   }
 }
 
+// ── Layer overlay rendering ──
+function renderLayerOverlay() {
+  if (!sampleData || !showLayerOverlay) return;
+
+  const w = canvas.width;
+  const h = canvas.height;
+  const n = sampleData.n_cells;
+  const x = sampleData.x;
+  const y = sampleData.y;
+  const layerIndices = sampleData.layer;
+  const layerCats = sampleData.layer_cats;
+  const layerPalette = indexData.layer_colors;
+
+  // Determine grid resolution in data space (~50px bins in screen space)
+  const binScreenSize = 50;
+  const binDataSize = binScreenSize / viewScale;
+
+  const xMin = sampleData.x_range[0];
+  const xMax = sampleData.x_range[1];
+  const yMin = sampleData.y_range[0];
+  const yMax = sampleData.y_range[1];
+
+  const nBinsX = Math.max(1, Math.ceil((xMax - xMin) / binDataSize));
+  const nBinsY = Math.max(1, Math.ceil((yMax - yMin) / binDataSize));
+
+  // Cap grid size for performance
+  const maxBins = 200;
+  const binsX = Math.min(nBinsX, maxBins);
+  const binsY = Math.min(nBinsY, maxBins);
+  const stepX = (xMax - xMin) / binsX;
+  const stepY = (yMax - yMin) / binsY;
+
+  // Count layer occurrences per bin
+  const nLayers = layerCats.length;
+  const grid = new Uint16Array(binsX * binsY * nLayers);
+
+  for (let i = 0; i < n; i++) {
+    const bx = Math.min(binsX - 1, Math.max(0, Math.floor((x[i] - xMin) / stepX)));
+    const by = Math.min(binsY - 1, Math.max(0, Math.floor((y[i] - yMin) / stepY)));
+    const li = layerIndices[i];
+    if (li >= 0 && li < nLayers) {
+      grid[(by * binsX + bx) * nLayers + li]++;
+    }
+  }
+
+  // Draw bins colored by dominant layer
+  ctx.globalAlpha = 0.15;
+
+  for (let by = 0; by < binsY; by++) {
+    for (let bx = 0; bx < binsX; bx++) {
+      // Find dominant layer in this bin
+      let maxCount = 0;
+      let dominantLayer = -1;
+      const offset = (by * binsX + bx) * nLayers;
+      let totalCount = 0;
+      for (let li = 0; li < nLayers; li++) {
+        const c = grid[offset + li];
+        totalCount += c;
+        if (c > maxCount) { maxCount = c; dominantLayer = li; }
+      }
+      if (totalCount < 2) continue;  // skip empty/sparse bins
+
+      const layerName = layerCats[dominantLayer];
+      const color = layerPalette[layerName];
+      if (!color) continue;
+
+      // Convert data coords to screen coords
+      const sx = (xMin + bx * stepX) * viewScale + viewX;
+      const sy = (yMin + by * stepY) * viewScale + viewY;
+      const sw = stepX * viewScale;
+      const sh = stepY * viewScale;
+
+      // Skip if completely off-screen
+      if (sx + sw < 0 || sx > w || sy + sh < 0 || sy > h) continue;
+
+      ctx.fillStyle = color;
+      ctx.fillRect(sx, sy, sw, sh);
+    }
+  }
+
+  ctx.globalAlpha = 1;
+}
+
 // ── Render ──
 function render() {
   if (!sampleData) return;
@@ -457,6 +615,9 @@ function render() {
 
   ctx.fillStyle = '#0d0d1a';
   ctx.fillRect(0, 0, w, h);
+
+  // Draw layer overlay behind cells
+  renderLayerOverlay();
 
   const n = sampleData.n_cells;
   const x = sampleData.x;
@@ -521,9 +682,10 @@ function render() {
 
 function updateLegend() {
   const el = document.getElementById('legend-overlay');
+  let html = '';
 
   if (colorMode === 'depth') {
-    el.innerHTML = `
+    html += `
       <div class="leg-title">Cortical Depth</div>
       <div style="display:flex; align-items:center; gap:6px;">
         <span style="font-size:10px;">Pia (0)</span>
@@ -533,20 +695,29 @@ function updateLegend() {
     `;
   } else if (colorMode === 'layer') {
     const palette = indexData.layer_colors;
-    el.innerHTML = '<div class="leg-title">Cortical Layer</div>' +
+    html += '<div class="leg-title">Cortical Layer</div>' +
       Object.entries(palette).map(([k,v]) =>
         `<div class="leg-row"><div class="leg-swatch" style="background:${v}"></div><span>${k}</span></div>`
       ).join('');
   } else if (colorMode === 'class') {
     const palette = indexData.class_colors;
-    el.innerHTML = '<div class="leg-title">Cell Class</div>' +
+    html += '<div class="leg-title">Cell Class</div>' +
       Object.entries(palette).map(([k,v]) =>
         `<div class="leg-row"><div class="leg-swatch" style="background:${v}"></div><span>${k}</span></div>`
       ).join('');
-  } else {
-    // Hide legend for subclass/supertype (shown in sidebar)
-    el.innerHTML = '';
   }
+
+  // Show layer legend when overlay is active (any color mode)
+  if (showLayerOverlay && colorMode !== 'layer') {
+    const palette = indexData.layer_colors;
+    if (html) html += '<div style="margin-top:8px; border-top:1px solid #333; padding-top:6px;"></div>';
+    html += '<div class="leg-title">Layer Overlay</div>' +
+      Object.entries(palette).map(([k,v]) =>
+        `<div class="leg-row"><div class="leg-swatch" style="background:${v}; opacity:0.4;"></div><span>${k}</span></div>`
+      ).join('');
+  }
+
+  el.innerHTML = html;
 }
 
 // ── Events ──
@@ -576,6 +747,12 @@ function setupEvents() {
   document.getElementById('point-opacity').oninput = (e) => {
     pointOpacity = parseFloat(e.target.value);
     document.getElementById('opacity-val').textContent = pointOpacity;
+    render();
+  };
+
+  // Layer overlay toggle
+  document.getElementById('layer-overlay-toggle').onchange = (e) => {
+    showLayerOverlay = e.target.checked;
     render();
   };
 
@@ -637,6 +814,11 @@ function setupEvents() {
     if (e.key === 'a') { selectAllTypes(); }
     if (e.key === 'n') { selectNeurons(); }
     if (e.key === 'g') { selectGlia(); }
+    if (e.key === 'l') {
+      showLayerOverlay = !showLayerOverlay;
+      document.getElementById('layer-overlay-toggle').checked = showLayerOverlay;
+      render();
+    }
 
     // Navigate samples with arrow keys
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
