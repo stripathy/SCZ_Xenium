@@ -74,6 +74,17 @@ LAYER_COLORS = {
     "Vascular": "#1abc9c",
 }
 
+# Supertype → Subclass mapping for non-neuronal types whose supertype names
+# don't match their subclass names (e.g., "Astro_1" → "Astrocyte")
+SUPERTYPE_SUBCLASS_MAP = {
+    "Astro": "Astrocyte",
+    "Oligo": "Oligodendrocyte",
+    "Micro-PVM": "Microglia-PVM",
+    "Endo": "Endothelial",
+    "Pericyte": "VLMC",
+    "SMC": "VLMC",
+}
+
 
 def main():
     t0 = time.time()
@@ -190,6 +201,7 @@ def main():
         "subclass_colors": SUBCLASS_COLORS,
         "class_colors": CLASS_COLORS,
         "layer_colors": LAYER_COLORS,
+        "supertype_subclass_map": SUPERTYPE_SUBCLASS_MAP,
     }
 
     index_path = os.path.join(VIEWER_DIR, "index.json")
