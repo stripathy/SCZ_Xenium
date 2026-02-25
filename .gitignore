@@ -40,6 +40,9 @@ output/viewer/xenium_viewer_standalone.html
 output/viewer/boundaries/
 output/viewer/transcripts/
 
+# Netlify deployment (regenerate from viewer data)
+output/deploy/
+
 # Per-sample summary plots (regenerate with step 04)
 output/plots/
 
