@@ -253,9 +253,11 @@ Downstream statistical analyses comparing SCZ vs. Control. Configuration is cent
 | `plot_predicted_proportion_scatter.py` | Neurons-only proportion scatter with error bars |
 | `plot_merfish_vs_xenium_proportions.py` | MERFISH vs Xenium naive proportion comparison |
 | `check_layer_type_proportions.py` | Upper vs deep excitatory balance check |
+| `plot_merfish_xenium_benchmark.py` | MERFISH vs Xenium benchmark: proportions, median depth, depth violins |
 | **Depth** | |
 | `plot_depth_comparison.py` | 4-panel depth comparison: MERFISH section vs Xenium |
 | `plot_median_depth_by_celltype.py` | Median depth per cell type: MERFISH vs Xenium |
+| `plot_supertype_depth_violins.py` | Paired MERFISH vs Xenium depth violins per supertype (supports `--test-only`) |
 | `plot_l6b_depth_filtered.py` | L6b depth distribution: MERFISH vs Xenium |
 | **Results** | |
 | `plot_crumblr_results.py` | crumblr effect size and volcano plots |
