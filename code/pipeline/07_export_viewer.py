@@ -182,9 +182,9 @@ def main():
         # Mapping confidence scores (from HANN bootstrap voting)
         # Quantize to uint8 (0-200 range, divide by 200 to recover) to save space
         # while preserving 0.5% precision
-        conf_class = adata.obs["class_label_confidence"].values.astype(np.float32)
-        conf_subclass = adata.obs["subclass_label_confidence"].values.astype(np.float32)
-        conf_supertype = adata.obs["supertype_label_confidence"].values.astype(np.float32)
+        conf_class = np.nan_to_num(adata.obs["class_label_confidence"].values.astype(np.float32), nan=0.0)
+        conf_subclass = np.nan_to_num(adata.obs["subclass_label_confidence"].values.astype(np.float32), nan=0.0)
+        conf_supertype = np.nan_to_num(adata.obs["supertype_label_confidence"].values.astype(np.float32), nan=0.0)
         conf_class_q = np.clip(np.round(conf_class * 200), 0, 200).astype(np.uint8)
         conf_subclass_q = np.clip(np.round(conf_subclass * 200), 0, 200).astype(np.uint8)
         conf_supertype_q = np.clip(np.round(conf_supertype * 200), 0, 200).astype(np.uint8)
@@ -198,6 +198,8 @@ def main():
         x = np.round(x, 1)
         y = np.round(y, 1)
         depth = np.round(depth, 3)
+        # Replace NaN with 0 for JSON compatibility (NaN is not valid JSON)
+        depth = np.nan_to_num(depth, nan=0.0)
 
         # Build compact format: encode categories as integers
         subclass_cats = sorted(set(subclass))
@@ -259,7 +261,7 @@ def main():
             corr_qc = adata.obs["corr_qc_pass"].values.astype(bool)
             data["corr_qc"] = [1 if q else 0 for q in corr_qc]
 
-            margin = adata.obs["corr_subclass_margin"].values.astype(np.float32)
+            margin = np.nan_to_num(adata.obs["corr_subclass_margin"].values.astype(np.float32), nan=0.0)
             # Quantize margin: multiply by 1000, clamp to 0-255
             margin_q = np.clip(np.round(margin * 1000), 0, 255).astype(np.uint8)
             data["corr_margin"] = margin_q.tolist()
