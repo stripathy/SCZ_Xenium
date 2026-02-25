@@ -56,12 +56,14 @@ SUBCLASS_COLORS = {
     "Microglia-PVM": "#94AF97",
     "Endothelial": "#8D6C62",
     "VLMC": "#697255",
+    "QC Failed": "#ffffff",
 }
 
 CLASS_COLORS = {
     "Glutamatergic": "#00ADF8",
     "GABAergic": "#F05A28",
     "Non-neuronal": "#808080",
+    "QC Failed": "#ffffff",
 }
 
 LAYER_COLORS = {
@@ -189,10 +191,27 @@ def main():
         conf_subclass_q = np.clip(np.round(conf_subclass * 200), 0, 200).astype(np.uint8)
         conf_supertype_q = np.clip(np.round(conf_supertype * 200), 0, 200).astype(np.uint8)
 
-        # Track supertype -> subclass mapping
+        # Track supertype -> subclass mapping (before QC override)
         for sup_val, sub_val in zip(supertype, subclass):
             if sup_val not in global_supertype_to_subclass:
                 global_supertype_to_subclass[sup_val] = sub_val
+
+        # Override labels to "QC Failed" for cells that fail hybrid QC
+        qc_col = "hybrid_qc_pass" if "hybrid_qc_pass" in adata.obs.columns else (
+            "corr_qc_pass" if has_corr and "corr_qc_pass" in adata.obs.columns else None)
+        n_qc_fail = 0
+        if qc_col is not None:
+            qc_fail_mask = ~adata.obs[qc_col].values.astype(bool)
+            n_qc_fail = qc_fail_mask.sum()
+            if n_qc_fail > 0:
+                subclass = subclass.copy()
+                supertype = supertype.copy()
+                class_label = class_label.copy()
+                subclass[qc_fail_mask] = "QC Failed"
+                supertype[qc_fail_mask] = "QC Failed"
+                class_label[qc_fail_mask] = "QC Failed"
+        # Ensure QC Failed is in the supertype mapping
+        global_supertype_to_subclass["QC Failed"] = "QC Failed"
 
         # Round coordinates to save space
         x = np.round(x, 1)
@@ -256,11 +275,17 @@ def main():
             "hann_subclass": [hann_subclass_idx[s] for s in hann_subclass],
         }
 
-        # Correlation classifier QC flag and margin
-        if has_corr and "corr_qc_pass" in adata.obs.columns:
+        # QC flag: use hybrid_qc_pass (final pipeline QC) if available,
+        # fall back to corr_qc_pass
+        if "hybrid_qc_pass" in adata.obs.columns:
+            qc_flag = adata.obs["hybrid_qc_pass"].values.astype(bool)
+            data["corr_qc"] = [1 if q else 0 for q in qc_flag]
+        elif has_corr and "corr_qc_pass" in adata.obs.columns:
             corr_qc = adata.obs["corr_qc_pass"].values.astype(bool)
             data["corr_qc"] = [1 if q else 0 for q in corr_qc]
 
+        # Correlation margin (always export if available)
+        if has_corr and "corr_subclass_margin" in adata.obs.columns:
             margin = np.nan_to_num(adata.obs["corr_subclass_margin"].values.astype(np.float32), nan=0.0)
             # Quantize margin: multiply by 1000, clamp to 0-255
             margin_q = np.clip(np.round(margin * 1000), 0, 255).astype(np.uint8)

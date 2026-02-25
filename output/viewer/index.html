@@ -104,7 +104,10 @@ canvas { position: absolute; top: 0; left: 0; }
 <div id="sidebar">
   <div>
     <h1>Xenium SCZ Viewer</h1>
-    <div style="font-size:11px; color:#888;">24 DLPFC sections | 1.3M cells</div>
+    <div style="font-size:11px; color:#888; line-height:1.5;">
+      Independent reprocessing of Xenium spatial transcriptomics data from <a href="https://doi.org/10.64898/2026.02.16.706214" target="_blank" style="color:#4ecdc4;">Kwon et al. (2026)</a>. 24 human DLPFC sections, 1.3M cells typed via snRNA-seq reference mapping.<br>
+      <a href="https://github.com/stripathy/SCZ_Xenium" target="_blank" style="color:#4ecdc4;">Code &amp; methods</a>
+    </div>
   </div>
 
   <div class="section" id="section-samples">
@@ -133,8 +136,8 @@ canvas { position: absolute; top: 0; left: 0; }
         <button class="mode-btn" data-mode="class">Class</button>
         <button class="mode-btn" data-mode="layer">Layer</button>
         <button class="mode-btn" data-mode="depth">Depth</button>
-        <button class="mode-btn" data-mode="confidence">Confidence</button>
-        <button class="mode-btn" data-mode="margin">Margin</button>
+        <button class="mode-btn qc-only" data-mode="confidence" style="display:none;">Confidence</button>
+        <button class="mode-btn qc-only" data-mode="margin" style="display:none;">Margin</button>
       </div>
     </div>
   </div>
@@ -187,11 +190,11 @@ canvas { position: absolute; top: 0; left: 0; }
       <label style="margin-top:6px;">Opacity: <span id="opacity-val">0.8</span></label>
       <input type="range" id="point-opacity" min="0.1" max="1" value="0.8" step="0.05">
       <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
-        <input type="checkbox" id="show-boundaries-toggle">
+        <input type="checkbox" id="show-boundaries-toggle" checked>
         <label for="show-boundaries-toggle" style="margin:0; cursor:pointer;">Cell boundaries <span style="color:#666; font-size:10px;">(B)</span></label>
       </div>
       <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
-        <input type="checkbox" id="show-nucleus-toggle">
+        <input type="checkbox" id="show-nucleus-toggle" checked>
         <label for="show-nucleus-toggle" style="margin:0; cursor:pointer;">Nucleus boundaries <span style="color:#666; font-size:10px;">(N)</span></label>
       </div>
       <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
@@ -205,6 +208,10 @@ canvas { position: absolute; top: 0; left: 0; }
       <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="hide-qc-fail-toggle" checked>
         <label for="hide-qc-fail-toggle" style="margin:0; cursor:pointer;">Hide low-confidence cells <span style="color:#666; font-size:10px;">(F)</span></label>
+      </div>
+      <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
+        <input type="checkbox" id="show-qc-details-toggle">
+        <label for="show-qc-details-toggle" style="margin:0; cursor:pointer;">Cell QC details <span style="color:#666; font-size:10px;">(D)</span></label>
       </div>
       <div id="confidence-level-row" style="display:none; margin-top:8px;">
         <label style="margin-bottom:4px;">Confidence level:</label>
@@ -266,8 +273,9 @@ const ctx = canvas.getContext('2d');
 // ── Cell boundary state ──
 let boundaryData = null;  // decoded boundary polygon data for current sample
 let nucleusData = null;   // decoded nucleus boundary polygon data
-let showBoundaries = false;
-let showNucleus = false;
+let showBoundaries = true;
+let showNucleus = true;
+let showQcDetails = false; // show HANN conf, margin, doublet info in tooltips
 const BOUNDARY_ZOOM_THRESHOLD = 3.0; // only show when zoomed in this much
 
 // ── Transcript molecule state ──
@@ -1112,6 +1120,18 @@ function setupEvents() {
   document.getElementById('show-boundaries-toggle').onchange = (e) => { showBoundaries=e.target.checked; render(); };
   document.getElementById('show-nucleus-toggle').onchange = (e) => { showNucleus=e.target.checked; render(); };
   document.getElementById('hide-qc-fail-toggle').onchange = (e) => { hideQcFail=e.target.checked; render(); };
+  document.getElementById('show-qc-details-toggle').onchange = (e) => {
+    showQcDetails = e.target.checked;
+    document.querySelectorAll('.mode-btn.qc-only').forEach(b => b.style.display = showQcDetails ? '' : 'none');
+    // If hiding QC modes while one is active, switch back to subclass
+    if (!showQcDetails && (colorMode === 'confidence' || colorMode === 'margin')) {
+      colorMode = 'subclass';
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'subclass'));
+      document.getElementById('confidence-level-row').style.display = 'none';
+      activeTypes = new Set();
+      precomputeColors(); buildCellTypeFilter(); render();
+    }
+  };
   document.getElementById('mol-size').oninput = (e) => { moleculeSize=parseFloat(e.target.value); document.getElementById('mol-size-val').textContent=moleculeSize; render(); };
   document.getElementById('mol-opacity').oninput = (e) => { moleculeOpacity=parseFloat(e.target.value); document.getElementById('mol-opacity-val').textContent=moleculeOpacity; render(); };
   document.getElementById('gene-search').oninput = (e) => { buildGeneList(e.target.value); };
@@ -1140,6 +1160,7 @@ function setupEvents() {
     if (e.key==='b') { showBoundaries=!showBoundaries; document.getElementById('show-boundaries-toggle').checked=showBoundaries; render(); }
     if (e.key==='n') { showNucleus=!showNucleus; document.getElementById('show-nucleus-toggle').checked=showNucleus; render(); }
     if (e.key==='f') { hideQcFail=!hideQcFail; document.getElementById('hide-qc-fail-toggle').checked=hideQcFail; render(); }
+    if (e.key==='d') { const el=document.getElementById('show-qc-details-toggle'); el.checked=!el.checked; el.onchange({target:el}); }
     if (e.key==='t') {
       const section = document.getElementById('transcript-section');
       if (section.classList.contains('visible')) { clearAllGenes(); section.classList.remove('visible'); }
@@ -1319,29 +1340,32 @@ function handleHover(e) {
         html += `<div>Class: ${cls}</div>`;
         html += `<div>Layer: <span style="color:${layerColor};font-weight:700;">${layer}</span></div>`;
         html += `<div>Depth: ${depth.toFixed(3)}</div>`;
-        // Confidence scores (HANN mapping quality)
-        const confC = sampleData.conf_class ? (sampleData.conf_class[bestCellIdx] / 200).toFixed(2) : '?';
-        const confS = sampleData.conf_subclass ? (sampleData.conf_subclass[bestCellIdx] / 200).toFixed(2) : '?';
-        const confT = sampleData.conf_supertype ? (sampleData.conf_supertype[bestCellIdx] / 200).toFixed(2) : '?';
-        // Color-code: green if >=0.5, yellow if 0.28-0.5, red if <0.28
-        function confSpan(val) {
-          const v = parseFloat(val);
-          const color = v >= 0.5 ? '#28f03c' : v >= 0.28 ? '#e0d020' : '#dc3030';
-          return `<span style="color:${color};font-weight:600;">${val}</span>`;
-        }
-        html += `<div style="margin-top:2px;font-size:11px;color:#888;">HANN conf: ${confSpan(confC)} / ${confSpan(confS)} / ${confSpan(confT)}</div>`;
-        html += `<div style="font-size:9px;color:#555;">class / subclass / supertype</div>`;
-        // Correlation margin and QC flag
-        if (sampleData.corr_margin) {
-          const margin = (sampleData.corr_margin[bestCellIdx] / 1000).toFixed(3);
-          const isQcFail = sampleData.corr_qc && sampleData.corr_qc[bestCellIdx] === 0;
-          html += `<div style="margin-top:2px;font-size:11px;">Corr margin: ${margin}${isQcFail ? ' <span style="color:#e94560;font-weight:700;">QC-FAIL</span>' : ''}</div>`;
-        }
-        // HANN subclass comparison (if different)
-        if (sampleData.hann_subclass_cats && sampleData.hann_subclass) {
-          const hannSub = sampleData.hann_subclass_cats[sampleData.hann_subclass[bestCellIdx]];
-          if (hannSub !== subclass) {
-            html += `<div style="font-size:10px;color:#888;">HANN: ${hannSub}</div>`;
+        // QC details (gated behind Cell QC mode toggle)
+        if (showQcDetails) {
+          // Confidence scores (HANN mapping quality)
+          const confC = sampleData.conf_class ? (sampleData.conf_class[bestCellIdx] / 200).toFixed(2) : '?';
+          const confS = sampleData.conf_subclass ? (sampleData.conf_subclass[bestCellIdx] / 200).toFixed(2) : '?';
+          const confT = sampleData.conf_supertype ? (sampleData.conf_supertype[bestCellIdx] / 200).toFixed(2) : '?';
+          function confSpan(val) {
+            const v = parseFloat(val);
+            const color = v >= 0.5 ? '#28f03c' : v >= 0.28 ? '#e0d020' : '#dc3030';
+            return `<span style="color:${color};font-weight:600;">${val}</span>`;
+          }
+          html += `<div style="margin-top:4px;border-top:1px solid #333;padding-top:4px;font-size:10px;color:#e94560;font-weight:600;">QC Details</div>`;
+          html += `<div style="font-size:11px;color:#888;">HANN conf: ${confSpan(confC)} / ${confSpan(confS)} / ${confSpan(confT)}</div>`;
+          html += `<div style="font-size:9px;color:#555;">class / subclass / supertype</div>`;
+          // Correlation margin and QC flag
+          if (sampleData.corr_margin) {
+            const margin = (sampleData.corr_margin[bestCellIdx] / 1000).toFixed(3);
+            const isQcFail = sampleData.corr_qc && sampleData.corr_qc[bestCellIdx] === 0;
+            html += `<div style="font-size:11px;">Corr margin: ${margin}${isQcFail ? ' <span style="color:#e94560;font-weight:700;">QC-FAIL</span>' : ''}</div>`;
+          }
+          // HANN subclass comparison (if different)
+          if (sampleData.hann_subclass_cats && sampleData.hann_subclass) {
+            const hannSub = sampleData.hann_subclass_cats[sampleData.hann_subclass[bestCellIdx]];
+            if (hannSub !== subclass) {
+              html += `<div style="font-size:10px;color:#888;">HANN: ${hannSub}</div>`;
+            }
           }
         }
         html += `<div style="color:#666;font-size:10px;">x=${x[bestCellIdx].toFixed(1)}, y=${y[bestCellIdx].toFixed(1)}</div>`;
