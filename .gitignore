@@ -89,3 +89,6 @@ GSE307404_series_matrix*
 
 # Claude Code artifacts
 .claude/
+
+# Local Netlify folder
+.netlify
