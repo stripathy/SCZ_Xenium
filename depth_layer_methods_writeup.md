@@ -149,12 +149,15 @@ The strong correlation confirms that the depth model recovers biologically meani
 ![Median depth by cell type](output/presentation/slide_median_depth_by_celltype.png)
 *Figure 4. Median cortical depth per cell type: Xenium predictions vs MERFISH reference. Left: subclass level. Right: supertype level. Strong correlation at both resolution levels confirms the model recovers biologically meaningful depth assignments.*
 
-### Excitatory neuron depth distributions
+### Supertype-level depth distributions
 
-The depth distributions for excitatory neuron subclasses provide the cleanest validation, as these types have well-defined laminar positions:
+At finer resolution, we compare depth distributions for every supertype within each subclass (for subclasses with ≥4 supertypes). Supertypes are ordered by median MERFISH depth, and paired MERFISH (manual depth) and Xenium (predicted depth) violins are shown side by side:
 
-![Depth distributions for excitatory types](output/presentation/cell_typing_benchmark_depth_violins_excitatory.png)
-*Figure 5. Cortical depth distributions for excitatory neuron subclasses. Left: MERFISH reference. Center: Xenium correlation classifier. Right: Xenium Harmony. The correlation classifier distributions closely match the MERFISH shapes, particularly for deeper types (L5 ET, L6 IT, L6b).*
+![Supertype depth distributions — Glutamatergic](output/presentation/supertype_depth_violins_glutamatergic.png)
+*Figure 5. Supertype depth distributions for glutamatergic subclasses. Green = MERFISH manual depth, orange = Xenium predicted depth. Counts shown as (MERFISH / Xenium). Within each subclass, supertypes are ordered by median MERFISH depth (shallowest left, deepest right).*
+
+![Supertype depth distributions — GABAergic](output/presentation/supertype_depth_violins_gabaergic.png)
+*Figure 6. Supertype depth distributions for GABAergic subclasses. Interneuron supertypes show broader depth distributions than excitatory types, consistent with their wider laminar spread, but the overall ordering and distribution shapes are well-matched between MERFISH and Xenium.*
 
 ### Key design decisions
 

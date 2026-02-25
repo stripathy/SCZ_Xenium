@@ -166,10 +166,10 @@ The correlation classifier tracks the MERFISH reference more closely than Harmon
 
 ### Laminar depth distributions
 
-Median cortical depth per subclass correlates at r = 0.92 with the MERFISH reference, confirming spatially coherent laminar assignments. Excitatory neuron depth distributions recover the expected superficial-to-deep ordering (L2/3 IT through L6b).
+Median cortical depth per subclass correlates at r = 0.92 with the MERFISH reference, confirming spatially coherent laminar assignments. At supertype resolution, paired depth distributions show close agreement between MERFISH manual depth annotations and Xenium predicted depth across the full laminar gradient:
 
-![Depth violin plots for excitatory types](output/presentation/cell_typing_benchmark_depth_violins_excitatory.png)
-*Figure 10. Cortical depth distributions for excitatory neuron subclasses. Left: MERFISH reference. Center: Xenium Correlation Classifier. Right: Harmony. The correlation classifier distributions more closely match MERFISH, particularly for deeper types.*
+![Supertype depth distributions — Glutamatergic](output/presentation/supertype_depth_violins_glutamatergic.png)
+*Figure 10. Supertype depth distributions for glutamatergic subclasses. Green = MERFISH manual depth, orange = Xenium predicted depth. Supertypes ordered by median MERFISH depth. The correlation classifier recovers the expected superficial-to-deep ordering within each subclass.*
 
 ---
 
