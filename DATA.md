@@ -18,7 +18,7 @@ data/
 │   └── GSM9223491_Br8772-transcripts.zarr.zip
 ├── reference/                        # Reference datasets (Steps 2-4)
 │   ├── SEAAD_MTG_MERFISH.2024-12-11.h5ad
-│   ├── nicole_sea_ad_snrnaseq_reference.h5ad
+│   ├── SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad
 │   ├── precomputed_stats.20231120.sea_ad.MTG.h5
 │   └── gene_symbol_to_ensembl.json   # (already in repo)
 └── nicole_scz_snrnaseq_betas/        # (already in repo)
@@ -97,23 +97,26 @@ pip install "cell_type_mapper @ git+https://github.com/AllenInstitute/cell_type_
 
 ---
 
-## Step 4: SEA-AD snRNAseq Reference (Nicole's)
+## Step 4: SEA-AD snRNAseq Reference
 
-**Source:** Nicole Comfort's curated subset of the SEA-AD MTG snRNAseq data — neurotypical donors only, with harmonized cell type annotations matching the MERFISH taxonomy.
+**Source:** [Gabitto et al. (2024)](https://doi.org/10.1038/s41593-024-01774-5) — SEA-AD MTG single-nucleus RNA-seq dataset from the [Allen Brain Cell Atlas](https://portal.brain-map.org/atlases-and-data/rnaseq/human-mtg-10x_sea-ad).
 
 **Used for:** Ground-truth cell type proportions, doublet detection validation (step 02b), and as a full-transcriptome reference (36,601 genes vs MERFISH's 180 genes).
 
-**Contents:** 137,303 cells from 5 neurotypical donors. Same 24-subclass / 137-supertype SEA-AD MTG taxonomy as the MERFISH reference.
+```bash
+# Download the full SEA-AD MTG snRNAseq dataset (~33.8 GB)
+wget -O data/reference/SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad \
+  "https://sea-ad-single-cell-profiling.s3.us-west-2.amazonaws.com/MTG/RNAseq/SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad"
 
-**Conversion:** The original RDS files (`Neurotypical_ref_metadata.rds`, `raw_counts_ref.rds`) were converted to h5ad format using `/tmp/convert_rds_to_h5ad.R`. The resulting file is:
+# Or using AWS CLI (faster, supports resume):
+aws s3 cp \
+  s3://sea-ad-single-cell-profiling/MTG/RNAseq/SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad \
+  data/reference/ --no-sign-request
+```
 
-```
-data/reference/nicole_sea_ad_snrnaseq_reference.h5ad  (~9 GB)
-```
+**Subsetting:** The pipeline uses only the 5 neurotypical reference donors that were used to build the SEA-AD MTG taxonomy: `H18.30.001`, `H18.30.002`, `H19.30.001`, `H19.30.002`, `H200.1023`. This yields 137,303 cells x 36,601 genes with the same 24-subclass / 137-supertype taxonomy as the MERFISH reference. The subsetting is performed in the pipeline code (filter on `donor_id` column).
 
 **Key columns:** `Class` (Neuronal: Glutamatergic / Neuronal: GABAergic / Non-neuronal and Non-neural), `Subclass`, `Supertype`, `donor_id`, `Age.at.death`, `Braak.stage`, `CERAD.score`.
-
-**Note:** This replaces the older Allen Institute snRNAseq reference (`Reference_MTG_RNAseq_final-nuclei.2022-06-07.h5ad`) which was only used by legacy scripts in `code/archive/`.
 
 ---
 
@@ -130,6 +133,6 @@ The file `sample_metadata.xlsx` is already included in the repository. It contai
 | Raw Xenium data (matrices + boundaries) | 809 MB | Yes | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
 | Raw Xenium transcript coordinates | ~33 GB | Yes (steps 03-04) | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
 | SEA-AD MERFISH | 3.1 GB | Yes | [Allen Brain Cell Atlas](https://sea-ad-spatial-transcriptomics.s3.us-west-2.amazonaws.com/middle-temporal-gyrus/all_donors-h5ad/SEAAD_MTG_MERFISH.2024-12-11.h5ad) |
-| SEA-AD snRNAseq (Nicole's) | 9 GB | Yes | Converted from Nicole's RDS files (see Step 4) |
+| SEA-AD snRNAseq | 33.8 GB | Yes | [Allen Brain Cell Atlas](https://sea-ad-single-cell-profiling.s3.us-west-2.amazonaws.com/MTG/RNAseq/SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad) |
 | MapMyCells stats | 251 MB | Yes (step 02) | [Allen Brain Cell Atlas](https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/mapmycells/SEAAD/20240831/precomputed_stats.20231120.sea_ad.MTG.h5) |
-| **Total required** | **~46 GB** | | |
+| **Total required** | **~71 GB** | | |

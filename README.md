@@ -5,6 +5,7 @@ Analysis pipeline for 24 Xenium spatial transcriptomics samples (12 schizophreni
 **Key documents:**
 - **[Pipeline Rationale](#pipeline-philosophy--design-rationale)** — Why the pipeline is structured this way and key design decisions
 - **[Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md)** — Detailed methods writeup with figures: classification approaches, doublet resolution, MERFISH benchmarking, ablation studies
+- **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** — Cortical depth model, spatial domain classification, layer assignment, and validation against MERFISH
 - **[Data Download Instructions](DATA.md)** — How to obtain all input datasets
 
 ## Datasets & References
@@ -20,7 +21,7 @@ Analysis pipeline for 24 Xenium spatial transcriptomics samples (12 schizophreni
 Cell type annotation and cortical depth modeling use reference data from the Seattle Alzheimer's Disease Brain Cell Atlas:
 
 - **SEA-AD MERFISH** (`SEAAD_MTG_MERFISH.2024-12-11.h5ad`) — Middle temporal gyrus MERFISH spatial reference (1.9M cells, 180 genes) used for training the cortical depth model and proportion comparisons. [Download (3.1 GB)](https://sea-ad-spatial-transcriptomics.s3.us-west-2.amazonaws.com/middle-temporal-gyrus/all_donors-h5ad/SEAAD_MTG_MERFISH.2024-12-11.h5ad)
-- **SEA-AD snRNAseq** (`nicole_sea_ad_snrnaseq_reference.h5ad`) — Nicole's curated snRNAseq reference (137K cells, 36K genes, 5 neurotypical donors). Same SEA-AD MTG taxonomy. Used for ground-truth validation of doublet detection and as a full-transcriptome reference. Converted from RDS files.
+- **SEA-AD snRNAseq** (`SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad`) — Full SEA-AD MTG single-nucleus RNA-seq dataset, subset to the 5 neurotypical reference donors used in building the SEA-AD MTG taxonomy (137K cells, 36K genes). Used for ground-truth validation of doublet detection and as a full-transcriptome reference. [Download (33.8 GB)](https://sea-ad-single-cell-profiling.s3.us-west-2.amazonaws.com/MTG/RNAseq/SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad)
 - **MapMyCells precomputed stats** (`precomputed_stats.20231120.sea_ad.MTG.h5`) — Precomputed taxonomy statistics for hierarchical cell type mapping. [Download (251 MB)](https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/mapmycells/SEAAD/20240831/precomputed_stats.20231120.sea_ad.MTG.h5)
 - **Cell type mapper:** [AllenInstitute/cell_type_mapper](https://github.com/AllenInstitute/cell_type_mapper) (requires Python 3.10+)
 
@@ -386,9 +387,12 @@ The pipeline uses the [SEA-AD MTG taxonomy](https://portal.brain-map.org/):
 Layers are assigned through a combined approach:
 
 1. **Spatial domain clustering** identifies contiguous pia/meninges tissue (Extra-cortical) and scattered vascular spots (Vascular)
-2. **MERFISH depth model** assigns cortical layers (L1, L2/3, L4, L5, L6, WM) based on neighborhood composition
+2. **MERFISH depth model** (GradientBoostingRegressor on K=50 neighborhood composition features) predicts normalized cortical depth (0=pia, 1=WM; R²=0.90, MAE=0.031 on held-out donors), then bins into discrete layers
+3. **Layer bins:** L1 (<0.10), L2/3 (0.10–0.30), L4 (0.30–0.45), L5 (0.45–0.65), L6 (0.65–0.85), WM (>0.85)
 
-Final layer categories: **Extra-cortical, L1, L2/3, L4, L5, L6, WM, Vascular**
+Final layer categories: **L1, L2/3, L4, L5, L6, WM, Vascular** — median depth per subclass correlates at r=0.92 with the MERFISH reference.
+
+See **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** for full details, validation figures, and design decisions.
 
 ## Archive (`code/archive/`)
 
