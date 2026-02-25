@@ -67,7 +67,7 @@ Within the assigned subclass, each cell is correlated against only the supertype
 
 The 300-gene Xenium panel provides sufficient marker resolution to identify cell types at the single-molecule level. The figure below shows exemplar cells from six subclasses with their characteristic marker transcripts visualized as individual molecules within cell segmentation boundaries. Each cell shows a clear, distinct marker profile consistent with its assigned identity:
 
-![Exemplar cell transcript-level classification](exemplar_transcript_classification.png)
+![Exemplar cell transcript-level classification](output/presentation/exemplar_transcript_classification.png)
 *Figure 3-pre. Transcript-level cell type identity for six exemplar subclasses. Each panel shows a single cell (colored outline) with individual marker transcript molecules. Bright dots indicate characteristic markers for that subclass (e.g., CUX2 for L2/3 IT, PVALB+GAD1+GAD2 for Pvalb interneurons, SST+GAD1+GAD2 for Sst interneurons). Neighboring cell boundaries shown in gray. Scale bar = 10 µm.*
 
 ### QC Layer 1: Margin-Based Filtering
@@ -87,27 +87,27 @@ The marker co-expression approach is validated by three lines of evidence from a
 
 **1. Mixed marker expression profiles.** Glut+GABA doublets express both GABAergic markers (GAD1, GAD2, SST, PVALB, etc.) and Glutamatergic markers (CUX2, RORB, GRIN2A, THEMIS) — a pattern that is biologically implausible in single neurons but expected when two cells of different classes are captured as one. The bar plot below shows that Glut+GABA doublets have detection rates for GABAergic markers approaching those of normal GABAergic cells, while retaining high Glutamatergic marker expression:
 
-![Marker detection rates in doublets vs normal cells](doublet_marker_barplot.png)
+![Marker detection rates in doublets vs normal cells](output/presentation/doublet_marker_barplot.png)
 *Figure 3a. Percentage of cells expressing each marker gene, comparing normal Glutamatergic cells, Glut+GABA doublets, normal GABAergic cells, and GABA+GABA doublets. Glut+GABA doublets show the signature "both sides" expression pattern — high detection of both GABAergic (left) and Glutamatergic (right) markers.*
 
 The heatmap below shows individual cells, confirming that the mixed expression is present at the single-cell level, not just in aggregate:
 
-![Marker expression heatmap for individual doublet cells](doublet_marker_heatmap.png)
+![Marker expression heatmap for individual doublet cells](output/presentation/doublet_marker_heatmap.png)
 *Figure 3b. log₂(counts+1) heatmap of marker expression for individual cells. Top: normal Glutamatergic cells (express only Glut markers). Upper-middle: Glut+GABA doublets (express markers from both classes). Lower-middle: normal GABAergic cells (express only GABA markers). Bottom: GABA+GABA doublets (co-express SST + PVALB + LAMP5).*
 
 **2. Elevated UMI counts.** Doublet cells have approximately 1.7–1.9x the total UMI counts of normal single cells, consistent with the signal from two captured cells:
 
-![UMI count comparison: doublets vs normal cells](doublet_umi_comparison.png)
+![UMI count comparison: doublets vs normal cells](output/presentation/doublet_umi_comparison.png)
 *Figure 3c. Total UMI count distributions for doublets vs normal cells. Both Glut+GABA and GABA+GABA doublets show elevated transcript counts, consistent with two cells' worth of RNA being captured.*
 
 **3. Transcript-level evidence.** Visualizing individual marker molecules within cell boundaries directly demonstrates the mixed identity of doublet cells. Normal cells show transcripts from only one neuronal class, while doublets contain interleaved GABAergic (red) and Glutamatergic (blue) marker molecules within a single segmented cell body:
 
-![Transcript molecules in doublet vs normal cells](doublet_transcript_examples.png)
+![Transcript molecules in doublet vs normal cells](output/presentation/doublet_transcript_examples.png)
 *Figure 3e. Individual transcript molecules within cell boundaries for doublet vs normal cells. Red dots = GABAergic marker transcripts (GAD1, GAD2, SST, PVALB, etc.); blue dots = Glutamatergic marker transcripts (CUX2, RORB, GRIN2A, THEMIS). White outlines = cell boundaries. Normal Glutamatergic cells (top-left) show only blue dots; normal GABAergic cells (bottom-left) show only red dots. Glut+GABA doublets contain both colors — direct molecular evidence that two cells' transcriptomes are captured within one segmentation boundary.*
 
 **4. Spatial context.** Doublets are found at the boundaries between cell type domains, where two adjacent cells are most likely to be captured as a single segmented object:
 
-![Spatial context of doublet cells](doublet_spatial_zoom.png)
+![Spatial context of doublet cells](output/presentation/doublet_spatial_zoom.png)
 *Figure 3d. Spatial zoom (600 µm region) showing doublet cells (white-circled stars) in tissue context. Left: cells colored by class, with doublets overlaid. Center: GABAergic marker score per cell — doublets (white circles) show high GABA marker scores despite being classified as Glutamatergic. Right: Glutamatergic marker score — the same doublets also retain high Glut marker expression, confirming mixed identity.*
 
 ### Cell Count Summary
@@ -153,10 +153,10 @@ The rationale was that recomputing PCA within each branch would allocate more va
 | Sst proportion | 12.1% (expected ~2.5%) | 12.8% |
 | Endothelial proportion | 8.1% | 0.0% (complete loss) |
 
-![Subclass proportions by method](subclass_proportions_by_method.png)
+![Subclass proportions by method](output/presentation/subclass_proportions_by_method.png)
 *Figure 4a. Subclass proportions across the three classification methods (Correlation Classifier, HANN, Flat Harmony). Note the massive Sst inflation and Endothelial distortion in the Harmony results.*
 
-![Confusion matrix: Correlation Classifier vs Harmony](subclass_confusion_corr_vs_harmony.png)
+![Confusion matrix: Correlation Classifier vs Harmony](output/presentation/subclass_confusion_corr_vs_harmony.png)
 *Figure 4b. Confusion matrix showing subclass agreement between the Correlation Classifier and Flat Harmony. Off-diagonal entries reveal systematic misassignments — e.g., non-neuronal types (VLMC, Astrocyte) being assigned to Sst by Harmony.*
 
 ### Failure Modes
@@ -174,10 +174,10 @@ The rationale was that recomputing PCA within each branch would allocate more va
 ### Per-Sample Agreement
 Agreement rates varied by sample (49-78% for flat Harmony), with SCZ samples showing systematically lower agreement (mean 66%) vs controls (mean 70%). This likely reflects composition differences rather than method instability, but it underscores that Harmony-based labels are noisier for downstream disease comparisons.
 
-![Per-sample agreement rates](per_sample_agreement.png)
+![Per-sample agreement rates](output/presentation/per_sample_agreement.png)
 *Figure 4c. Per-sample subclass agreement between Harmony and Correlation Classifier. SCZ samples (right) show systematically lower agreement than controls (left).*
 
-![Confidence distributions](confidence_distributions.png)
+![Confidence distributions](output/presentation/confidence_distributions.png)
 *Figure 4d. Confidence score distributions for each classification method. The Correlation Classifier shows high-confidence assignments (correlation values), while Harmony kNN probabilities are more diffuse.*
 
 ---
@@ -228,7 +228,7 @@ At the subclass level, the Correlation Classifier achieves substantially better 
 
 The largest deviations in the Harmony results are driven by the same failure modes identified in Section 4: Sst is inflated ~4x relative to MERFISH expectations (11.8% vs 2.0%), while VLMC is nearly absent (0.03% vs 4.5%). The Correlation Classifier, while not perfectly matching MERFISH (e.g., Endothelial is over-represented due to uncropped tissue including white matter), produces proportions that are far more consistent with the independent MERFISH reference.
 
-![Subclass proportion benchmark](cell_typing_benchmark_subclass_proportions.png)
+![Subclass proportion benchmark](output/presentation/cell_typing_benchmark_subclass_proportions.png)
 *Figure 6a. Subclass-level cell type proportions: Xenium (y-axis) vs MERFISH reference (x-axis). Left: Correlation Classifier. Right: Flat Harmony. Points are colored by cell class (glutamatergic, GABAergic, non-neuronal). Dashed line = perfect agreement. The Correlation Classifier (r = 0.80, ρ = 0.84) tracks the MERFISH reference more closely than Harmony (r = 0.73, ρ = 0.74), particularly for non-neuronal types.*
 
 ### Cell type proportions: Supertype level
@@ -242,7 +242,7 @@ At the finer supertype level, differences between methods become more pronounced
 
 The Correlation Classifier maintains reasonable agreement even at this granular level (110 matched supertypes), while Harmony's correlation drops substantially — reflecting the compounding effect of subclass-level misassignments on finer-grained type resolution.
 
-![Supertype proportion benchmark](cell_typing_benchmark_supertype_proportions.png)
+![Supertype proportion benchmark](output/presentation/cell_typing_benchmark_supertype_proportions.png)
 *Figure 6b. Supertype-level cell type proportions: Xenium vs MERFISH reference. The Correlation Classifier (left, r = 0.73, ρ = 0.80) maintains stronger agreement at this finer resolution compared to Harmony (right, r = 0.60, ρ = 0.63).*
 
 ### Laminar depth distributions
@@ -258,17 +258,17 @@ Cell type assignments should produce spatially coherent laminar distributions �
 
 Both methods produce spatially coherent depth distributions (r > 0.9), confirming that even where type assignments disagree, the spatial signal is largely preserved. This is expected: most of the depth information comes from the dominant excitatory types (L2/3 IT, L4 IT, L5 IT, L6 CT, L6b), which both methods assign with reasonable accuracy.
 
-![Median depth benchmark](cell_typing_benchmark_depth_scatter.png)
+![Median depth benchmark](output/presentation/cell_typing_benchmark_depth_scatter.png)
 *Figure 6c. Median cortical depth per subclass: Xenium vs MERFISH reference. Both methods show strong agreement (r > 0.9), but the Correlation Classifier provides estimates for all 24 subclasses while Harmony is missing two types (Endothelial, VLMC).*
 
 The excitatory neuron depth distributions provide particularly clean validation — these types have well-defined laminar positions, and both Xenium classifiers recover the expected superficial-to-deep ordering:
 
-![Depth violin plots for excitatory types](cell_typing_benchmark_depth_violins_excitatory.png)
+![Depth violin plots for excitatory types](output/presentation/cell_typing_benchmark_depth_violins_excitatory.png)
 *Figure 6d. Cortical depth distributions for excitatory neuron subclasses. Left: MERFISH reference. Center: Xenium Correlation Classifier. Right: Xenium Harmony. All three show the expected progression from superficial (L2/3 IT) to deep (L6b), but the Correlation Classifier distributions more closely match the MERFISH shapes, particularly for deeper types (L5 ET, L6 IT, L6b).*
 
 ### Spatial coherence across all types
 
-![Spatial coherence: depth by subclass](spatial_coherence_depth_by_subclass.png)
+![Spatial coherence: depth by subclass](output/presentation/spatial_coherence_depth_by_subclass.png)
 *Figure 6e. Full depth distributions for all subclasses, comparing Correlation Classifier (blue) vs Harmony (orange) assignments. Most types show overlapping distributions, confirming spatial coherence, but types with high cross-method disagreement (e.g., Sst, VLMC) show divergent depth profiles.*
 
 ---
@@ -338,17 +338,17 @@ We then ran the same two-stage correlation classifier on the nuclear-only counts
 
 The median nuclear fraction across QC-pass cells is **0.494** (49.4% of transcripts fall within the nucleus), with an IQR of [0.353, 0.637]. This varies by cell class — neuronal cells (Glutamatergic median: 0.54, GABAergic median: 0.54) tend to have higher nuclear fractions than non-neuronal cells (median: 0.47). The median nuclear UMI per cell is 385, sufficient for correlation-based classification (only 4.7% of cells have fewer than 50 nuclear UMIs).
 
-![Nuclear Fraction Distribution](nuclear_fraction_histogram.png)
+![Nuclear Fraction Distribution](output/presentation/nuclear_fraction_histogram.png)
 
 Nuclear fraction also varies by subclass, from ~0.38 (Lamp5 Lhx6, VLMC, Endothelial) to ~0.61 (Oligodendrocyte). Most neuronal subclasses have nuclear fractions in the 0.50–0.60 range.
 
-![Nuclear Fraction by Subclass](nuclear_fraction_by_subclass.png)
+![Nuclear Fraction by Subclass](output/presentation/nuclear_fraction_by_subclass.png)
 
 ### Classification Concordance
 
 At the **class level** (Glutamatergic / GABAergic / Non-neuronal), nuclear and whole-cell classifications agree for **96.9%** of cells (65,603 / 67,688). At the **subclass level** (24 types), concordance is **89.2%** (60,400 / 67,688). The highest concordance subclasses include Oligodendrocyte (99.2%), Pvalb (95.7%), and Microglia-PVM (94.8%). The lowest concordance types (L5 ET: 41.4%, Lamp5 Lhx6: 49.5%, Chandelier: 57.1%) are rare types where the reduced nuclear UMI count may limit discrimination.
 
-![Classification Concordance](nuclear_vs_wholecell_concordance.png)
+![Classification Concordance](output/presentation/nuclear_vs_wholecell_concordance.png)
 
 ### Doublet Rate Reduction
 
@@ -362,7 +362,7 @@ The key result: nuclear-only classification dramatically reduces detected double
 
 This 61% reduction in total doublets strongly supports the hypothesis that the majority of spatial doublets are driven by cytoplasmic mRNA spillover between neighboring cells. The remaining 335 nuclear doublets may represent true biological co-expression, physically overlapping nuclei, or residual segmentation artifacts at the nuclear boundary.
 
-![Doublet Rate Comparison](nuclear_vs_wholecell_doublet_rates.png)
+![Doublet Rate Comparison](output/presentation/nuclear_vs_wholecell_doublet_rates.png)
 
 Panel B shows the GABA marker score distribution for Glutamatergic cells. The 562 cells that are doublets by whole-cell but NOT by nuclear counting (red dots) tend to have high whole-cell GABA scores but low nuclear GABA scores — confirming that the GABA transcripts are predominantly in the cytoplasm, not the nucleus. The 113 persistent doublets (purple dots) maintain high GABA scores in both compartments.
 
@@ -370,7 +370,7 @@ Panel B shows the GABA marker score distribution for Glutamatergic cells. The 56
 
 Despite using ~50% fewer total UMIs, nuclear classification remains robust. The median subclass correlation drops only modestly from 0.805 (whole-cell) to 0.763 (nuclear). Discordant cells tend to have lower nuclear correlations (median ~0.65 vs ~0.77 for concordant cells), suggesting that classification changes are partly driven by the reduced information content of nuclear-only data.
 
-![Classification Quality](nuclear_classification_quality.png)
+![Classification Quality](output/presentation/nuclear_classification_quality.png)
 
 ### Implications
 
@@ -410,7 +410,7 @@ For each of the 24 samples, the pipeline:
 
 ### Aggregate Results Across 24 Samples
 
-![Nuclear doublet resolution summary](nuclear_doublet_resolution_summary.png)
+![Nuclear doublet resolution summary](output/presentation/nuclear_doublet_resolution_summary.png)
 *Figure 10a. Nuclear doublet resolution outcomes across all 24 samples. Left: per-sample counts of resolved (green), persistent (red), insufficient (gray), and nuclear-only (orange) doublets. Right: aggregate resolution rate. The majority of whole-cell doublets (75.8%) are resolved by nuclear-only classification, confirming cytoplasmic spillover as the dominant source.*
 
 | Category | Count | % of Flagged |
@@ -423,7 +423,7 @@ For each of the 24 samples, the pipeline:
 
 The overall resolution rate is **75.8%** (range: 68–83% across samples), consistent with the Br8667 pilot result (76.2%). Resolution rates are similar for both doublet types: Glut+GABA doublets resolve at 73.6% (6,421/8,727) and GABA+GABA doublets at 85.5% (1,520/1,778).
 
-![Nuclear doublet marker evidence](nuclear_doublet_marker_evidence.png)
+![Nuclear doublet marker evidence](output/presentation/nuclear_doublet_marker_evidence.png)
 *Figure 10b. Marker expression evidence for doublet resolution. Resolved doublets show high marker scores in the whole-cell compartment but low scores in the nuclear compartment, confirming cytoplasmic spillover. Persistent doublets maintain high marker scores in both compartments.*
 
 ### High-UMI Cell Rescue
@@ -434,7 +434,7 @@ The hybrid pipeline identifies **18,427 high-UMI-only failures** across all samp
 
 ### Impact on Cell Counts
 
-![QC mode comparison: cell counts](qc_mode_comparison_counts.png)
+![QC mode comparison: cell counts](output/presentation/qc_mode_comparison_counts.png)
 *Figure 10c. Cell count comparison between corr QC (original) and hybrid QC (with nuclear doublet resolution). The hybrid filter is slightly more permissive overall, rescuing high-UMI cells and resolved doublets while adding nuclear-only doublet exclusions.*
 
 | QC Step | Cells |
@@ -454,18 +454,18 @@ The hybrid QC filter passes 24,028 more cells than the original corr_qc_pass fil
 
 The critical validation: hybrid QC produces **near-identical** SCZ vs Control results to the original corr QC, confirming that the rescued cells do not introduce systematic bias.
 
-![QC mode comparison: crumblr results](qc_mode_comparison_crumblr.png)
+![QC mode comparison: crumblr results](output/presentation/qc_mode_comparison_crumblr.png)
 *Figure 10d. Compositional regression (crumblr) effect sizes: corr QC vs hybrid QC. Each point is a cell type (subclass level). The logFC values are nearly identical (r = 0.9998), and the same two types reach FDR < 0.05 under both filters: L6b (increased in SCZ, FDR = 0.005) and Endothelial (decreased in SCZ, FDR = 0.027).*
 
-![QC mode comparison: SCZ vs control effect sizes](nuclear_doublet_scz_vs_control.png)
+![QC mode comparison: SCZ vs control effect sizes](output/presentation/nuclear_doublet_scz_vs_control.png)
 *Figure 10e. Per-subclass SCZ vs Control effect sizes under hybrid QC. L6b shows a consistent increase across SCZ samples (logFC = +0.47, FDR = 0.005), while Endothelial shows a decrease (logFC = −0.21, FDR = 0.027). Both signals are robust to the choice of QC filter.*
 
-![QC mode comparison: differential expression](qc_mode_comparison_de.png)
+![QC mode comparison: differential expression](output/presentation/qc_mode_comparison_de.png)
 *Figure 10f. Pseudobulk differential expression comparison between QC modes. The per-gene logFC values are highly correlated across all tested cell types, confirming that the hybrid filter does not alter gene-level disease signals.*
 
 ### Aggregate Doublet Table
 
-![Nuclear doublet aggregate statistics](nuclear_doublet_aggregate_table.png)
+![Nuclear doublet aggregate statistics](output/presentation/nuclear_doublet_aggregate_table.png)
 *Figure 10g. Per-sample nuclear doublet resolution statistics. Shows whole-cell doublet counts, resolution outcomes (resolved/persistent/insufficient/nuclear-only), resolution rates, and hybrid QC pass counts for all 24 samples.*
 
 ### Updated Cell Count Summary

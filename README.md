@@ -2,6 +2,11 @@
 
 Analysis pipeline for 24 Xenium spatial transcriptomics samples (12 schizophrenia, 12 control) from human dorsolateral prefrontal cortex (DLPFC).
 
+**Key documents:**
+- **[Pipeline Rationale](#pipeline-philosophy--design-rationale)** — Why the pipeline is structured this way and key design decisions
+- **[Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md)** — Detailed methods writeup with figures: classification approaches, doublet resolution, MERFISH benchmarking, ablation studies
+- **[Data Download Instructions](DATA.md)** — How to obtain all input datasets
+
 ## Datasets & References
 
 ### Xenium SCZ Data
@@ -24,6 +29,44 @@ Cell type annotation and cortical depth modeling use reference data from the Sea
 - [Allen Brain Cell Atlas portal](https://portal.brain-map.org/)
 
 See **[DATA.md](DATA.md)** for complete download instructions.
+
+## Pipeline Philosophy & Design Rationale
+
+### Goal
+
+The primary goal of this pipeline is **robust cell type proportion comparisons between schizophrenia and control tissue** using compositional regression (crumblr). This requires accurate, consistent cell type assignment across all 24 Xenium samples — errors in cell typing translate directly into false positives or missed signals in downstream disease comparisons. A secondary goal is cortical depth modeling, enabling layer-specific analyses of cell type composition.
+
+### The core challenge
+
+Xenium measures only 300 genes per cell (vs 20,000+ in snRNAseq), which makes cell type classification fundamentally harder — many cell types that are distinguishable with a full transcriptome become ambiguous with a curated marker panel. Standard cross-platform integration methods (e.g., Harmony) introduce systematic artifacts when bridging modalities at this reduced gene count: in our benchmarking, Harmony misclassified non-neuronal types into GABAergic categories (Sst inflated ~5x) and achieved only 69% agreement with our final classifier. We needed a classification approach that works entirely *within* the Xenium feature space rather than trying to align across modalities.
+
+### Key design decisions
+
+- **Self-referencing classification over cross-modality integration.** Rather than integrating Xenium with snRNAseq via Harmony, we use Allen Institute's MapMyCells for initial hierarchical labels, then build a Pearson correlation classifier from the top-100 highest-confidence Xenium exemplars per cell type. Because centroids are built from Xenium data itself, they inherently capture platform-specific expression characteristics — no cross-platform normalization needed. This achieves Pearson r = 0.80 against independent MERFISH proportions (vs r = 0.73 for Harmony). See the [detailed methods writeup](cell_typing_methods_writeup.md) for full benchmarking.
+
+- **Accuracy of cell type calls over transcript purity.** Our goal is correct cell *type* assignment for proportion analysis, not accurate per-cell expression profiles. Xenium cell segmentation inevitably captures some mRNA from neighboring cells (cytoplasmic spillover), but this does not substantially affect correlation-based cell type calls — the classifier is robust to noise in individual genes as long as the overall expression profile matches. We track spillover via `nuclear_fraction` (median ~49% of transcripts fall within the nucleus) but do not attempt to deconvolve it.
+
+- **Flag-based QC rather than hard filtering.** The pipeline never removes cells from the h5ad files. Instead, it adds progressive QC flag columns — `qc_pass` (step 01), `corr_qc_pass` and `doublet_suspect` (step 02b), `hybrid_qc_pass` and `nuclear_doublet_status` (step 04) — so that downstream analyses can choose their own filtering stringency. All data is preserved and QC decisions are transparent and reversible.
+
+- **Nuclear evidence for doublet resolution.** Rather than simply discarding cells flagged as spatial doublets (~10,500 cells), we build nuclear-only count matrices by intersecting transcript coordinates with nucleus boundary polygons. This distinguishes cytoplasmic spillover (where mixed-type signal is in the cytoplasm only — safely resolvable) from true multi-cell captures (mixed signal in the nucleus too). Approximately 76% of flagged doublets are resolved as spillover and rescued, while maintaining stringent filtering for genuine doublets.
+
+- **External validation at every step.** Cell type proportions are benchmarked against SEA-AD MERFISH (an independent spatial dataset with 341K cortical cells), depth distributions are validated against manually annotated cortical layers, and doublet detection thresholds are calibrated against snRNAseq false-positive rates (0.098% at our threshold). No result is accepted on internal consistency alone.
+
+### What we did NOT optimize for
+
+- **Per-cell expression accuracy.** Some transcripts from neighboring cells leak into cell boundaries. We track this but do not attempt to correct it, since it does not substantially affect cell type assignments or compositional analyses.
+- **Rare cell type discovery.** The 300-gene panel and correlation-based classifier are optimized for the 24 known SEA-AD subclasses. Cells that don't match any known type receive low correlation scores but are still assigned to the best-matching subclass.
+- **Single-cell differential expression.** While we include pseudobulk DE as a downstream analysis, the pipeline is primarily designed for compositional proportion comparisons. Expression-level analyses should account for the 300-gene panel limitations and potential spillover effects.
+
+### QC strategy
+
+Quality control builds progressively across pipeline steps: basic spatial QC (step 01) flags cells with aberrant negative control probes or extreme UMI counts; the correlation classifier (step 02b) adds margin-based and spatial doublet flags; nuclear doublet resolution (step 04) uses nuclear-only evidence to refine doublet calls and rescue high-UMI cells that were conservatively excluded. Each layer adds QC columns rather than discarding cells — the final `hybrid_qc_pass` column integrates all evidence and is the recommended filter for downstream analyses.
+
+The Br2039 sample (54% white matter, SCZ) is processed through the full pipeline but excluded from disease comparisons in analysis scripts via `EXCLUDE_SAMPLES` due to its atypical tissue composition.
+
+### Reference datasets
+
+Three external datasets serve distinct roles: **SEA-AD MERFISH** (1.9M cells, 180 genes) provides the training data for the cortical depth model and an independent benchmark for cell type proportions. **SEA-AD snRNAseq** (137K cells, 36K genes) provides ground-truth doublet false-positive rates and a full-transcriptome reference. **MapMyCells precomputed statistics** enable the initial hierarchical cell type annotation that seeds the correlation classifier. The 300-gene Xenium panel has 100% gene overlap with the snRNAseq reference but only 23 genes overlapping with MERFISH — which is why MERFISH is used for spatial reference and depth modeling, not direct cell typing.
 
 ## Directory Structure
 
@@ -312,12 +355,12 @@ Each `{sample}_annotated.h5ad` contains:
 | `corr_qc_pass` | bool | Passes both margin QC and doublet QC |
 | `doublet_suspect` | bool | Suspected spatial doublet |
 | `doublet_type` | str | '' / 'Glut+GABA' / 'GABA+GABA' |
-| **Depth & layers (steps 03-04)** | | |
+| **Depth & layers (steps 05-06)** | | |
 | `predicted_norm_depth` | float64 | Predicted normalized cortical depth (0=pia, 1=WM) |
 | `spatial_domain` | category | Cortical / Extra-cortical / Vascular |
 | `layer` | category | L1 / L2/3 / L4 / L5 / L6 / WM / Vascular |
 | `layer_depth_only` | category | Layer from depth bins only (no Vascular override) |
-| **Nuclear doublet resolution (step 06)** | | |
+| **Nuclear doublet resolution (step 04)** | | |
 | `nuclear_total_counts` | int | Total UMI counts from nuclear-only transcripts |
 | `nuclear_n_genes` | int | Number of genes detected in nuclear transcripts |
 | `nuclear_fraction` | float32 | Fraction of UMIs in nucleus vs whole cell |
@@ -328,7 +371,7 @@ Each `{sample}_annotated.h5ad` contains:
 
 **Notes:**
 - The correlation classifier columns (`corr_*`, `doublet_*`) are present only in samples processed through step 02b. Analysis scripts prefer `corr_subclass`/`corr_supertype` when available, falling back to HANN labels otherwise.
-- The nuclear doublet columns are present only in samples processed through step 06. Analysis scripts support `qc_mode='hybrid'` to use `hybrid_qc_pass` instead of the default `corr_qc_pass`, with automatic fallback if step 06 hasn't been run.
+- The nuclear doublet columns are present only in samples processed through step 04. Analysis scripts support `qc_mode='hybrid'` to use `hybrid_qc_pass` instead of the default `corr_qc_pass`, with automatic fallback if step 04 hasn't been run.
 
 ## Cell Type Taxonomy
 
