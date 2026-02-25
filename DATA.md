@@ -12,9 +12,10 @@ data/
 │   ├── GSM9223468_Br2039-cell_feature_matrix.h5
 │   ├── GSM9223468_Br2039-cell_boundaries.csv.gz
 │   ├── GSM9223468_Br2039-nucleus_boundaries.csv.gz
+│   ├── GSM9223468_Br2039-transcripts.zarr.zip
 │   ├── GSM9223469_Br2719-cell_feature_matrix.h5
-│   ├── ...                           # (24 samples x 3 files = 72 files)
-│   └── GSM9223491_Br8772-nucleus_boundaries.csv.gz
+│   ├── ...                           # (24 samples x 4 files = 96 files)
+│   └── GSM9223491_Br8772-transcripts.zarr.zip
 ├── reference/                        # Reference datasets (Steps 2-4)
 │   ├── SEAAD_MTG_MERFISH.2024-12-11.h5ad
 │   ├── nicole_sea_ad_snrnaseq_reference.h5ad
@@ -39,18 +40,19 @@ mkdir -p data/raw
 cd data/raw
 
 # Option A: Download from GEO FTP (when available)
-wget -r -np -nd -A "*.h5,*.csv.gz" \
+wget -r -np -nd -A "*.h5,*.csv.gz,*.zarr.zip" \
   https://ftp.ncbi.nlm.nih.gov/geo/series/GSE307nnn/GSE307404/suppl/
 
 # Option B: Use GEOquery or the GEO download manager from the accession page
 ```
 
-**Contents:** 24 Xenium sections (12 schizophrenia, 12 control) from human dorsolateral prefrontal cortex (DLPFC). Each sample has 3 files:
+**Contents:** 24 Xenium sections (12 schizophrenia, 12 control) from human dorsolateral prefrontal cortex (DLPFC). Each sample has 4 files:
 - `cell_feature_matrix.h5` — Gene expression counts (541 features: 300 genes + controls)
 - `cell_boundaries.csv.gz` — Cell boundary polygons
 - `nucleus_boundaries.csv.gz` — Nucleus boundary polygons
+- `transcripts.zarr.zip` — Molecule-level transcript coordinates in Zarr format (x, y positions for every detected RNA molecule; used by step 03 for transcript export and step 04 for nuclear doublet resolution)
 
-**Total size:** ~809 MB
+**Total size:** ~34 GB (~809 MB for cell matrices + boundaries, ~33 GB for transcript coordinate archives)
 
 ---
 
@@ -58,7 +60,7 @@ wget -r -np -nd -A "*.h5,*.csv.gz" \
 
 **Source:** [Gabitto et al. (2024)](https://doi.org/10.1038/s41593-024-01774-5) — Seattle Alzheimer's Disease Brain Cell Atlas.
 
-**Used for:** Training the cortical depth model (step 03), fitting the OOD/spatial domain classifier (step 04), and cell type proportion validation against Xenium.
+**Used for:** Training the cortical depth model (step 05), fitting the OOD/spatial domain classifier (step 06), and cell type proportion validation against Xenium.
 
 ```bash
 mkdir -p data/reference
@@ -125,8 +127,9 @@ The file `sample_metadata.xlsx` is already included in the repository. It contai
 
 | Dataset | Size | Required? | Source |
 |---------|------|-----------|--------|
-| Raw Xenium data | 809 MB | Yes | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
+| Raw Xenium data (matrices + boundaries) | 809 MB | Yes | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
+| Raw Xenium transcript coordinates | ~33 GB | Yes (steps 03-04) | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
 | SEA-AD MERFISH | 3.1 GB | Yes | [Allen Brain Cell Atlas](https://sea-ad-spatial-transcriptomics.s3.us-west-2.amazonaws.com/middle-temporal-gyrus/all_donors-h5ad/SEAAD_MTG_MERFISH.2024-12-11.h5ad) |
 | SEA-AD snRNAseq (Nicole's) | 9 GB | Yes | Converted from Nicole's RDS files (see Step 4) |
 | MapMyCells stats | 251 MB | Yes (step 02) | [Allen Brain Cell Atlas](https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/mapmycells/SEAAD/20240831/precomputed_stats.20231120.sea_ad.MTG.h5) |
-| **Total required** | **~13 GB** | | |
+| **Total required** | **~46 GB** | | |

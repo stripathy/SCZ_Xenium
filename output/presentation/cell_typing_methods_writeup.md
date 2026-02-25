@@ -117,9 +117,9 @@ The heatmap below shows individual cells, confirming that the mixed expression i
 | Raw (all cells) | 1,293,253 | — | — |
 | Step 01: spatial QC | 1,275,006 | 18,247 | 1.4% |
 | Step 02b: corr_qc_pass | 1,233,859 | 41,147 | 3.2% |
-| Step 06: hybrid_qc_pass (final) | 1,257,887 | 17,119 | 1.3% |
+| Step 04: hybrid_qc_pass (final) | 1,257,887 | 17,119 | 1.3% |
 
-*See Section 10 for full hybrid nuclear doublet resolution details.*
+*Note: Cell counts reflect 23 analysis-eligible samples (excluding Br2039 WM outlier). Counts will be updated after the full pipeline is re-run on all 24 samples. See Section 10 for full hybrid nuclear doublet resolution details.*
 
 ---
 
@@ -153,10 +153,10 @@ The rationale was that recomputing PCA within each branch would allocate more va
 | Sst proportion | 12.1% (expected ~2.5%) | 12.8% |
 | Endothelial proportion | 8.1% | 0.0% (complete loss) |
 
-![Subclass proportions by method](../plots/harmony_validation/subclass_proportions_by_method.png)
+![Subclass proportions by method](subclass_proportions_by_method.png)
 *Figure 4a. Subclass proportions across the three classification methods (Correlation Classifier, HANN, Flat Harmony). Note the massive Sst inflation and Endothelial distortion in the Harmony results.*
 
-![Confusion matrix: Correlation Classifier vs Harmony](../plots/harmony_validation/subclass_confusion_corr_vs_harmony.png)
+![Confusion matrix: Correlation Classifier vs Harmony](subclass_confusion_corr_vs_harmony.png)
 *Figure 4b. Confusion matrix showing subclass agreement between the Correlation Classifier and Flat Harmony. Off-diagonal entries reveal systematic misassignments — e.g., non-neuronal types (VLMC, Astrocyte) being assigned to Sst by Harmony.*
 
 ### Failure Modes
@@ -174,10 +174,10 @@ The rationale was that recomputing PCA within each branch would allocate more va
 ### Per-Sample Agreement
 Agreement rates varied by sample (49-78% for flat Harmony), with SCZ samples showing systematically lower agreement (mean 66%) vs controls (mean 70%). This likely reflects composition differences rather than method instability, but it underscores that Harmony-based labels are noisier for downstream disease comparisons.
 
-![Per-sample agreement rates](../plots/harmony_validation/per_sample_agreement.png)
+![Per-sample agreement rates](per_sample_agreement.png)
 *Figure 4c. Per-sample subclass agreement between Harmony and Correlation Classifier. SCZ samples (right) show systematically lower agreement than controls (left).*
 
-![Confidence distributions](../plots/harmony_validation/confidence_distributions.png)
+![Confidence distributions](confidence_distributions.png)
 *Figure 4d. Confidence score distributions for each classification method. The Correlation Classifier shows high-confidence assignments (correlation values), while Harmony kNN probabilities are more diffuse.*
 
 ---
@@ -214,7 +214,7 @@ To provide an independent, external validation of both cell typing approaches, w
 ### Benchmarking setup
 
 - **MERFISH reference**: 341,595 cortical cells from 27 donors, restricted to cells with manual Layer annotations (L1–L6). This provides gold-standard cell type proportions and depth distributions within a defined cortical column.
-- **Xenium data**: 911,984 cortical cells (all QC-pass cells assigned to cortical layers by the depth model, with `corr_qc_pass` filter applied). Proportions pooled across all 23 samples (both SCZ and control), since we are benchmarking cell typing accuracy, not disease effects.
+- **Xenium data**: 911,984 cortical cells (all QC-pass cells assigned to cortical layers by the depth model, with `corr_qc_pass` filter applied). Proportions pooled across all 24 samples (both SCZ and control), since we are benchmarking cell typing accuracy, not disease effects.
 - **Harmony labels**: Flat Harmony (69.4% agreement) used for comparison; hierarchical Harmony was excluded due to its worse overall performance.
 
 ### Cell type proportions: Subclass level
@@ -268,7 +268,7 @@ The excitatory neuron depth distributions provide particularly clean validation 
 
 ### Spatial coherence across all types
 
-![Spatial coherence: depth by subclass](../plots/harmony_validation/spatial_coherence_depth_by_subclass.png)
+![Spatial coherence: depth by subclass](spatial_coherence_depth_by_subclass.png)
 *Figure 6e. Full depth distributions for all subclasses, comparing Correlation Classifier (blue) vs Harmony (orange) assignments. Most types show overlapping distributions, confirming spatial coherence, but types with high cross-method disagreement (e.g., Sst, VLMC) show divergent depth profiles.*
 
 ---
@@ -292,7 +292,7 @@ Key finding: The L6b increase in SCZ (FDR ~0.004-0.005) and Endothelial decrease
 
 ## 8. Pipeline Summary (Pre–Nuclear Doublet Resolution)
 
-*Note: This section describes the pipeline as it stood before the addition of nuclear doublet resolution (step 06). See Section 11 for the current full pipeline summary.*
+*Note: This section describes the pipeline as it stood before the addition of nuclear doublet resolution (step 04). See Section 11 for the current full pipeline summary.*
 
 ```
 Step 01: Spatial QC (negative probes, gene counts, total counts)
@@ -309,8 +309,8 @@ Step 02b: Two-stage correlation classifier
     → QC: Flag bottom 1% margin per sample + spatial doublets
     → 1,233,859 cells pass corr_qc_pass
 
-Step 03: Cortical depth model (trained on MERFISH reference)
-Step 04: Spatial domain annotation
+Step 05: Cortical depth model (trained on MERFISH reference)
+Step 06: Spatial domain annotation
 
 Analysis: Cortical cells → crumblr compositional analysis
 ```
@@ -383,17 +383,17 @@ This analysis demonstrates that:
 
 ---
 
-## 10. Hybrid Nuclear Doublet Resolution: Full Pipeline (All 23 Samples)
+## 10. Hybrid Nuclear Doublet Resolution: Full Pipeline (All 24 Samples)
 
 ### Motivation
 
-The Br8667 pilot (Section 9) demonstrated that nuclear-only classification resolves ~61% of spatial doublets by removing cytoplasmic spillover. We scaled this to all 23 samples as pipeline step 06, producing a **hybrid QC filter** that combines nuclear-informed doublet resolution with the existing correlation-based QC — rescuing cells that were conservatively excluded while maintaining stringent doublet filtering.
+The Br8667 pilot (Section 9) demonstrated that nuclear-only classification resolves ~61% of spatial doublets by removing cytoplasmic spillover. We scaled this to all 24 samples as pipeline step 04, producing a **hybrid QC filter** that combines nuclear-informed doublet resolution with the existing correlation-based QC — rescuing cells that were conservatively excluded while maintaining stringent doublet filtering.
 
 ### Method
 
-For each of the 23 samples, the pipeline:
+For each of the 24 samples, the pipeline:
 
-1. **Loads transcript coordinates** from step 05 (per-gene JSON files with molecule x/y positions)
+1. **Loads transcript coordinates** from step 03 (per-gene JSON files with molecule x/y positions)
 2. **Builds nuclear count matrices** by intersecting transcript coordinates with nucleus boundary polygons using Shapely STRtree spatial indexing
 3. **Classifies each doublet-flagged cell** using nuclear-only counts against the pre-built correlation centroids (from step 02b):
    - **Resolved**: Nuclear classification agrees with the *non-doublet* class identity (e.g., a Glutamatergic cell flagged as Glut+GABA doublet where the nuclear classification is purely Glutamatergic — confirming the GABA signal came from cytoplasmic spillover)
@@ -408,10 +408,10 @@ For each of the 23 samples, the pipeline:
    - **Nuclear-only doublets → FAIL** (new doublets detected only at the nuclear level)
    - **Insufficient evidence → FAIL** (conservative)
 
-### Aggregate Results Across 23 Samples
+### Aggregate Results Across 24 Samples
 
 ![Nuclear doublet resolution summary](nuclear_doublet_resolution_summary.png)
-*Figure 10a. Nuclear doublet resolution outcomes across all 23 samples. Left: per-sample counts of resolved (green), persistent (red), insufficient (gray), and nuclear-only (orange) doublets. Right: aggregate resolution rate. The majority of whole-cell doublets (75.8%) are resolved by nuclear-only classification, confirming cytoplasmic spillover as the dominant source.*
+*Figure 10a. Nuclear doublet resolution outcomes across all 24 samples. Left: per-sample counts of resolved (green), persistent (red), insufficient (gray), and nuclear-only (orange) doublets. Right: aggregate resolution rate. The majority of whole-cell doublets (75.8%) are resolved by nuclear-only classification, confirming cytoplasmic spillover as the dominant source.*
 
 | Category | Count | % of Flagged |
 |----------|-------|-------------|
@@ -442,7 +442,7 @@ The hybrid pipeline identifies **18,427 high-UMI-only failures** across all samp
 | Raw (all cells) | 1,293,253 |
 | Step 01: spatial QC | 1,275,006 |
 | Step 02b: corr_qc_pass (original) | 1,233,859 |
-| **Step 06: hybrid_qc_pass (nuclear-informed)** | **1,257,887** |
+| **Step 04: hybrid_qc_pass (nuclear-informed)** | **1,257,887** |
 | Net rescued by hybrid | +24,028 |
 
 The hybrid QC filter passes 24,028 more cells than the original corr_qc_pass filter, primarily from:
@@ -466,7 +466,7 @@ The critical validation: hybrid QC produces **near-identical** SCZ vs Control re
 ### Aggregate Doublet Table
 
 ![Nuclear doublet aggregate statistics](nuclear_doublet_aggregate_table.png)
-*Figure 10g. Per-sample nuclear doublet resolution statistics. Shows whole-cell doublet counts, resolution outcomes (resolved/persistent/insufficient/nuclear-only), resolution rates, and hybrid QC pass counts for all 23 samples.*
+*Figure 10g. Per-sample nuclear doublet resolution statistics. Shows whole-cell doublet counts, resolution outcomes (resolved/persistent/insufficient/nuclear-only), resolution rates, and hybrid QC pass counts for all 24 samples.*
 
 ### Updated Cell Count Summary
 
@@ -475,7 +475,9 @@ The critical validation: hybrid QC produces **near-identical** SCZ vs Control re
 | Raw (all cells) | 1,293,253 | — | — |
 | Step 01: spatial QC | 1,275,006 | 18,247 | 1.4% |
 | Step 02b: corr_qc_pass (original) | 1,233,859 | 41,147 | 3.2% |
-| **Step 06: hybrid_qc_pass (final)** | **1,257,887** | **17,119** | **1.3%** |
+| **Step 04: hybrid_qc_pass (final)** | **1,257,887** | **17,119** | **1.3%** |
+
+*Note: Cell counts reflect 23 analysis-eligible samples (excluding Br2039 WM outlier). Counts will be updated after the full pipeline is re-run on all 24 samples.*
 
 The hybrid QC pipeline is now the default for all downstream analyses. It produces a net gain of 24,028 cells relative to the original corr_qc_pass filter while maintaining identical disease effect estimates — a principled improvement that validates the nuclear doublet resolution approach.
 

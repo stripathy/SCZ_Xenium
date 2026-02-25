@@ -42,7 +42,7 @@ from pipeline_config import (
 
 # Shared constants
 sys.path.insert(0, MODULES_DIR)
-from constants import SAMPLE_TO_DX, EXCLUDE_SAMPLES, SUBCLASS_TO_CLASS
+from constants import SAMPLE_TO_DX, SUBCLASS_TO_CLASS
 
 # Correlation classifier module
 sys.path.insert(0, MODULES_DIR)
@@ -69,7 +69,7 @@ def main():
     print("=" * 70)
 
     # ── Load all samples ──
-    sample_ids = sorted(set(SAMPLE_TO_DX.keys()) - EXCLUDE_SAMPLES)
+    sample_ids = sorted(SAMPLE_TO_DX.keys())
 
     print(f"\nLoading {len(sample_ids)} samples...")
     adatas = []

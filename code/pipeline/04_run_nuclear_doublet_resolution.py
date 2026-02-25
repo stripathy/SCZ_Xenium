@@ -48,7 +48,7 @@ from pipeline_config import (
 
 # Shared constants + modules
 sys.path.insert(0, MODULES_DIR)
-from constants import SAMPLE_TO_DX, EXCLUDE_SAMPLES, SUBCLASS_TO_CLASS
+from constants import SAMPLE_TO_DX, SUBCLASS_TO_CLASS
 from nuclear_counts import (
     load_nucleus_polygons,
     build_nuclear_count_matrix,
@@ -97,7 +97,7 @@ def find_ready_samples(requested=None):
     nuc_boundaries = discover_nucleus_boundaries()
     transcript_dirs = discover_transcript_dirs()
 
-    sample_ids = sorted(set(SAMPLE_TO_DX.keys()) - EXCLUDE_SAMPLES)
+    sample_ids = sorted(SAMPLE_TO_DX.keys())
     if requested:
         sample_ids = [s for s in requested if s in sample_ids]
 

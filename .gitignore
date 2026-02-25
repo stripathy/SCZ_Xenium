@@ -63,6 +63,7 @@ plots/
 # ──────────────────────────────────────────────────────────────────────
 output/**/*.png
 output/*.png
+!output/presentation/*.png
 output/**/*.pptx
 output/**/*.pdf
 

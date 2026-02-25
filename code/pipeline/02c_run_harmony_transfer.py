@@ -41,7 +41,7 @@ from pipeline_config import H5AD_DIR, SNRNASEQ_REF_PATH
 # Shared constants
 MODULES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "modules")
 sys.path.insert(0, MODULES_DIR)
-from constants import EXCLUDE_SAMPLES, SUBCLASS_TO_CLASS
+from constants import SUBCLASS_TO_CLASS
 
 # ── Settings ──
 N_PCS = 30          # PCA components (fewer than usual given 300 genes)
@@ -171,10 +171,6 @@ def load_xenium_samples(shared_genes):
     sample_obs_list = []
     for fname in h5ad_files:
         sample_id = fname.replace("_annotated.h5ad", "")
-        if sample_id in EXCLUDE_SAMPLES:
-            print(f"  Skipping excluded sample: {sample_id}")
-            continue
-
         adata = ad.read_h5ad(os.path.join(H5AD_DIR, fname))
 
         if "qc_pass" in adata.obs.columns:
