@@ -2,7 +2,7 @@
 Nuclear-only transcript counting via point-in-polygon spatial queries.
 
 Assigns each transcript molecule to the nucleus polygon it falls within,
-producing a nuclear-only count matrix. Used by pipeline step 06 for hybrid
+producing a nuclear-only count matrix. Used by pipeline step 04 for hybrid
 nuclear doublet resolution.
 
 Key functions:

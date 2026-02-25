@@ -497,21 +497,21 @@ Step 02b: Two-stage correlation classifier
     → Stage 1: Subclass assignment via Pearson correlation (24 types)
     → Stage 2: Supertype assignment within subclass
     → QC: Flag bottom 1% margin per sample + spatial doublets
-    → Save centroids to disk for step 06
+    → Save centroids to disk for step 04
 
-Step 03: Cortical depth model (trained on MERFISH reference)
-Step 04: Spatial domain annotation + layer assignment
+Step 03: Export transcript coordinates (feeds step 04 + viewer)
 
-Step 05: Export transcript coordinates (feeds step 06 + viewer)
-
-Step 06: Nuclear doublet resolution (hybrid QC)
+Step 04: Nuclear doublet resolution (hybrid QC)
     → Build nuclear count matrices from transcript coordinates
     → Reclassify doublets using nuclear-only counts
     → Rescue high-UMI cells, reinstate resolved doublets
     → 1,257,887 cells pass hybrid_qc_pass
 
+Step 05: Cortical depth model (trained on MERFISH, uses hybrid_qc_pass)
+Step 06: Spatial domain annotation + layer assignment (uses hybrid_qc_pass)
+
 Step 07: Viewer export (per-sample JSON + standalone HTML)
-Step 08: Cell boundary polygon export
+Step 08: Cell + nucleus boundary polygon export
 
 Analysis: Cortical cells → crumblr compositional regression (SCZ vs Control)
 ```

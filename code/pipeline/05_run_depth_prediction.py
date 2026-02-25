@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """
-Step 3: Retrain depth model from MERFISH and predict depth for all Xenium samples.
+Step 5: Retrain depth model from MERFISH and predict depth for all Xenium samples.
 
 This retrains the GradientBoostingRegressor depth model from the SEA-AD MERFISH
 reference (using K=50 neighborhood composition features), then applies it to all
-24 Xenium samples. Also fits the 1-NN model for OOD scoring (used by step 04).
+24 Xenium samples. Uses hybrid_qc_pass (from step 04) when available to exclude
+confirmed doublets from neighborhood features. Also fits the 1-NN model for OOD
+scoring (used by step 06).
 
 Saves:
   - output/depth_model_normalized.pkl (model bundle with OOD calibration)
   - Updates predicted_norm_depth column in each h5ad file
 
 Usage:
-    python3 -u 03_run_depth_prediction.py
+    python3 -u 05_run_depth_prediction.py
 """
 
 import os
@@ -54,9 +56,14 @@ def _process_sample(h5ad_path):
 
     try:
         adata = ad.read_h5ad(h5ad_path)
-        qc_mask = adata.obs.get("qc_pass", np.ones(adata.shape[0], dtype=bool))
-        if hasattr(qc_mask, 'values'):
-            qc_mask = qc_mask.values.astype(bool)
+        # Prefer hybrid_qc_pass (from step 04) to exclude confirmed doublets
+        # from neighborhood features; fall back to qc_pass if step 04 not run
+        if 'hybrid_qc_pass' in adata.obs.columns:
+            qc_mask = adata.obs['hybrid_qc_pass'].values.astype(bool)
+        else:
+            qc_mask = adata.obs.get("qc_pass", np.ones(adata.shape[0], dtype=bool))
+            if hasattr(qc_mask, 'values'):
+                qc_mask = qc_mask.values.astype(bool)
         adata_pass = adata[qc_mask].copy()
 
         # Predict depth (without OOD — that happens in step 04)

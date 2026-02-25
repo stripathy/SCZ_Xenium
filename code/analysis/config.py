@@ -203,7 +203,7 @@ def load_cells(sample_id, cortical_only=False, extra_obs_columns=None,
     # Determine effective QC mode
     effective_mode = qc_mode
     if effective_mode == 'hybrid' and not has_hybrid:
-        effective_mode = 'corr'  # fallback if step 06 hasn't run
+        effective_mode = 'corr'  # fallback if step 04 hasn't run
 
     # QC pass filter
     # For hybrid mode, hybrid_qc_pass IS the complete QC column (includes
@@ -378,7 +378,7 @@ def load_sample_adata(sample_id, cortical_only=True, qc_mode='hybrid'):
 
     effective_mode = qc_mode
     if effective_mode == 'hybrid' and not has_hybrid:
-        effective_mode = 'corr'  # fallback if step 06 hasn't run
+        effective_mode = 'corr'  # fallback if step 04 hasn't run
 
     # Build QC mask
     # For hybrid mode, hybrid_qc_pass IS the complete QC column (includes

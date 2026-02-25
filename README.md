@@ -58,12 +58,12 @@ Raw .h5 + boundaries ─→ [00] ─→ initial h5ad
                          [02] ─→ + MapMyCells labels
                         [02b] ─→ + correlation classifier labels + doublet flags
                         [02c] ─→ (alternative: Harmony-based label transfer)
-                         [03] ─→ + depth predictions
-                         [04] ─→ + spatial domains + layers
-                         [05] ─→ transcript coordinates (for step 06)
-                         [06] ─→ + nuclear doublet resolution + hybrid_qc_pass
+                         [03] ─→ transcript coordinates (for step 04)
+                         [04] ─→ + nuclear doublet resolution + hybrid_qc_pass
+                         [05] ─→ + depth predictions (uses hybrid_qc_pass)
+                         [06] ─→ + spatial domains + layers (uses hybrid_qc_pass)
                          [07] ─→ viewer JSON + HTML
-                         [08] ─→ cell boundary polygons
+                         [08] ─→ cell + nucleus boundary polygons
 ```
 
 ### Step 00: Create h5ad (`00_create_h5ad.py`)
@@ -102,7 +102,7 @@ Two-stage hierarchical reclassification using Pearson correlation against self-b
 - **Stage 2:** Within each subclass, classify into supertypes using top-100 exemplars per supertype
 - **QC 1:** Flag bottom 1% by subclass correlation margin per sample
 - **QC 2:** Flag suspected spatial doublets via marker co-expression (validated against Nicole's snRNAseq reference; FP rate 0.098%)
-- **Saves** pre-built centroids to `correlation_centroids.pkl` for reuse by step 06
+- **Saves** pre-built centroids to `correlation_centroids.pkl` for reuse by step 04
 
 Dramatically reduces misclassifications such as L6b appearing in upper cortical layers.
 
@@ -114,37 +114,17 @@ Three-stage hierarchical classification using PCA + Harmony + kNN at each level 
 
 **Output:** Updated h5ad files with `harmony_subclass`, `harmony_supertype`, `harmony_class`
 
-### Step 03: Depth Prediction (`03_run_depth_prediction.py`)
+### Step 03: Export Transcripts (`03_export_transcripts.py`)
 
-Trains and applies a cortical depth model from the SEA-AD MERFISH reference:
-
-- GradientBoostingRegressor using K=50 neighborhood composition features
-- Predicts normalized cortical depth (0=pia, 1=white matter)
-- Fits a 1-NN model for out-of-distribution (OOD) scoring
-
-**Output:** `output/depth_model_normalized.pkl`; `predicted_norm_depth` column in each h5ad
-
-### Step 04: Spatial Domains & Layers (`04_run_spatial_domains.py`)
-
-Classifies tissue domains and assigns cortical layers:
-
-- **Spatial clustering:** K=50 neighborhood composition -> PCA -> KNN graph -> Leiden clustering
-- **Domain classification:** Vascular (>80% Endothelial+VLMC), Extra-cortical (>60% non-neuronal, low depth), Cortical (remainder)
-- **Layer assignment:** Cortical cells -> depth-based layers (L1, L2/3, L4, L5, L6, WM)
-
-**Output:** `spatial_domain`, `layer` columns; `output/spatial_domain_summary.csv`; merged `output/all_samples_annotated.h5ad`
-
-### Step 05: Export Transcripts (`05_export_transcripts.py`)
-
-Exports per-gene transcript molecule coordinates from raw Xenium `transcripts.zarr` files. These are used by step 06 for building nuclear count matrices and by the browser viewer for on-demand gene visualization.
+Exports per-gene transcript molecule coordinates from raw Xenium `transcripts.zarr` files. These are used by step 04 for building nuclear count matrices and by the browser viewer for on-demand gene visualization.
 
 **Output:** `output/viewer/transcripts/{sample}/gene_index.json` + per-gene JSON files
 
-### Step 06: Nuclear Doublet Resolution (`06_run_nuclear_doublet_resolution.py`)
+### Step 04: Nuclear Doublet Resolution (`04_run_nuclear_doublet_resolution.py`)
 
 Hybrid QC approach that uses nuclear-only count matrices (transcripts within nucleus polygons) to resolve spatial doublets identified in step 02b:
 
-- Builds nuclear count matrix from nucleus boundary polygons + transcript coordinates (step 05)
+- Builds nuclear count matrix from nucleus boundary polygons + transcript coordinates (step 03)
 - Re-runs doublet detection on nuclear counts
 - Classifies each whole-cell doublet as:
   - **resolved** — WC doublet but NOT nuclear doublet (cytoplasmic spillover, safely rescued)
@@ -154,9 +134,31 @@ Hybrid QC approach that uses nuclear-only count matrices (transcripts within nuc
 - Rescues high-UMI cells that were excluded only due to high total counts
 - Builds `hybrid_qc_pass` column that replaces blunt UMI filtering with nuclear evidence
 
-**Requires:** Step 02b (correlation classifier) and Step 05 (transcript export)
+**Requires:** Step 02b (correlation classifier) and Step 03 (transcript export)
 
 **Output:** Updated h5ad files with `nuclear_total_counts`, `nuclear_n_genes`, `nuclear_fraction`, `nuclear_doublet_status`, `hybrid_qc_pass`
+
+### Step 05: Depth Prediction (`05_run_depth_prediction.py`)
+
+Trains and applies a cortical depth model from the SEA-AD MERFISH reference:
+
+- GradientBoostingRegressor using K=50 neighborhood composition features
+- Predicts normalized cortical depth (0=pia, 1=white matter)
+- Fits a 1-NN model for out-of-distribution (OOD) scoring
+- Uses `hybrid_qc_pass` (from step 04) to exclude confirmed doublets from neighborhood features
+
+**Output:** `output/depth_model_normalized.pkl`; `predicted_norm_depth` column in each h5ad
+
+### Step 06: Spatial Domains & Layers (`06_run_spatial_domains.py`)
+
+Classifies tissue domains and assigns cortical layers:
+
+- **Spatial clustering:** K=50 neighborhood composition -> PCA -> KNN graph -> Leiden clustering
+- **Domain classification:** Vascular (>80% Endothelial+VLMC), Extra-cortical (>60% non-neuronal, low depth), Cortical (remainder)
+- **Layer assignment:** Cortical cells -> depth-based layers (L1, L2/3, L4, L5, L6, WM)
+- Uses `hybrid_qc_pass` (from step 04) to exclude confirmed doublets
+
+**Output:** `spatial_domain`, `layer` columns; `output/spatial_domain_summary.csv`; merged `output/all_samples_annotated.h5ad`
 
 ### Step 07: Export Viewer (`07_export_viewer.py`)
 
@@ -169,9 +171,9 @@ Exports data for the interactive spatial viewer:
 
 ### Step 08: Export Boundaries (`08_export_boundaries.py`)
 
-Exports cell boundary polygons for spatial overlay visualization.
+Exports cell and nucleus boundary polygons for spatial overlay visualization.
 
-**Output:** `output/viewer/boundaries/{sample}.json`
+**Output:** `output/viewer/boundaries/{sample}.json` (cell), `output/viewer/boundaries/{sample}_nucleus.json` (nucleus)
 
 ## Core Modules (`code/modules/`)
 
@@ -244,10 +246,10 @@ python3 -u code/pipeline/01_run_qc.py
 python3 -u code/pipeline/02_run_mapmycells.py
 python3 -u code/pipeline/02b_run_correlation_classifier.py
 # python3 -u code/pipeline/02c_run_harmony_transfer.py  # (alternative to 02b)
-python3 -u code/pipeline/03_run_depth_prediction.py
-python3 -u code/pipeline/04_run_spatial_domains.py
-python3 -u code/pipeline/05_export_transcripts.py
-python3 -u code/pipeline/06_run_nuclear_doublet_resolution.py
+python3 -u code/pipeline/03_export_transcripts.py
+python3 -u code/pipeline/04_run_nuclear_doublet_resolution.py
+python3 -u code/pipeline/05_run_depth_prediction.py
+python3 -u code/pipeline/06_run_spatial_domains.py
 python3 -u code/pipeline/07_export_viewer.py
 python3 -u code/pipeline/08_export_boundaries.py
 
@@ -255,7 +257,7 @@ python3 -u code/pipeline/08_export_boundaries.py
 open output/viewer/xenium_viewer_standalone.html
 ```
 
-**Note:** Steps 03-04 and 06 use multiprocessing (4 workers by default, configurable in `pipeline_config.py`). The full pipeline processes ~1.34M cells across 24 samples. Step 03 (depth model training) is the most time-intensive (~80 min). Total pipeline runtime is approximately 2-3 hours.
+**Note:** Steps 04-06 use multiprocessing (4 workers by default, configurable in `pipeline_config.py`). The full pipeline processes ~1.34M cells across 24 samples. Step 05 (depth model training) is the most time-intensive (~80 min). Total pipeline runtime is approximately 2-3 hours.
 
 ## Key Output Files
 

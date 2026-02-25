@@ -11,9 +11,14 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 | 00 | `pipeline/00_create_h5ad.py` | Load raw Xenium .h5 + cell boundary CSV → h5ad with spatial coords |
 | 01 | `pipeline/01_run_qc.py` | Cell-level QC (Kwon et al. approach), adds `qc_pass` column |
 | 02 | `pipeline/02_run_mapmycells.py` | MapMyCells hierarchical annotation → `class_label`, `subclass_label`, `supertype_label` |
-| 03 | `pipeline/03_run_depth_prediction.py` | Retrain MERFISH depth model, predict cortical depth → `predicted_norm_depth` |
-| 04 | `pipeline/04_run_spatial_domains.py` | Spatial domain clustering + layer assignment → `layer` column |
-| 05 | `pipeline/05_export_viewer.py` | Export JSON for interactive HTML viewer |
+| 02b | `pipeline/02b_run_correlation_classifier.py` | Two-stage Pearson correlation reclassification + doublet detection |
+| 02c | `pipeline/02c_run_harmony_transfer.py` | Harmony-based hierarchical label transfer (alternative to 02b) |
+| 03 | `pipeline/03_export_transcripts.py` | Export per-gene transcript coordinates (feeds step 04 + viewer) |
+| 04 | `pipeline/04_run_nuclear_doublet_resolution.py` | Hybrid nuclear doublet resolution → `hybrid_qc_pass` |
+| 05 | `pipeline/05_run_depth_prediction.py` | Retrain MERFISH depth model, predict cortical depth → `predicted_norm_depth` |
+| 06 | `pipeline/06_run_spatial_domains.py` | Spatial domain clustering + layer assignment → `layer` column |
+| 07 | `pipeline/07_export_viewer.py` | Export JSON for interactive HTML viewer |
+| 08 | `pipeline/08_export_boundaries.py` | Export cell + nucleus boundary polygons for viewer |
 
 ## Samples
 

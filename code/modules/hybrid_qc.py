@@ -1,7 +1,7 @@
 """
 Hybrid QC utilities for nuclear doublet resolution.
 
-Functions extracted from pipeline step 06 (nuclear doublet resolution) for
+Functions extracted from pipeline step 04 (nuclear doublet resolution) for
 reusability and testability.
 
 Functions:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 6: Hybrid nuclear doublet resolution.
+Step 4: Hybrid nuclear doublet resolution.
 
 For each sample with transcript data, builds a nuclear-only count matrix
 (transcripts within nucleus polygons), runs doublet detection on nuclear
@@ -20,7 +20,7 @@ New columns added to each h5ad:
   - nuclear_doublet_status (str: 'resolved', 'persistent', etc.)
   - hybrid_qc_pass (bool)
 
-Requires: Step 02b (correlation classifier) and Step 05 (transcript export).
+Requires: Step 02b (correlation classifier) and Step 03 (transcript export).
 
 Usage:
     python3 -u 06_run_nuclear_doublet_resolution.py              # all available
@@ -78,7 +78,7 @@ def discover_nucleus_boundaries():
 
 
 def discover_transcript_dirs():
-    """Find exported transcript directories (from step 05)."""
+    """Find exported transcript directories (from step 03)."""
     result = {}
     if not os.path.isdir(TRANSCRIPT_DIR):
         return result
@@ -112,7 +112,7 @@ def find_ready_samples(requested=None):
             skipped.append((sid, "no nucleus boundaries"))
             continue
         if sid not in transcript_dirs:
-            skipped.append((sid, "no transcript data (run step 05)"))
+            skipped.append((sid, "no transcript data (run step 03)"))
             continue
         ready.append((sid, h5ad_path, nuc_boundaries[sid], transcript_dirs[sid]))
 
@@ -483,7 +483,7 @@ def main():
             print(f"  ✗ {sid}: {reason}")
 
     if not ready:
-        print("\nNo samples ready for processing. Ensure step 05 "
+        print("\nNo samples ready for processing. Ensure step 03 "
               "(transcript export) has been run.")
         return
 

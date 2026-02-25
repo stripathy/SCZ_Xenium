@@ -50,7 +50,7 @@ CENTROID_PATH = os.path.join(H5AD_DIR, "correlation_centroids.pkl")
 # Processing settings
 # ──────────────────────────────────────────────────────────────────────
 
-N_WORKERS = 4  # for multiprocessing in steps 03/04
+N_WORKERS = 4  # for multiprocessing in steps 05/06
 
 # MapMyCells settings (step 02)
 MAPMYCELLS_BOOTSTRAP_ITER = 100
@@ -64,12 +64,12 @@ TAXONOMY_LEVELS = ["class", "subclass", "supertype"]
 CORR_CLASSIFIER_TOP_N = 100       # exemplar cells per type for centroid building
 CORR_CLASSIFIER_QC_PERCENTILE = 1.0  # bottom % of margin to flag per sample
 
-# Nuclear doublet resolution settings (step 06)
+# Nuclear doublet resolution settings (step 04)
 NUCLEAR_CHUNK_SIZE = 500_000      # transcripts per STRtree query batch
 NUCLEAR_MIN_UMI = 50              # min nuclear UMI for reliable doublet assessment
 NUCLEAR_MIN_CORR = 0.3            # min correlation for high-confidence resolution
 
-# Transcript export directory (step 05 output, step 06 input)
+# Transcript export directory (step 03 output, step 04 input)
 TRANSCRIPT_DIR = os.path.join(VIEWER_DIR, "transcripts")
 
 # ──────────────────────────────────────────────────────────────────────

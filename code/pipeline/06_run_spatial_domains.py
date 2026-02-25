@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Combined pipeline: spatial domain classification + depth-based layer assignment.
+Step 6: Spatial domain classification + depth-based layer assignment.
 
 For each sample:
   1. Load annotated h5ad (with QC, hierarchical labels, depth predictions)
-  2. Subset to QC-pass cells
+  2. Subset to hybrid_qc_pass cells (from step 04; falls back to qc_pass)
   3. Run spatial domain clustering to identify Extra-cortical / Vascular / Cortical
   4. Assign layers: ALL cells get depth-bin layer from predicted depth,
      EXCEPT Vascular cells (from OOD) which get 'Vascular' label.
      Extra-cortical cells keep their depth-bin layer (no override).
   5. Save updated h5ad with new columns
 
+Requires: Step 04 (hybrid_qc_pass) and Step 05 (depth predictions).
+
 Usage:
-    python3 -u run_combined_pipeline.py
+    python3 -u 06_run_spatial_domains.py
 """
 
 import os
@@ -57,8 +59,11 @@ def _process_one_sample(h5ad_path):
         adata = ad.read_h5ad(h5ad_path)
         n_total = adata.shape[0]
 
-        # QC mask
-        if "qc_pass" in adata.obs.columns:
+        # Prefer hybrid_qc_pass (from step 04) to exclude confirmed doublets;
+        # fall back to qc_pass if step 04 not run
+        if "hybrid_qc_pass" in adata.obs.columns:
+            qc_mask = adata.obs["hybrid_qc_pass"].values.astype(bool)
+        elif "qc_pass" in adata.obs.columns:
             qc_mask = adata.obs["qc_pass"].values.astype(bool)
         else:
             qc_mask = np.ones(n_total, dtype=bool)

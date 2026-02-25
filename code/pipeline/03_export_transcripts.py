@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Step 5: Export per-gene transcript molecule coordinates.
+Step 3: Export per-gene transcript molecule coordinates.
 
 Reads Xenium transcripts.zarr (or .zarr.zip) files for one or more samples,
 extracts (x, y) coordinates for each gene, and writes compact JSON files.
-Used by step 06 (nuclear doublet resolution) and by the browser-based viewer.
+Used by step 04 (nuclear doublet resolution) and by the browser-based viewer.
 
 Output (per sample):
   - output/viewer/transcripts/<SAMPLE_ID>/gene_index.json
   - output/viewer/transcripts/<SAMPLE_ID>/<GENE>.json
 
 Usage:
-  python 05_export_transcripts.py                # process all available samples
-  python 05_export_transcripts.py Br8667 Br6032  # process specific samples
+  python 03_export_transcripts.py                # process all available samples
+  python 03_export_transcripts.py Br8667 Br6032  # process specific samples
 """
 
 import os
