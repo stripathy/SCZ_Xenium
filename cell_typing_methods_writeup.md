@@ -114,12 +114,12 @@ The heatmap below shows individual cells, confirming that the mixed expression i
 
 | QC Step | Cells | Lost | % Lost |
 |---------|-------|------|--------|
-| Raw (all cells) | 1,293,253 | — | — |
-| Step 01: spatial QC | 1,275,006 | 18,247 | 1.4% |
-| Step 02b: corr_qc_pass | 1,233,859 | 41,147 | 3.2% |
-| Step 04: hybrid_qc_pass (final) | 1,257,887 | 17,119 | 1.3% |
+| Raw (all cells) | 1,339,151 | — | — |
+| Step 01: spatial QC | 1,298,687 | 40,464 | 3.0% |
+| Step 02b: corr_qc_pass | 1,297,413 | 41,738 | 3.1% |
+| Step 04: hybrid_qc_pass (final) | 1,302,631 | 36,520 | 2.7% |
 
-*Note: Cell counts reflect 23 analysis-eligible samples (excluding Br2039 WM outlier). Counts will be updated after the full pipeline is re-run on all 24 samples. See Section 10 for full hybrid nuclear doublet resolution details.*
+*Cell counts reflect all 24 samples (including Br2039). The hybrid_qc_pass count exceeds corr_qc_pass because nuclear doublet resolution rescues resolved doublets and high-UMI cells that passed nuclear evidence. See Section 10 for full details.*
 
 ---
 
@@ -296,7 +296,7 @@ Key finding: The L6b increase in SCZ (FDR ~0.004-0.005) and Endothelial decrease
 
 ```
 Step 01: Spatial QC (negative probes, gene counts, total counts)
-    → 1,275,006 QC-pass cells
+    → 1,298,687 QC-pass cells
 
 Step 02: MapMyCells HANN label transfer
     → class/subclass/supertype labels + confidence scores
@@ -307,7 +307,7 @@ Step 02b: Two-stage correlation classifier
     → Stage 1: Subclass assignment via Pearson correlation (24 types)
     → Stage 2: Supertype assignment within subclass
     → QC: Flag bottom 1% margin per sample + spatial doublets
-    → 1,233,859 cells pass corr_qc_pass
+    → 1,297,413 cells pass corr_qc_pass
 
 Step 05: Cortical depth model (trained on MERFISH reference)
 Step 06: Spatial domain annotation
@@ -439,16 +439,16 @@ The hybrid pipeline identifies **18,427 high-UMI-only failures** across all samp
 
 | QC Step | Cells |
 |---------|-------|
-| Raw (all cells) | 1,293,253 |
-| Step 01: spatial QC | 1,275,006 |
-| Step 02b: corr_qc_pass (original) | 1,233,859 |
-| **Step 04: hybrid_qc_pass (nuclear-informed)** | **1,257,887** |
-| Net rescued by hybrid | +24,028 |
+| Raw (all cells) | 1,339,151 |
+| Step 01: spatial QC | 1,298,687 |
+| Step 02b: corr_qc_pass (original) | 1,297,413 |
+| **Step 04: hybrid_qc_pass (nuclear-informed)** | **1,302,631** |
+| Net rescued by hybrid | +26,453 |
 
-The hybrid QC filter passes 24,028 more cells than the original corr_qc_pass filter, primarily from:
-- High-UMI cell rescue (+18,427)
-- Resolved doublets reinstated (+7,941)
-- Offset by: persistent doublets confirmed (-2,539), nuclear-only doublets added (-2,128), margin failures retained
+The hybrid QC filter passes 26,453 more cells than the original corr_qc_pass filter, primarily from:
+- High-UMI cell rescue (+20,788)
+- Resolved doublets reinstated (+8,069)
+- Offset by: persistent doublets confirmed (-2,469), nuclear-only doublets added (-2,167), margin failures retained
 
 ### Validation: Disease Comparisons Are Unchanged
 
@@ -472,14 +472,14 @@ The critical validation: hybrid QC produces **near-identical** SCZ vs Control re
 
 | QC Step | Cells | Lost | % Lost |
 |---------|-------|------|--------|
-| Raw (all cells) | 1,293,253 | — | — |
-| Step 01: spatial QC | 1,275,006 | 18,247 | 1.4% |
-| Step 02b: corr_qc_pass (original) | 1,233,859 | 41,147 | 3.2% |
-| **Step 04: hybrid_qc_pass (final)** | **1,257,887** | **17,119** | **1.3%** |
+| Raw (all cells) | 1,339,151 | — | — |
+| Step 01: spatial QC | 1,298,687 | 40,464 | 3.0% |
+| Step 02b: corr_qc_pass (original) | 1,297,413 | 41,738 | 3.1% |
+| **Step 04: hybrid_qc_pass (final)** | **1,302,631** | **36,520** | **2.7%** |
 
-*Note: Cell counts reflect 23 analysis-eligible samples (excluding Br2039 WM outlier). Counts will be updated after the full pipeline is re-run on all 24 samples.*
+*Cell counts reflect all 24 samples processed through the full pipeline. Br2039 is excluded from downstream disease comparisons (via EXCLUDE_SAMPLES) due to high white matter content (54%).*
 
-The hybrid QC pipeline is now the default for all downstream analyses. It produces a net gain of 24,028 cells relative to the original corr_qc_pass filter while maintaining identical disease effect estimates — a principled improvement that validates the nuclear doublet resolution approach.
+The hybrid QC pipeline is now the default for all downstream analyses. It produces a net gain of 26,453 cells relative to the original corr_qc_pass filter while maintaining identical disease effect estimates — a principled improvement that validates the nuclear doublet resolution approach.
 
 ---
 
@@ -488,7 +488,7 @@ The hybrid QC pipeline is now the default for all downstream analyses. It produc
 ```
 Step 00: Create h5ad from raw Xenium data
 Step 01: Spatial QC (negative probes, gene counts, total counts)
-    → 1,275,006 cells pass basic QC
+    → 1,298,687 cells pass basic QC (24 samples)
 
 Step 02: MapMyCells HANN label transfer
     → class/subclass/supertype labels + confidence scores
@@ -507,7 +507,7 @@ Step 04: Nuclear doublet resolution (hybrid QC)
     → Build nuclear count matrices from transcript coordinates
     → Reclassify doublets using nuclear-only counts
     → Rescue high-UMI cells, reinstate resolved doublets
-    → 1,257,887 cells pass hybrid_qc_pass
+    → 1,302,631 cells pass hybrid_qc_pass (76% doublet resolution rate)
 
 Step 05: Cortical depth model (trained on MERFISH, uses hybrid_qc_pass)
 Step 06: Spatial domain annotation + layer assignment (uses hybrid_qc_pass)

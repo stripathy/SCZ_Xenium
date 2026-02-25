@@ -194,9 +194,12 @@ def plot_depth_vs_effect(results, level, depth_file, out_dir):
         r_neur, p_neur = np.nan, np.nan
 
     # Regression line
-    z = np.polyfit(merged['median_depth'], merged['logFC'], 1)
-    x_line = np.linspace(merged['median_depth'].min(), merged['median_depth'].max(), 100)
-    ax.plot(x_line, np.polyval(z, x_line), 'k-', alpha=0.3, linewidth=1.5)
+    try:
+        z = np.polyfit(merged['median_depth'], merged['logFC'], 1)
+        x_line = np.linspace(merged['median_depth'].min(), merged['median_depth'].max(), 100)
+        ax.plot(x_line, np.polyval(z, x_line), 'k-', alpha=0.3, linewidth=1.5)
+    except np.linalg.LinAlgError:
+        pass  # skip trendline if SVD fails
 
     ax.set_xlim(-0.02, 0.90)
     ax.set_xlabel('Median normalized depth from pia\n(0 = pia, 1 = WM)', fontsize=12)
