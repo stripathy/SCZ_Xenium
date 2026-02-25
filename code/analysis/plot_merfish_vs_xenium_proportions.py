@@ -67,15 +67,28 @@ def compute_xenium_proportions(level="subclass_label"):
         fpath = os.path.join(H5AD_DIR, f"{sample_id}_annotated.h5ad")
         adata = ad.read_h5ad(fpath, backed="r")
 
-        cols = [level, "qc_pass", "subclass_label_confidence"]
+        # Use correlation classifier labels if available
+        has_corr = "corr_subclass" in adata.obs.columns
+        corr_level_map = {"subclass_label": "corr_subclass",
+                          "supertype_label": "corr_supertype"}
+        use_col = corr_level_map.get(level, level) if has_corr else level
+
+        cols = [use_col, "qc_pass"]
+        if has_corr:
+            cols.append("corr_qc_pass")
+        else:
+            cols.append("subclass_label_confidence")
         obs = adata.obs[cols].copy()
         obs = obs[obs["qc_pass"] == True]
 
-        # Bottom-1% subclass confidence filter
-        obs = obs[obs["subclass_label_confidence"].astype(float) >= SUBCLASS_CONF_THRESH]
+        # Correlation QC or legacy confidence filter
+        if has_corr:
+            obs = obs[obs["corr_qc_pass"] == True]
+        else:
+            obs = obs[obs["subclass_label_confidence"].astype(float) >= SUBCLASS_CONF_THRESH]
 
         total = len(obs)
-        counts = obs[level].value_counts()
+        counts = obs[use_col].value_counts()
         for ct, n in counts.items():
             records.append({"donor": sample_id, "celltype": str(ct),
                             "proportion": n / total})

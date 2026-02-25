@@ -2,7 +2,7 @@
 Shared configuration for the SCZ Xenium processing pipeline.
 
 Centralizes all paths, constants, and settings used across pipeline steps
-(00_create_h5ad through 05_export_viewer). Import from here instead of
+(00_create_h5ad through 08_export_boundaries). Import from here instead of
 hardcoding paths in each script.
 
 This is the pipeline equivalent of code/analysis/config.py.
@@ -14,15 +14,19 @@ import os
 # Base paths
 # ──────────────────────────────────────────────────────────────────────
 
-BASE_DIR = "/Users/shreejoy/Desktop/scz_xenium_test"
+BASE_DIR = os.path.expanduser("~/Github/SCZ_Xenium")
 
 # Input data
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
 METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
 
 # Reference data (SEA-AD)
+# MERFISH spatial reference — used ONLY for depth model training (has spatial coords)
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                             "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
+# Nicole's snRNAseq reference — primary cell type reference (137K cells, 36K genes)
+SNRNASEQ_REF_PATH = os.path.join(BASE_DIR, "data", "reference",
+                                  "nicole_sea_ad_snrnaseq_reference.h5ad")
 PRECOMPUTED_STATS_PATH = os.path.join(
     BASE_DIR, "data", "reference",
     "precomputed_stats.20231120.sea_ad.MTG.h5"
@@ -40,6 +44,7 @@ PLOTS_DIR = os.path.join(OUTPUT_DIR, "plots")
 
 # Model artifacts
 DEPTH_MODEL_PATH = os.path.join(OUTPUT_DIR, "depth_model_normalized.pkl")
+CENTROID_PATH = os.path.join(H5AD_DIR, "correlation_centroids.pkl")
 
 # ──────────────────────────────────────────────────────────────────────
 # Processing settings
@@ -54,6 +59,18 @@ MAPMYCELLS_N_PER_UTILITY = 30
 
 # Taxonomy levels assigned by MapMyCells
 TAXONOMY_LEVELS = ["class", "subclass", "supertype"]
+
+# Correlation classifier settings (step 02b)
+CORR_CLASSIFIER_TOP_N = 100       # exemplar cells per type for centroid building
+CORR_CLASSIFIER_QC_PERCENTILE = 1.0  # bottom % of margin to flag per sample
+
+# Nuclear doublet resolution settings (step 06)
+NUCLEAR_CHUNK_SIZE = 500_000      # transcripts per STRtree query batch
+NUCLEAR_MIN_UMI = 50              # min nuclear UMI for reliable doublet assessment
+NUCLEAR_MIN_CORR = 0.3            # min correlation for high-confidence resolution
+
+# Transcript export directory (step 05 output, step 06 input)
+TRANSCRIPT_DIR = os.path.join(VIEWER_DIR, "transcripts")
 
 # ──────────────────────────────────────────────────────────────────────
 # Modules path helper

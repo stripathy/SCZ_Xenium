@@ -4,7 +4,7 @@ Aggregated boxplots: summed proportions and densities for vulnerable
 Sst subtypes and L6b subtypes, SCZ vs Control.
 
 Layout (2x2):
-  Row 1: Sst (Sst_2 + Sst_25 + Sst_20 + Sst_3)
+  Row 1: Sst (Sst_25 + Sst_22 + Sst_2)
   Row 2: L6b (L6b_1 + L6b_2 + L6b_4)
   Col 1: Proportion (% of cortical cells)
   Col 2: Density (cells / mm²)
@@ -24,7 +24,8 @@ from scipy.stats import ttest_ind
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
-    PRESENTATION_DIR, DX_COLORS, BG_COLOR, SST_TYPES, L6B_TYPES, format_pval,
+    PRESENTATION_DIR, DX_COLORS, BG_COLOR, SST_TYPES, L6B_TYPES,
+    EXCLUDE_SAMPLES, format_pval,
 )
 
 OUT_DIR = PRESENTATION_DIR
@@ -65,8 +66,11 @@ def make_panel(ax, agg, metric_col, ylabel, title, subtitle):
                    c=DX_COLORS[dx], s=55, alpha=0.85, edgecolors="white",
                    linewidths=0.7, zorder=5)
 
+    n_ctrl = len(ctrl)
+    n_scz = len(scz)
     ax.set_xticks(positions)
-    ax.set_xticklabels(["Control\n(n=12)", "SCZ\n(n=12)"], fontsize=14, color="white")
+    ax.set_xticklabels([f"Control\n(n={n_ctrl})", f"SCZ\n(n={n_scz})"],
+                       fontsize=14, color="white")
 
     # T-test
     _, pval = ttest_ind(ctrl, scz, equal_var=False)
@@ -102,15 +106,17 @@ def make_panel(ax, agg, metric_col, ylabel, title, subtitle):
 
 def main():
     data = pd.read_csv(DATA_CSV)
-    print(f"Loaded {len(data)} rows from {DATA_CSV}")
+    data = data[~data["sample_id"].isin(EXCLUDE_SAMPLES)]
+    print(f"Loaded {len(data)} rows from {DATA_CSV} (after excluding {EXCLUDE_SAMPLES})")
 
-    # Aggregate
-    sst_prop = aggregate_group(data, SST_TYPES, "proportion_pct")
-    sst_dens = aggregate_group(data, SST_TYPES, "density_per_mm2")
+    # Aggregate — subset of SST types for the aggregated figure
+    sst_agg_types = ["Sst_25", "Sst_22", "Sst_2"]
+    sst_prop = aggregate_group(data, sst_agg_types, "proportion_pct")
+    sst_dens = aggregate_group(data, sst_agg_types, "density_per_mm2")
     l6b_prop = aggregate_group(data, L6B_TYPES, "proportion_pct")
     l6b_dens = aggregate_group(data, L6B_TYPES, "density_per_mm2")
 
-    sst_label = " + ".join(SST_TYPES)
+    sst_label = " + ".join(sst_agg_types)
     l6b_label = " + ".join(L6B_TYPES)
 
     # --- Figure ---

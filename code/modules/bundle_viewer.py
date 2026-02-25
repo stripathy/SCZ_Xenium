@@ -124,8 +124,9 @@ async function decompressB64(b64str) {
   buildSampleList();
   setupEvents();
   resizeCanvas();
-  // Load first sample
-  loadSample(indexData.samples[0].sample_id);
+  // Default to Br8667 (has transcript data) or first sample
+  const defaultSample = indexData.samples.find(s => s.sample_id === 'Br8667') || indexData.samples[0];
+  loadSample(defaultSample.sample_id);
 }'''
 
     new_init = '''async function init() {
@@ -133,8 +134,9 @@ async function decompressB64(b64str) {
   buildSampleList();
   setupEvents();
   resizeCanvas();
-  // Load first sample
-  loadSample(indexData.samples[0].sample_id);
+  // Default to Br8667 (has transcript data) or first sample
+  const defaultSample = indexData.samples.find(s => s.sample_id === 'Br8667') || indexData.samples[0];
+  loadSample(defaultSample.sample_id);
 }'''
 
     # Replace the fetch in loadSample

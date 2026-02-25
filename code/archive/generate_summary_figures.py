@@ -219,7 +219,7 @@ def process_sample(h5ad_path):
         
         plt.tight_layout(rect=[0, 0, 1, 0.96])
         
-        out_path = f'/Users/shreejoy/Desktop/scz_xenium_test/output/plots/{sample_id}_summary.png'
+        out_path = f'{os.path.expanduser("~/Github/SCZ_Xenium")}/output/plots/{sample_id}_summary.png'
         plt.savefig(out_path, dpi=150, bbox_inches='tight', facecolor='white')
         plt.close(fig)
         
@@ -234,10 +234,10 @@ def process_sample(h5ad_path):
         return sample_id, False
 
 if __name__ == '__main__':
-    h5ad_dir = '/Users/shreejoy/Desktop/scz_xenium_test/output/h5ad/'
+    h5ad_dir = os.path.join(os.path.expanduser("~/Github/SCZ_Xenium"), "output", "h5ad")
     h5ad_files = sorted(glob.glob(os.path.join(h5ad_dir, '*_annotated.h5ad')))
     
-    out_dir = '/Users/shreejoy/Desktop/scz_xenium_test/output/plots/'
+    out_dir = os.path.join(os.path.expanduser("~/Github/SCZ_Xenium"), "output", "plots")
     os.makedirs(out_dir, exist_ok=True)
     
     print(f"Found {len(h5ad_files)} samples")

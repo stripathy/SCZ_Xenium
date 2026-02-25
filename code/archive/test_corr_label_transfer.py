@@ -30,9 +30,10 @@ from label_transfer_corr import (
 )
 
 # ─── Paths ───
-REF_PATH = "/Users/shreejoy/Desktop/scz_xenium_test/sea-ad_reference/Reference_MTG_RNAseq_final-nuclei.2022-06-07.h5ad"
-MERFISH_PATH = "/Users/shreejoy/Desktop/scz_xenium_test/sea-ad_reference/SEAAD_MTG_MERFISH.2024-12-11.h5ad"
-OUTPUT_DIR = "/Users/shreejoy/Desktop/scz_xenium_test/output"
+_BASE = os.path.expanduser("~/Github/SCZ_Xenium")
+REF_PATH = os.path.join(_BASE, "data", "reference", "Reference_MTG_RNAseq_final-nuclei.2022-06-07.h5ad")
+MERFISH_PATH = os.path.join(_BASE, "data", "reference", "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
+OUTPUT_DIR = os.path.join(_BASE, "output")
 
 
 def pick_test_section(merfish, n_min=5000, n_max=50000):

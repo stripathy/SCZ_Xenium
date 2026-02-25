@@ -1,0 +1,10 @@
+Metric,Whole-Cell,Nuclear,Delta
+Total cells (QC-pass),67688,67688,0
+Mean UMI per cell,922.096531142891,481.28426013473586,-440.8122710081551
+Median nuclear fraction,-,0.494,-
+Class concordance (%),-,-,96.9
+Subclass concordance (%),-,-,89.2
+Glut+GABA doublets,675,257,-418
+GABA+GABA doublets,176,78,-98
+Total doublets,851,335,-516
+Median subclass correlation,0.8050,0.7633,-0.0417

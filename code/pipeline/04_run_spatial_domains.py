@@ -69,9 +69,13 @@ def _process_one_sample(h5ad_path):
         adata_pass = adata[qc_mask].copy()
 
         # Run spatial domain classification
+        # Use correlation-derived subclass labels if available (from step 02b)
+        subclass_col = ('corr_subclass' if 'corr_subclass' in adata_pass.obs.columns
+                        else 'subclass_label')
         subclass_names = _model_bundle['subclass_names']
         domain_labels, cluster_stats = classify_spatial_domains(
-            adata_pass, subclass_names, K=50, resolution=0.8
+            adata_pass, subclass_names, K=50, resolution=0.8,
+            subclass_col=subclass_col
         )
 
         n_extra = (domain_labels == 'Extra-cortical').sum()

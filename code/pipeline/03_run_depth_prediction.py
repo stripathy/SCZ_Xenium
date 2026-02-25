@@ -60,8 +60,11 @@ def _process_sample(h5ad_path):
         adata_pass = adata[qc_mask].copy()
 
         # Predict depth (without OOD — that happens in step 04)
+        # Use correlation-derived subclass labels if available (from step 02b)
+        subclass_col = ('corr_subclass' if 'corr_subclass' in adata_pass.obs.columns
+                        else 'subclass_label')
         pred_depth = predict_depth(adata_pass, _model_bundle,
-                                    subclass_col='subclass_label',
+                                    subclass_col=subclass_col,
                                     compute_ood=False)
 
         # Store back

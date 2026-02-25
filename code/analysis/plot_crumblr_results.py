@@ -32,7 +32,7 @@ from config import (
 RESULTS_DIR = CRUMBLR_DIR
 DEPTH_DIR = os.path.join(BASE_DIR, "output", "cross_platform_comparison")
 
-CLASS_COLORS = {'Glut': '#d73027', 'GABA': '#4575b4', 'NN': '#33a02c', 'Other': '#999999'}
+CLASS_COLORS = {'Glut': '#00ADF8', 'GABA': '#F05A28', 'NN': '#808080', 'Other': '#999999'}
 
 
 def plot_volcano(results, level, out_dir):

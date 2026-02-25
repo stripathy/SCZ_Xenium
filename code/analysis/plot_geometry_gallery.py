@@ -32,14 +32,14 @@ SAMPLES = [
     "Br5746",   # SCZ - 44k cells, 4% non-cortical (least)
 ]
 
-# Class colors matching SEA-AD convention
+# Class colors matching Allen Institute / SEA-AD reference
 CLASS_COLORS = {
-    "Neuronal: Glutamatergic": "#3399dd",
-    "Neuronal: GABAergic": "#ee4433",
-    "Non-neuronal and Non-neural": "#44bb44",
-    "Glutamatergic": "#3399dd",
-    "GABAergic": "#ee4433",
-    "Non-neuronal": "#44bb44",
+    "Neuronal: Glutamatergic": "#00ADF8",
+    "Neuronal: GABAergic": "#F05A28",
+    "Non-neuronal and Non-neural": "#808080",
+    "Glutamatergic": "#00ADF8",
+    "GABAergic": "#F05A28",
+    "Non-neuronal": "#808080",
 }
 
 # Short labels for legend

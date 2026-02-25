@@ -4,25 +4,41 @@ Shared constants and utility functions for SCZ Xenium presentation analysis.
 This module centralizes all configuration that was previously duplicated across
 ~20 analysis scripts. Import from here instead of hardcoding constants.
 
+Shared project-wide constants (SAMPLE_TO_DX, EXCLUDE_SAMPLES, SUBCLASS_TO_CLASS,
+CLASS_COLORS, CORTICAL_LAYERS) live in code/modules/constants.py and are
+re-exported here for backward compatibility.
+
 NOTE on LAYER_COLORS: These are the PRESENTATION layer colors, intentionally
 different from code/modules/depth_model.py's LAYER_COLORS (which uses different
 hues for L5 and L6). Do not "fix" this — the divergence is deliberate.
-
-NOTE on SAMPLE_TO_DX: This is a hardcoded copy of the diagnosis mapping derived
-from code/modules/metadata.py::get_diagnosis_map(). Hardcoded here to avoid
-needing the Excel metadata file at import time.
 """
 
 import os
+import sys
+import numpy as np
+import pandas as pd
 import anndata as ad
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+# Import shared constants from modules/constants.py and re-export
+# so all existing `from config import SAMPLE_TO_DX` etc. continue to work.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))), "modules"))
+from constants import (  # noqa: F401 — re-exported
+    SAMPLE_TO_DX, CONTROL_SAMPLES, SCZ_SAMPLES, EXCLUDE_SAMPLES,
+    CORTICAL_LAYERS, CLASS_COLORS, SUBCLASS_TO_CLASS,
+)
 
 # ──────────────────────────────────────────────────────────────────────
 # Paths
 # ──────────────────────────────────────────────────────────────────────
 
-BASE_DIR = "/Users/shreejoy/Desktop/scz_xenium_test"
+BASE_DIR = os.path.expanduser("~/Github/SCZ_Xenium")
 H5AD_DIR = os.path.join(BASE_DIR, "output", "h5ad")
+# Nicole's snRNAseq reference — primary cell type reference (137K cells, 36K genes)
+SNRNASEQ_REF_PATH = os.path.join(BASE_DIR, "data", "reference",
+                                  "nicole_sea_ad_snrnaseq_reference.h5ad")
+# MERFISH spatial reference — used ONLY for depth model (has spatial coords + depth)
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                              "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
 METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
@@ -30,32 +46,14 @@ CRUMBLR_DIR = os.path.join(BASE_DIR, "output", "crumblr")
 PRESENTATION_DIR = os.path.join(BASE_DIR, "output", "presentation")
 
 # ──────────────────────────────────────────────────────────────────────
-# Sample metadata
-# ──────────────────────────────────────────────────────────────────────
-
-SAMPLE_TO_DX = {
-    'Br5400': 'Control', 'Br2039': 'SCZ', 'Br2719': 'Control',
-    'Br1113': 'Control', 'Br5373': 'SCZ', 'Br5590': 'SCZ',
-    'Br6432': 'Control', 'Br5314': 'Control', 'Br5436': 'Control',
-    'Br8772': 'SCZ', 'Br8433': 'Control', 'Br5746': 'SCZ',
-    'Br5588': 'SCZ', 'Br5973': 'SCZ', 'Br6032': 'SCZ',
-    'Br6437': 'SCZ', 'Br5639': 'Control', 'Br6389': 'Control',
-    'Br5622': 'Control', 'Br1139': 'SCZ', 'Br2421': 'SCZ',
-    'Br5931': 'Control', 'Br6496': 'SCZ', 'Br8667': 'Control',
-}
-
-CONTROL_SAMPLES = sorted(k for k, v in SAMPLE_TO_DX.items() if v == "Control")
-SCZ_SAMPLES = sorted(k for k, v in SAMPLE_TO_DX.items() if v == "SCZ")
-EXCLUDE_SAMPLES = {"Br2039"}  # WM outlier (54% white matter)
-
-# ──────────────────────────────────────────────────────────────────────
 # MapMyCells confidence filter
 # ──────────────────────────────────────────────────────────────────────
-# Bottom-1% filter on subclass bootstrapping probability.
-# Removes ~0.8% of cells whose subclass assignment is least reliable.
-# Threshold = 1st percentile of subclass_label_confidence across all
-# QC-pass cortical cells (computed from full dataset).
-SUBCLASS_CONF_THRESH = 0.280
+# HANN subclass confidence filter — DISABLED.
+# Previously set to 0.500, which removed ~25% of cells (concentrated in
+# hard-to-distinguish deep-layer excitatory and rare interneuron types).
+# Now set to 0.0 to keep all QC-pass cells with their raw HANN labels.
+# Mapping quality is exposed in the viewer instead of hard-filtering.
+SUBCLASS_CONF_THRESH = 0.0
 
 # ──────────────────────────────────────────────────────────────────────
 # Presentation colors
@@ -75,7 +73,7 @@ LAYER_COLORS = {
     "Vascular": (0.95, 0.3, 0.6),
 }
 LAYER_ORDER = ["L1", "L2/3", "L4", "L5", "L6", "WM", "Vascular"]
-CORTICAL_LAYERS = {"L1", "L2/3", "L4", "L5", "L6"}
+# CORTICAL_LAYERS imported from modules/constants
 
 # ──────────────────────────────────────────────────────────────────────
 # Vulnerable cell type groups
@@ -112,31 +110,7 @@ REPRESENTATIVE_SAMPLES = [
 # Cell class classification
 # ──────────────────────────────────────────────────────────────────────
 
-CLASS_COLORS = {
-    "Glutamatergic": "#e74c3c",
-    "GABAergic":     "#3498db",
-    "Non-neuronal":  "#2ecc71",
-}
-
-SUBCLASS_TO_CLASS = {
-    # Glutamatergic
-    "L2/3 IT": "Glutamatergic", "L4 IT": "Glutamatergic",
-    "L5 IT": "Glutamatergic", "L5 ET": "Glutamatergic",
-    "L5/6 NP": "Glutamatergic", "L6 IT": "Glutamatergic",
-    "L6 IT Car3": "Glutamatergic", "L6 CT": "Glutamatergic",
-    "L6b": "Glutamatergic",
-    # GABAergic
-    "Lamp5": "GABAergic", "Lamp5 Lhx6": "GABAergic",
-    "Sncg": "GABAergic", "Vip": "GABAergic",
-    "Pax6": "GABAergic", "Chandelier": "GABAergic",
-    "Pvalb": "GABAergic", "Sst": "GABAergic",
-    "Sst Chodl": "GABAergic",
-    # Non-neuronal
-    "Astrocyte": "Non-neuronal", "Oligodendrocyte": "Non-neuronal",
-    "OPC": "Non-neuronal", "Microglia-PVM": "Non-neuronal",
-    "Endothelial": "Non-neuronal", "VLMC": "Non-neuronal",
-    "SMC": "Non-neuronal", "Pericyte": "Non-neuronal",
-}
+# CLASS_COLORS and SUBCLASS_TO_CLASS imported from modules/constants
 
 # Prefix-based inference (for crumblr/snRNAseq scripts)
 GABA_PREFIXES = ['Sst', 'Pvalb', 'Vip', 'Lamp5', 'Sncg', 'Pax6', 'Chandelier']
@@ -155,66 +129,290 @@ MARKER_SIZE_BG = 0.3
 # ──────────────────────────────────────────────────────────────────────
 
 
-def load_cortical(sample_id):
-    """Load QC-pass cortical cells (L1-L6) with spatial coordinates.
+def load_cells(sample_id, cortical_only=False, extra_obs_columns=None,
+               qc_mode='hybrid'):
+    """Load QC-pass cells from one Xenium sample.
 
-    Applies bottom-1% subclass confidence filter (SUBCLASS_CONF_THRESH).
+    Central data loader for all analysis scripts. Uses correlation classifier
+    labels (corr_subclass, corr_supertype) if available, falling back to HANN
+    labels. Applies the appropriate QC filter based on qc_mode.
 
-    Returns DataFrame with columns: sample_id, subclass_label,
-    supertype_label, spatial_domain, layer, qc_pass, x, y.
+    Parameters
+    ----------
+    sample_id : str
+        Sample ID (e.g., "Br6389").
+    cortical_only : bool
+        If True, restrict to cortical layers (L1-L6) only.
+    extra_obs_columns : list of str, optional
+        Additional obs columns to include (e.g., ["predicted_norm_depth"]).
+    qc_mode : str
+        QC filtering strategy:
+        - 'hybrid' : use hybrid_qc_pass (default; rescues resolved nuclear doublets,
+                     flags nuclear-only doublets). Falls back to 'corr' if
+                     hybrid_qc_pass column doesn't exist yet.
+        - 'corr'   : use corr_qc_pass (original behavior, without nuclear evidence)
+
+    Returns
+    -------
+    DataFrame with columns: sample_id, subclass_label, supertype_label,
+    spatial_domain, layer, qc_pass, x, y, plus any extra_obs_columns.
     """
     fpath = os.path.join(H5AD_DIR, f"{sample_id}_annotated.h5ad")
     adata = ad.read_h5ad(fpath, backed="r")
 
-    cols = ["sample_id", "subclass_label", "supertype_label",
-            "spatial_domain", "layer", "qc_pass",
-            "subclass_label_confidence"]
+    # Determine which label columns to use
+    has_corr = "corr_subclass" in adata.obs.columns
+    subclass_col = "corr_subclass" if has_corr else "subclass_label"
+    supertype_col = "corr_supertype" if has_corr else "supertype_label"
+
+    cols = ["sample_id", subclass_col, supertype_col,
+            "spatial_domain", "layer", "qc_pass"]
+    if has_corr:
+        cols.append("corr_qc_pass")
+    else:
+        cols.append("subclass_label_confidence")
+
+    # Include hybrid QC columns if available and requested
+    has_hybrid = "hybrid_qc_pass" in adata.obs.columns
+    if has_hybrid:
+        for hcol in ["hybrid_qc_pass", "nuclear_doublet_status"]:
+            if hcol in adata.obs.columns and hcol not in cols:
+                cols.append(hcol)
+
+    if extra_obs_columns:
+        for c in extra_obs_columns:
+            if c not in cols and c in adata.obs.columns:
+                cols.append(c)
+
     obs = adata.obs[cols].copy()
+
+    # Rename to standard column names for downstream compatibility
+    if has_corr:
+        obs = obs.rename(columns={
+            subclass_col: "subclass_label",
+            supertype_col: "supertype_label",
+        })
 
     coords = adata.obsm["spatial"]
     obs["x"] = coords[:, 0]
     obs["y"] = coords[:, 1]
     obs["layer"] = obs["layer"].astype(str)
+    obs["subclass_label"] = obs["subclass_label"].astype(str)
     obs["supertype_label"] = obs["supertype_label"].astype(str)
 
-    mask = (obs["qc_pass"] == True) & (obs["layer"].isin(CORTICAL_LAYERS))
+    # Determine effective QC mode
+    effective_mode = qc_mode
+    if effective_mode == 'hybrid' and not has_hybrid:
+        effective_mode = 'corr'  # fallback if step 06 hasn't run
+
+    # QC pass filter
+    # For hybrid mode, hybrid_qc_pass IS the complete QC column (includes
+    # high-UMI rescue, so we don't intersect with qc_pass which excludes them)
+    if effective_mode == 'hybrid':
+        mask = obs["hybrid_qc_pass"] == True
+    else:
+        mask = obs["qc_pass"] == True
+
+    if cortical_only:
+        mask = mask & obs["layer"].isin(CORTICAL_LAYERS)
     obs = obs[mask]
 
-    # Apply bottom-1% subclass confidence filter
-    obs = obs[obs["subclass_label_confidence"].astype(float)
-              >= SUBCLASS_CONF_THRESH]
+    # Apply classifier-specific QC filter (only needed for non-hybrid modes)
+    if effective_mode != 'hybrid':
+        if has_corr:
+            obs = obs[obs["corr_qc_pass"] == True]
+        else:
+            obs = obs[obs["subclass_label_confidence"].astype(float)
+                      >= SUBCLASS_CONF_THRESH]
 
     return obs.copy()
+
+
+# Backward-compatible wrappers
+def load_cortical(sample_id):
+    """Load QC-pass cortical cells (L1-L6) with spatial coordinates."""
+    return load_cells(sample_id, cortical_only=True)
 
 
 def load_all_cells(sample_id):
-    """Load all QC-pass cells with spatial coordinates and layer info.
+    """Load all QC-pass cells with spatial coordinates and layer info."""
+    return load_cells(sample_id, cortical_only=False)
 
-    Applies bottom-1% subclass confidence filter (SUBCLASS_CONF_THRESH).
 
-    Returns DataFrame with columns: sample_id, subclass_label,
-    supertype_label, spatial_domain, layer, qc_pass, x, y.
+def load_merfish_cortical():
+    """Load MERFISH cortical cells with manual depth annotation.
+
+    NOTE: This uses the MERFISH spatial reference (not snRNAseq) because it
+    has spatial coordinates and manual depth annotations. Used ONLY for
+    depth-related analyses.
+
+    Returns DataFrame with columns: donor, subclass, supertype, depth,
+    layer_annotation. Only includes cells with manual depth annotations
+    in cortical layers (L1-L6).
+    """
+    adata = ad.read_h5ad(MERFISH_PATH, backed="r")
+    obs = adata.obs[["Donor ID", "Subclass", "Supertype",
+                      "Normalized depth from pia",
+                      "Layer annotation"]].copy()
+
+    # Filter to cells with manual depth annotation and cortical layers
+    obs = obs.dropna(subset=["Normalized depth from pia"])
+    obs["Layer annotation"] = obs["Layer annotation"].astype(str)
+    obs = obs[obs["Layer annotation"].isin(CORTICAL_LAYERS)]
+
+    obs = obs.rename(columns={
+        "Donor ID": "donor",
+        "Subclass": "subclass",
+        "Supertype": "supertype",
+        "Normalized depth from pia": "depth",
+        "Layer annotation": "layer_annotation",
+    })
+    obs["subclass"] = obs["subclass"].astype(str)
+    obs["supertype"] = obs["supertype"].astype(str)
+    obs["depth"] = obs["depth"].astype(float)
+
+    return obs
+
+
+def load_snrnaseq_reference(level="Subclass", neurons_only=False):
+    """Load Nicole's Sea-AD snRNAseq reference for proportion comparisons.
+
+    This is the primary cell type reference (137K cells, 36K genes, 5 donors).
+    Provides ground-truth cell type proportions from dissociated tissue.
+
+    Parameters
+    ----------
+    level : str
+        Taxonomy level: "Subclass" or "Supertype".
+    neurons_only : bool
+        If True, restrict to neuronal classes only.
+
+    Returns
+    -------
+    DataFrame with columns: donor, celltype, class_label.
+    """
+    adata = ad.read_h5ad(SNRNASEQ_REF_PATH, backed="r")
+    obs = adata.obs[["donor_id", "Class", level]].copy()
+    obs = obs.rename(columns={
+        "donor_id": "donor",
+        level: "celltype",
+        "Class": "class_label",
+    })
+    obs["donor"] = obs["donor"].astype(str)
+    obs["celltype"] = obs["celltype"].astype(str)
+    obs["class_label"] = obs["class_label"].astype(str)
+
+    # Map Nicole's class labels to our standard short names
+    class_map = {
+        "Neuronal: Glutamatergic": "Glutamatergic",
+        "Neuronal: GABAergic": "GABAergic",
+        "Non-neuronal and Non-neural": "Non-neuronal",
+    }
+    obs["class_label"] = obs["class_label"].map(class_map).fillna("Unknown")
+
+    if neurons_only:
+        obs = obs[obs["class_label"].isin(["Glutamatergic", "GABAergic"])]
+
+    return obs
+
+
+def compute_reference_proportions(level="Subclass", neurons_only=False):
+    """Compute per-donor mean proportions from the snRNAseq reference.
+
+    Parameters
+    ----------
+    level : str
+        Taxonomy level: "Subclass" or "Supertype".
+    neurons_only : bool
+        If True, restrict to neuronal classes only.
+
+    Returns
+    -------
+    DataFrame with columns: celltype, ref_mean, ref_std.
+    """
+    obs = load_snrnaseq_reference(level=level, neurons_only=neurons_only)
+
+    records = []
+    for donor in obs["donor"].unique():
+        donor_df = obs[obs["donor"] == donor]
+        total = len(donor_df)
+        counts = donor_df["celltype"].value_counts()
+        for ct, n in counts.items():
+            records.append({"donor": donor, "celltype": ct,
+                            "proportion": n / total})
+
+    df = pd.DataFrame(records)
+    stats = df.groupby("celltype")["proportion"].agg(
+        ["mean", "std"]).reset_index()
+    stats.columns = ["celltype", "ref_mean", "ref_std"]
+    return stats
+
+
+def load_sample_adata(sample_id, cortical_only=True, qc_mode='hybrid'):
+    """Load a full AnnData object with standardized labels and QC filtering.
+
+    Unlike load_cells(), this returns the full AnnData (including X matrix),
+    suitable for pseudobulk DE or any analysis needing gene counts.
+
+    Parameters
+    ----------
+    sample_id : str
+        Sample ID (e.g., "Br6389").
+    cortical_only : bool
+        If True, restrict to cortical + not-WM cells.
+    qc_mode : str
+        QC filtering strategy (same as load_cells):
+        - 'hybrid' : use hybrid_qc_pass (default; rescues resolved nuclear doublets).
+                     Falls back to 'corr' if hybrid_qc_pass doesn't exist.
+        - 'corr'   : use corr_qc_pass (original behavior, without nuclear evidence)
+
+    Returns
+    -------
+    AnnData with .obs columns standardized to subclass_label, supertype_label.
     """
     fpath = os.path.join(H5AD_DIR, f"{sample_id}_annotated.h5ad")
-    adata = ad.read_h5ad(fpath, backed="r")
+    adata = ad.read_h5ad(fpath)
 
-    cols = ["sample_id", "subclass_label", "supertype_label",
-            "spatial_domain", "layer", "qc_pass",
-            "subclass_label_confidence"]
-    obs = adata.obs[cols].copy()
+    has_corr = "corr_subclass" in adata.obs.columns
+    has_hybrid = "hybrid_qc_pass" in adata.obs.columns
 
-    coords = adata.obsm["spatial"]
-    obs["x"] = coords[:, 0]
-    obs["y"] = coords[:, 1]
-    obs["layer"] = obs["layer"].astype(str)
-    obs["supertype_label"] = obs["supertype_label"].astype(str)
-    obs = obs[obs["qc_pass"] == True]
+    effective_mode = qc_mode
+    if effective_mode == 'hybrid' and not has_hybrid:
+        effective_mode = 'corr'  # fallback if step 06 hasn't run
 
-    # Apply bottom-1% subclass confidence filter
-    obs = obs[obs["subclass_label_confidence"].astype(float)
-              >= SUBCLASS_CONF_THRESH]
+    # Build QC mask
+    # For hybrid mode, hybrid_qc_pass IS the complete QC column (includes
+    # high-UMI rescue, so we don't intersect with qc_pass which excludes them)
+    if effective_mode == 'hybrid':
+        mask = adata.obs["hybrid_qc_pass"] == True
+    else:
+        mask = adata.obs["qc_pass"] == True
 
-    return obs.copy()
+    if cortical_only:
+        mask = mask & (adata.obs["spatial_domain"] == "Cortical")
+        mask = mask & (adata.obs["layer"] != "WM")
+
+    # Classifier-specific QC (only needed for non-hybrid modes)
+    if effective_mode != 'hybrid':
+        if has_corr:
+            mask = mask & (adata.obs["corr_qc_pass"] == True)
+        else:
+            mask = mask & (adata.obs["subclass_label_confidence"].astype(float)
+                           >= SUBCLASS_CONF_THRESH)
+
+    adata = adata[mask].copy()
+
+    # Standardize label columns
+    if has_corr:
+        adata.obs["subclass_label"] = adata.obs["corr_subclass"].astype(str)
+        adata.obs["supertype_label"] = adata.obs["corr_supertype"].astype(str)
+    else:
+        adata.obs["subclass_label"] = adata.obs["subclass_label"].astype(str)
+        adata.obs["supertype_label"] = adata.obs["supertype_label"].astype(str)
+
+    adata.obs["sample_id"] = adata.obs["sample_id"].astype(str)
+
+    return adata
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -349,8 +547,8 @@ def classify_celltype(ct):
                     "l6b", "it_", " it"]
     gaba_markers = ["sst", "pvalb", "vip", "lamp5", "sncg", "chandelier", "pax6"]
     if any(g in ct_lower for g in glut_markers):
-        return "#3399dd", "Glutamatergic"
+        return CLASS_COLORS["Glutamatergic"], "Glutamatergic"
     elif any(g in ct_lower for g in gaba_markers):
-        return "#ee4433", "GABAergic"
+        return CLASS_COLORS["GABAergic"], "GABAergic"
     else:
-        return "#44bb44", "Non-neuronal"
+        return CLASS_COLORS["Non-neuronal"], "Non-neuronal"

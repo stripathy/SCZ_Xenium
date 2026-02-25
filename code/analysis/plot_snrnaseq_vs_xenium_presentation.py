@@ -30,7 +30,7 @@ OUT_DIR = PRESENTATION_DIR
 
 BG = BG_COLOR
 
-CLASS_COLORS = {'Glut': '#d73027', 'GABA': '#4575b4', 'NN': '#33a02c', 'Other': '#999999'}
+CLASS_COLORS = {'Glut': '#00ADF8', 'GABA': '#F05A28', 'NN': '#808080', 'Other': '#999999'}
 
 
 def main():

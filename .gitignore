@@ -8,6 +8,16 @@ data/raw/
 # Reference datasets (download from Allen Brain Cell Atlas)
 data/reference/*.h5ad
 data/reference/*.h5
+data/reference/nicole_sea_ad_reference/
+
+# Reference count summary CSVs (regenerate with benchmark scripts)
+data/reference/SEAAD_*.csv
+
+# External code dependencies
+code/scrattch.mapping-main/
+
+# GWAS data
+data/scz_gwas/
 
 # Documentation PDFs (copyrighted; cite DOIs instead)
 docs/
@@ -24,9 +34,11 @@ output/Br8667_corr_annotated.h5ad
 # Trained models
 output/depth_model*.pkl
 
-# Viewer data (regenerate with step 05)
+# Viewer data (regenerate with step 07)
 output/viewer/*.json
 output/viewer/xenium_viewer_standalone.html
+output/viewer/boundaries/
+output/viewer/transcripts/
 
 # Per-sample summary plots (regenerate with step 04)
 output/plots/
@@ -34,6 +46,14 @@ output/plots/
 # Benchmark h5ad and large JSON (regenerate with benchmark script)
 output/benchmark/*.h5ad
 output/benchmark/*.json
+
+# Large generated analysis outputs (regenerate with analysis scripts)
+output/de/
+output/merfish_benchmark/
+output/crumblr_seaad/
+
+# Correlation centroids (regenerate with step 02b)
+output/h5ad/correlation_centroids.pkl
 
 # Top-level plots directory
 plots/
@@ -44,6 +64,7 @@ plots/
 output/**/*.png
 output/*.png
 output/**/*.pptx
+output/**/*.pdf
 
 # ──────────────────────────────────────────────────────────────────────
 # System / IDE / temporary files

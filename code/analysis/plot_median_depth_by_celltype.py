@@ -18,17 +18,18 @@ Output: output/presentation/slide_median_depth_by_celltype.png
 
 import os
 import sys
+import glob
 import numpy as np
 import pandas as pd
-import anndata as ad
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr, spearmanr
 from adjustText import adjust_text
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
-    BG_COLOR, CLASS_COLORS, SUBCLASS_TO_CLASS, H5AD_DIR, MERFISH_PATH,
-    PRESENTATION_DIR, CORTICAL_LAYERS, SUBCLASS_CONF_THRESH,
+    BG_COLOR, CLASS_COLORS, SUBCLASS_TO_CLASS, H5AD_DIR,
+    PRESENTATION_DIR, EXCLUDE_SAMPLES,
+    load_cells, load_merfish_cortical as _load_merfish_cortical,
 )
 
 OUT_DIR = PRESENTATION_DIR
@@ -37,46 +38,28 @@ OUT_DIR = PRESENTATION_DIR
 MIN_CELLS = 20
 
 
-def load_merfish_cortical():
+def load_merfish():
     """Load MERFISH cortical cells with manual depth annotation."""
     print("Loading MERFISH reference...")
-    adata = ad.read_h5ad(MERFISH_PATH, backed="r")
-    obs = adata.obs[["Subclass", "Supertype", "Normalized depth from pia",
-                      "Layer annotation"]].copy()
-
-    # Filter to cells with manual depth annotation and cortical layers
-    obs = obs.dropna(subset=["Normalized depth from pia"])
-    obs = obs[obs["Layer annotation"].astype(str).isin(CORTICAL_LAYERS)]
-
-    obs = obs.rename(columns={
-        "Subclass": "subclass",
-        "Supertype": "supertype",
-        "Normalized depth from pia": "depth",
-    })
+    obs = _load_merfish_cortical()
     print(f"  MERFISH cortical with manual depth: {len(obs):,} cells")
     return obs
 
 
 def load_xenium_cortical():
-    """Load all Xenium cortical cells (L1-L6) across 24 samples."""
+    """Load all Xenium cortical cells (L1-L6) across all samples."""
     print("Loading Xenium samples...")
-    h5ad_files = sorted([f for f in os.listdir(H5AD_DIR) if f.endswith("_annotated.h5ad")])
+    h5ad_files = sorted(glob.glob(os.path.join(H5AD_DIR, "*_annotated.h5ad")))
 
     dfs = []
-    for fname in h5ad_files:
-        sample_id = fname.replace("_annotated.h5ad", "")
-        fpath = os.path.join(H5AD_DIR, fname)
-        adata = ad.read_h5ad(fpath, backed="r")
+    for fpath in h5ad_files:
+        sample_id = os.path.basename(fpath).replace("_annotated.h5ad", "")
+        if sample_id in EXCLUDE_SAMPLES:
+            print(f"  {sample_id}: SKIPPED (excluded)")
+            continue
 
-        cols = ["subclass_label", "supertype_label", "predicted_norm_depth",
-                "layer", "qc_pass", "subclass_label_confidence"]
-        obs = adata.obs[cols].copy()
-
-        mask = (obs["qc_pass"] == True) & (obs["layer"].astype(str).isin(CORTICAL_LAYERS))
-        obs = obs[mask].copy()
-
-        # Bottom-1% subclass confidence filter
-        obs = obs[obs["subclass_label_confidence"].astype(float) >= SUBCLASS_CONF_THRESH]
+        obs = load_cells(sample_id, cortical_only=True,
+                         extra_obs_columns=["predicted_norm_depth"])
         obs = obs.rename(columns={
             "subclass_label": "subclass",
             "supertype_label": "supertype",
@@ -183,7 +166,7 @@ def make_scatter(ax, merfish_df, xenium_df, level, label_all=True,
 
 def main():
     # Load data
-    merfish_df = load_merfish_cortical()
+    merfish_df = load_merfish()
     xenium_df = load_xenium_cortical()
 
     # Compute median depths at both levels

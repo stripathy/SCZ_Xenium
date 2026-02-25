@@ -8,12 +8,20 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; display: flex; height: 100vh; overflow: hidden; }
 
-/* Sidebar */
-#sidebar { width: 300px; background: #16213e; padding: 16px; overflow-y: auto; border-right: 1px solid #0f3460; display: flex; flex-direction: column; gap: 12px; }
+/* Sidebar — scrollable column */
+#sidebar { width: 300px; background: #16213e; padding: 12px; overflow-y: auto; border-right: 1px solid #0f3460; display: flex; flex-direction: column; gap: 6px; }
 #sidebar h1 { font-size: 18px; color: #e94560; margin-bottom: 4px; }
-#sidebar h2 { font-size: 14px; font-weight: 600; color: #e94560; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
-.section { background: #0f3460; border-radius: 8px; padding: 12px; }
+.section { background: #0f3460; border-radius: 8px; padding: 0; flex-shrink: 0; }
 .section label { font-size: 12px; color: #a0a0c0; display: block; margin-bottom: 4px; }
+
+/* Accordion headers */
+.section-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 12px; user-select: none; }
+.section-header h2 { font-size: 13px; font-weight: 600; color: #e94560; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+.section-header .collapse-icon { font-size: 10px; color: #666; transition: transform 0.2s; }
+.section-body { padding: 0 12px 10px 12px; }
+.section.collapsed .section-body { display: none; }
+.section.collapsed .collapse-icon { transform: rotate(-90deg); }
+.section.collapsed { padding-bottom: 0; }
 
 /* Sample selector */
 #sample-list { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -30,7 +38,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .mode-btn.active { background: #533483; color: white; border-color: #533483; }
 
 /* Cell type filter */
-#celltype-filter { max-height: 280px; overflow-y: auto; }
+#celltype-section { flex-shrink: 0; }
+#celltype-filter { max-height: 200px; overflow-y: auto; }
 .ct-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; font-size: 12px; }
 .ct-row:hover { background: rgba(255,255,255,0.05); }
 .ct-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
@@ -40,7 +49,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 input[type="checkbox"] { accent-color: #e94560; }
 
 /* Filter controls */
-.filter-bar { display: flex; gap: 4px; margin-bottom: 6px; }
+.filter-bar { display: flex; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
 .filter-bar button { padding: 3px 8px; font-size: 11px; border: 1px solid #333; border-radius: 3px; cursor: pointer; background: #1a1a2e; color: #aaa; }
 .filter-bar button:hover { background: #333; }
 
@@ -71,6 +80,23 @@ canvas { position: absolute; top: 0; left: 0; }
 #legend-overlay .leg-title { font-weight: 700; color: #e94560; margin-bottom: 4px; }
 .leg-row { display: flex; align-items: center; gap: 5px; padding: 1px 0; }
 .leg-swatch { width: 10px; height: 10px; border-radius: 2px; }
+
+/* Transcript panel */
+#transcript-section { display: none; flex-shrink: 0; }
+#transcript-section.visible { display: block; }
+#gene-search { width: 100%; padding: 5px 8px; font-size: 12px; border: 1px solid #333; border-radius: 4px; background: #1a1a2e; color: #e0e0e0; margin-bottom: 6px; }
+#gene-search::placeholder { color: #666; }
+#gene-list { max-height: 180px; overflow-y: auto; }
+.gene-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; font-size: 12px; }
+.gene-row:hover { background: rgba(255,255,255,0.05); }
+.gene-row.active { background: rgba(255,255,255,0.08); }
+.gene-row.loading .gene-label { color: #e94560; font-style: italic; }
+.gene-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.gene-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gene-count { font-size: 10px; color: #888; }
+#transcript-info { font-size: 11px; color: #666; margin-top: 4px; flex-shrink: 0; }
+#transcript-controls { flex-shrink: 0; margin-top: 6px; display: none; }
+#transcript-controls.visible { display: block; }
 </style>
 </head>
 <body>
@@ -81,57 +107,116 @@ canvas { position: absolute; top: 0; left: 0; }
     <div style="font-size:11px; color:#888;">24 DLPFC sections | 1.3M cells</div>
   </div>
 
-  <div class="section">
-    <h2>Section</h2>
-    <div style="margin-bottom:6px; font-size:11px;">
-      <span style="color:#4ecdc4;">&#9632;</span> Control (n=12) &nbsp;
-      <span style="color:#e94560;">&#9632;</span> SCZ (n=12)
+  <div class="section" id="section-samples">
+    <div class="section-header" onclick="toggleSection('section-samples')">
+      <h2>Section</h2>
+      <span class="collapse-icon">▼</span>
     </div>
-    <div id="sample-list"></div>
-  </div>
-
-  <div class="section">
-    <h2>Color By</h2>
-    <div class="color-mode-btns" id="color-modes">
-      <button class="mode-btn active" data-mode="subclass">Subclass</button>
-      <button class="mode-btn" data-mode="supertype">Supertype</button>
-      <button class="mode-btn" data-mode="class">Class</button>
-      <button class="mode-btn" data-mode="layer">Layer</button>
-      <button class="mode-btn" data-mode="depth">Depth</button>
+    <div class="section-body">
+      <div style="margin-bottom:6px; font-size:11px;">
+        <span style="color:#4ecdc4;">&#9632;</span> Control (n=12) &nbsp;
+        <span style="color:#e94560;">&#9632;</span> SCZ (n=12)
+      </div>
+      <div id="sample-list"></div>
     </div>
   </div>
 
-  <div class="section" style="flex:1; min-height:0; display:flex; flex-direction:column;">
-    <h2>Cell Types</h2>
-    <div class="filter-bar">
-      <button onclick="selectAllTypes()">All</button>
-      <button onclick="selectNoneTypes()">None</button>
-      <button onclick="selectNeurons()">Neurons</button>
-      <button onclick="selectGlia()">Glia</button>
+  <div class="section" id="section-colorby">
+    <div class="section-header" onclick="toggleSection('section-colorby')">
+      <h2>Color By</h2>
+      <span class="collapse-icon">▼</span>
     </div>
-    <div id="celltype-filter" style="flex:1; overflow-y:auto;"></div>
+    <div class="section-body">
+      <div class="color-mode-btns" id="color-modes">
+        <button class="mode-btn active" data-mode="subclass">Subclass</button>
+        <button class="mode-btn" data-mode="supertype">Supertype</button>
+        <button class="mode-btn" data-mode="class">Class</button>
+        <button class="mode-btn" data-mode="layer">Layer</button>
+        <button class="mode-btn" data-mode="depth">Depth</button>
+        <button class="mode-btn" data-mode="confidence">Confidence</button>
+        <button class="mode-btn" data-mode="margin">Margin</button>
+      </div>
+    </div>
   </div>
 
-  <div class="section">
-    <h2>Display</h2>
-    <label>Point size: <span id="size-val">2</span></label>
-    <input type="range" id="point-size" min="1" max="8" value="2" step="0.5">
-    <label style="margin-top:6px;">Opacity: <span id="opacity-val">0.8</span></label>
-    <input type="range" id="point-opacity" min="0.1" max="1" value="0.8" step="0.05">
-    <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-      <label style="margin:0; cursor:pointer; display:flex; align-items:center; gap:4px;">
+  <div class="section" id="celltype-section">
+    <div class="section-header" onclick="toggleSection('celltype-section')">
+      <h2>Cell Types</h2>
+      <span class="collapse-icon">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="filter-bar">
+        <button onclick="selectAllTypes()">All</button>
+        <button onclick="selectNoneTypes()">None</button>
+        <button onclick="selectNeurons()">Neurons</button>
+        <button onclick="selectGlia()">Glia</button>
+      </div>
+      <div id="celltype-filter"></div>
+    </div>
+  </div>
+
+  <div class="section" id="section-display">
+    <div class="section-header" onclick="toggleSection('section-display')">
+      <h2>Display</h2>
+      <span class="collapse-icon">▼</span>
+    </div>
+    <div class="section-body">
+      <label>Point size: <span id="size-val">2</span></label>
+      <input type="range" id="point-size" min="1" max="8" value="2" step="0.5">
+      <label style="margin-top:6px;">Opacity: <span id="opacity-val">0.8</span></label>
+      <input type="range" id="point-opacity" min="0.1" max="1" value="0.8" step="0.05">
+      <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
+        <input type="checkbox" id="show-boundaries-toggle">
+        <label for="show-boundaries-toggle" style="margin:0; cursor:pointer;">Cell boundaries <span style="color:#666; font-size:10px;">(B)</span></label>
+      </div>
+      <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="layer-overlay-toggle">
-        <span>Show layer regions</span>
-      </label>
+        <label for="layer-overlay-toggle" style="margin:0; cursor:pointer;">Layer overlay <span style="color:#666; font-size:10px;">(L)</span></label>
+      </div>
+      <div id="layer-overlay-opacity-row" style="display:none; margin-top:4px;">
+        <label>Overlay opacity: <span id="overlay-opacity-val">0.15</span></label>
+        <input type="range" id="layer-overlay-opacity" min="0.05" max="0.5" value="0.15" step="0.05">
+      </div>
+      <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
+        <input type="checkbox" id="hide-qc-fail-toggle" checked>
+        <label for="hide-qc-fail-toggle" style="margin:0; cursor:pointer;">Hide low-confidence cells <span style="color:#666; font-size:10px;">(F)</span></label>
+      </div>
+      <div id="confidence-level-row" style="display:none; margin-top:8px;">
+        <label style="margin-bottom:4px;">Confidence level:</label>
+        <div style="display:flex; gap:4px;">
+          <button class="conf-level-btn" data-level="subclass" style="padding:3px 8px; font-size:11px; border:1px solid #333; border-radius:3px; cursor:pointer; background:#533483; color:white;">Subclass</button>
+          <button class="conf-level-btn" data-level="supertype" style="padding:3px 8px; font-size:11px; border:1px solid #333; border-radius:3px; cursor:pointer; background:#1a1a2e; color:#aaa;">Supertype</button>
+          <button class="conf-level-btn" data-level="class" style="padding:3px 8px; font-size:11px; border:1px solid #333; border-radius:3px; cursor:pointer; background:#1a1a2e; color:#aaa;">Class</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="section">
+  <div class="section" id="transcript-section">
+    <div class="section-header" onclick="toggleSection('transcript-section')">
+      <h2>Transcripts <span style="font-size:10px; color:#666; text-transform:none; letter-spacing:0;">(molecules)</span></h2>
+      <span class="collapse-icon">▼</span>
+    </div>
+    <div class="section-body">
+      <input type="text" id="gene-search" placeholder="Search genes... (e.g. SST, PVALB)">
+      <div class="filter-bar">
+        <button onclick="clearAllGenes()">Clear all</button>
+      </div>
+      <div id="gene-list"></div>
+      <div id="transcript-controls">
+        <label>Molecule size: <span id="mol-size-val">1</span></label>
+        <input type="range" id="mol-size" min="0.5" max="4" value="1" step="0.5">
+        <label style="margin-top:4px;">Molecule opacity: <span id="mol-opacity-val">0.6</span></label>
+        <input type="range" id="mol-opacity" min="0.1" max="1" value="0.6" step="0.05">
+      </div>
+      <div id="transcript-info"></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding:8px 12px;">
     <div id="info">
-      <div>Sample: <span class="val" id="info-sample">-</span></div>
-      <div>Diagnosis: <span class="val" id="info-dx">-</span></div>
-      <div>Cells shown: <span class="val" id="info-shown">-</span></div>
-      <div>Total cells: <span class="val" id="info-total">-</span></div>
+      <span>Sample: <span class="val" id="info-sample">-</span></span> · <span>Dx: <span class="val" id="info-dx">-</span></span><br>
+      <span>Shown: <span class="val" id="info-shown">-</span></span> / <span><span class="val" id="info-total">-</span> cells</span>
     </div>
   </div>
 </div>
@@ -142,12 +227,17 @@ canvas { position: absolute; top: 0; left: 0; }
   <div id="tooltip"></div>
   <div id="legend-overlay"></div>
   <div id="status">
-    <span id="status-left">Scroll to zoom | Drag to pan | Hover for info | L=layers</span>
+    <span id="status-left">Scroll to zoom | Drag to pan | Hover for cell/molecule info</span>
     <span id="status-right"></span>
   </div>
 </div>
 
 <script>
+// ── Section collapse ──
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
 // ── State ──
 let currentSample = null;
 let sampleData = null;
@@ -156,6 +246,10 @@ let colorMode = 'subclass';
 let activeTypes = new Set();
 let pointSize = 2;
 let pointOpacity = 0.8;
+let showLayerOverlay = false;
+let layerOverlayOpacity = 0.15;
+let hideQcFail = true;
+let baseScale = 1;
 
 // View transform
 let viewX = 0, viewY = 0, viewScale = 1;
@@ -165,6 +259,23 @@ let dragStartX, dragStartY, dragViewX, dragViewY;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+// ── Cell boundary state ──
+let boundaryData = null;  // decoded boundary polygon data for current sample
+let showBoundaries = false;
+const BOUNDARY_ZOOM_THRESHOLD = 3.0; // only show when zoomed in this much
+
+// ── Transcript molecule state ──
+let transcriptIndex = null;
+let transcriptGenes = {};
+let activeGenes = new Set();
+let moleculeSize = 1;
+let moleculeOpacity = 0.6;
+const MAX_ACTIVE_GENES = 5;
+
+const GENE_COLORS = [
+  '#FF4444', '#44FF44', '#FFFF44', '#FF44FF', '#44FFFF',
+];
+
 // ── Depth colormap (viridis-like) ──
 function depthColor(d) {
   d = Math.max(0, Math.min(1, d));
@@ -173,89 +284,35 @@ function depthColor(d) {
   const b = Math.round(84 + d * (37 - 84));
   return `rgb(${r},${g},${b})`;
 }
-
-// Precompute depth colors
 const DEPTH_LUT = [];
-for (let i = 0; i <= 256; i++) {
-  DEPTH_LUT.push(depthColor(i / 256));
+for (let i = 0; i <= 256; i++) DEPTH_LUT.push(depthColor(i / 256));
+
+// ── Confidence colormap (red → yellow → green) ──
+let confidenceLevel = 'subclass'; // 'class', 'subclass', 'supertype'
+function confColor(c) {
+  // c in [0, 1]: 0=low confidence (red), 0.5=medium (yellow), 1=high (green)
+  c = Math.max(0, Math.min(1, c));
+  let r, g, b;
+  if (c < 0.5) {
+    const t = c * 2; // 0→1 within first half
+    r = Math.round(220 - t * 40);  // 220→180
+    g = Math.round(30 + t * 190);  // 30→220
+    b = Math.round(30 + t * 10);   // 30→40
+  } else {
+    const t = (c - 0.5) * 2; // 0→1 within second half
+    r = Math.round(180 - t * 140); // 180→40
+    g = Math.round(220 + t * 20);  // 220→240
+    b = Math.round(40 + t * 20);   // 40→60
+  }
+  return `rgb(${r},${g},${b})`;
 }
+const CONF_LUT = [];
+for (let i = 0; i <= 200; i++) CONF_LUT.push(confColor(i / 200));
 
 // ── Neuron/glia classification ──
 const GLIA_TYPES = new Set(['Astrocyte', 'Oligodendrocyte', 'OPC', 'Microglia-PVM', 'Endothelial', 'VLMC']);
 const NEURON_TYPES = new Set(['L2/3 IT','L4 IT','L5 IT','L5 ET','L5/6 NP','L6 IT','L6 IT Car3','L6 CT','L6b',
   'Sst','Sst Chodl','Pvalb','Vip','Lamp5','Lamp5 Lhx6','Sncg','Pax6','Chandelier']);
-
-// ── Supertype → Subclass resolution ──
-// Maps abbreviated supertype prefixes to their canonical subclass names
-const SUPERTYPE_SUBCLASS_FALLBACK = {
-  'Astro': 'Astrocyte', 'Oligo': 'Oligodendrocyte', 'Micro-PVM': 'Microglia-PVM',
-  'Endo': 'Endothelial', 'Pericyte': 'VLMC', 'SMC': 'VLMC',
-};
-
-function supertypeToSubclass(supertype) {
-  // Try using the map from index.json first
-  const stMap = (indexData && indexData.supertype_subclass_map) || {};
-  // Strip trailing _N, _N_N-SEAAD, -SEAAD patterns to get the base
-  const base = supertype.replace(/[-_]\d+(?:[-_]\d+)*(?:-SEAAD)?$/, '').replace(/-SEAAD$/, '');
-  // Direct match in subclass_colors?
-  const palette = (indexData && indexData.subclass_colors) || {};
-  if (palette[base]) return base;
-  if (palette[supertype]) return supertype;
-  // Check fallback map
-  if (stMap[base]) return stMap[base];
-  if (SUPERTYPE_SUBCLASS_FALLBACK[base]) return SUPERTYPE_SUBCLASS_FALLBACK[base];
-  return base;
-}
-
-// ── Distinct color generation for supertypes ──
-function hexToHSL(hex) {
-  let r = parseInt(hex.slice(1,3), 16) / 255;
-  let g = parseInt(hex.slice(3,5), 16) / 255;
-  let b = parseInt(hex.slice(5,7), 16) / 255;
-  const max = Math.max(r,g,b), min = Math.min(r,g,b);
-  let h, s, l = (max + min) / 2;
-  if (max === min) { h = s = 0; }
-  else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-    else if (max === g) h = ((b - r) / d + 2) / 6;
-    else h = ((r - g) / d + 4) / 6;
-  }
-  return [h * 360, s * 100, l * 100];
-}
-
-function hslToCSS(h, s, l) {
-  return `hsl(${h.toFixed(0)}, ${s.toFixed(0)}%, ${l.toFixed(0)}%)`;
-}
-
-function generateSupertypeColor(supertype, supertypeList) {
-  const subclass = supertypeToSubclass(supertype);
-  const palette = (indexData && indexData.subclass_colors) || {};
-  const baseHex = palette[subclass] || '#666666';
-  const [baseH, baseS, baseL] = hexToHSL(baseHex);
-
-  // Find all supertypes sharing this subclass
-  const siblings = supertypeList.filter(st => supertypeToSubclass(st) === subclass);
-  const idx = siblings.indexOf(supertype);
-  const n = siblings.length;
-
-  if (n <= 1) return hslToCSS(baseH, baseS, baseL);
-
-  // Spread hue +-20deg around base, vary lightness +-15%
-  const hueSpread = Math.min(40, 15 * n);
-  const hueShift = (idx / (n - 1) - 0.5) * hueSpread;
-  const lightShift = (idx / (n - 1) - 0.5) * 30;
-
-  const h = (baseH + hueShift + 360) % 360;
-  const s = Math.max(20, Math.min(100, baseS));
-  const l = Math.max(25, Math.min(85, baseL + lightShift));
-
-  return hslToCSS(h, s, l);
-}
-
-// Layer overlay state
-let showLayerOverlay = false;
 
 // ── Init ──
 async function init() {
@@ -264,16 +321,15 @@ async function init() {
   buildSampleList();
   setupEvents();
   resizeCanvas();
-  // Load first sample
-  loadSample(indexData.samples[0].sample_id);
+  // Default to Br8667 (has transcript data) or first sample
+  const defaultSample = indexData.samples.find(s => s.sample_id === 'Br8667') || indexData.samples[0];
+  loadSample(defaultSample.sample_id);
 }
 
 function buildSampleList() {
   const el = document.getElementById('sample-list');
-  // Sort: controls first, then SCZ
   const controls = indexData.samples.filter(s => s.diagnosis === 'Control').sort((a,b) => a.sample_id.localeCompare(b.sample_id));
   const scz = indexData.samples.filter(s => s.diagnosis === 'SCZ').sort((a,b) => a.sample_id.localeCompare(b.sample_id));
-
   [...controls, ...scz].forEach(s => {
     const btn = document.createElement('button');
     btn.className = `sample-btn ${s.diagnosis.toLowerCase()}`;
@@ -287,546 +343,673 @@ function buildSampleList() {
 async function loadSample(sampleId) {
   const loading = document.getElementById('loading');
   loading.classList.add('show');
-
-  // Update button states
   document.querySelectorAll('.sample-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.sample === sampleId);
   });
-
   currentSample = sampleId;
-
+  // Clear previous transcript state immediately to prevent stale rendering
+  activeGenes.clear();
+  transcriptGenes = {};
+  transcriptIndex = null;
   const resp = await fetch(`${sampleId}.json`);
   sampleData = await resp.json();
-
-  // Pre-compute category colors for current color mode
   precomputeColors();
-
-  // Build cell type filter
+  buildLayerGrid();
   buildCellTypeFilter();
-
-  // Reset view to fit
   fitView();
-
-  // Update info
   document.getElementById('info-sample').textContent = sampleId;
   document.getElementById('info-dx').textContent = sampleData.diagnosis;
   document.getElementById('info-dx').style.color = sampleData.diagnosis === 'SCZ' ? '#e94560' : '#4ecdc4';
   document.getElementById('info-total').textContent = sampleData.n_cells.toLocaleString();
 
+  // Load boundary and transcript data in parallel
+  await Promise.all([
+    loadBoundaryData(sampleId),
+    checkTranscriptData(sampleId)
+  ]);
+
   loading.classList.remove('show');
   render();
 }
 
+// ── Boundary data loading ──
+async function loadBoundaryData(sampleId) {
+  try {
+    const resp = await fetch(`boundaries/${sampleId}.json`);
+    if (!resp.ok) throw new Error('not found');
+    const raw = await resp.json();
+
+    // Decode: flat arrays of quantized vertices -> per-cell Float32Arrays
+    const n = raw.n_cells;
+    const vpc = raw.verts_per_cell;
+    const xOff = raw.x_offset;
+    const yOff = raw.y_offset;
+    const xScale = raw.x_scale;
+    const yScale = raw.y_scale;
+
+    // Store as a single pair of typed arrays for efficiency
+    const totalVerts = n * vpc;
+    const bx = new Float32Array(totalVerts);
+    const by = new Float32Array(totalVerts);
+
+    for (let i = 0; i < totalVerts; i++) {
+      bx[i] = raw.bx[i] * xScale + xOff;
+      by[i] = raw.by[i] * yScale + yOff;
+    }
+
+    boundaryData = { n, vpc, bx, by };
+    console.log(`Loaded boundaries for ${sampleId}: ${n} cells, ${vpc} verts each`);
+  } catch (e) {
+    boundaryData = null;
+  }
+}
+
+// ── Transcript data loading ──
+async function checkTranscriptData(sampleId) {
+  const section = document.getElementById('transcript-section');
+  try {
+    const resp = await fetch(`transcripts/${sampleId}/gene_index.json`);
+    if (!resp.ok) throw new Error('not found');
+    const idx = await resp.json();
+    transcriptIndex = idx;
+    section.classList.add('visible');
+    clearAllGenes();
+    buildGeneList();
+  } catch (e) {
+    transcriptIndex = null;
+    activeGenes.clear();
+    transcriptGenes = {};
+    section.classList.remove('visible');
+  }
+}
+
+function buildGeneList(filter = '') {
+  const el = document.getElementById('gene-list');
+  el.innerHTML = '';
+  if (!transcriptIndex) return;
+  const filterLower = filter.toLowerCase();
+  const genes = transcriptIndex.genes.filter(g => g.gene.toLowerCase().includes(filterLower));
+  genes.sort((a, b) => {
+    const aA = activeGenes.has(a.gene) ? 0 : 1;
+    const bA = activeGenes.has(b.gene) ? 0 : 1;
+    if (aA !== bA) return aA - bA;
+    return a.gene.localeCompare(b.gene);
+  });
+  const shown = genes.slice(0, 50);
+  shown.forEach(g => {
+    const row = document.createElement('div');
+    row.className = 'gene-row' + (activeGenes.has(g.gene) ? ' active' : '');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = activeGenes.has(g.gene);
+    cb.onchange = () => toggleGene(g.gene, cb.checked, row);
+    const colorIdx = getGeneColorIndex(g.gene);
+    const color = activeGenes.has(g.gene) ? GENE_COLORS[colorIdx] : '#444';
+    const swatch = document.createElement('div');
+    swatch.className = 'gene-swatch';
+    swatch.style.background = color;
+    const label = document.createElement('span');
+    label.className = 'gene-label';
+    label.textContent = g.gene;
+    const count = document.createElement('span');
+    count.className = 'gene-count';
+    count.textContent = g.n.toLocaleString();
+    row.appendChild(cb);
+    row.appendChild(swatch);
+    row.appendChild(label);
+    row.appendChild(count);
+    row.onclick = (e) => { if (e.target !== cb) { cb.checked = !cb.checked; cb.onchange(); } };
+    el.appendChild(row);
+  });
+  if (genes.length > 50) {
+    const more = document.createElement('div');
+    more.style.cssText = 'font-size:10px; color:#666; padding:4px 0;';
+    more.textContent = `... ${genes.length - 50} more (type to filter)`;
+    el.appendChild(more);
+  }
+  updateTranscriptInfo();
+}
+
+function getGeneColorIndex(gene) {
+  const activeList = [...activeGenes];
+  const idx = activeList.indexOf(gene);
+  return idx >= 0 ? idx % GENE_COLORS.length : activeGenes.size % GENE_COLORS.length;
+}
+
+async function toggleGene(gene, checked, row) {
+  if (checked) {
+    if (activeGenes.size >= MAX_ACTIVE_GENES) {
+      alert(`Maximum ${MAX_ACTIVE_GENES} genes can be displayed simultaneously.`);
+      const cb = row.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = false;
+      return;
+    }
+    await loadGene(gene, row);
+  } else {
+    unloadGene(gene);
+    buildGeneList(document.getElementById('gene-search').value);
+    render();
+  }
+}
+
+async function loadGene(gene, row) {
+  if (transcriptGenes[gene]) {
+    activeGenes.add(gene);
+    buildGeneList(document.getElementById('gene-search').value);
+    render();
+    return;
+  }
+  if (row) row.classList.add('loading');
+  try {
+    const geneInfo = transcriptIndex.genes.find(g => g.gene === gene);
+    if (!geneInfo) return;
+    const resp = await fetch(`transcripts/${currentSample}/${geneInfo.file}`);
+    if (!resp.ok) throw new Error(`Failed to load ${gene}`);
+    const data = await resp.json();
+    const n = data.n;
+    const x = new Float32Array(n);
+    const y = new Float32Array(n);
+    const xOff = transcriptIndex.x_offset, yOff = transcriptIndex.y_offset;
+    const xSc = transcriptIndex.x_scale, ySc = transcriptIndex.y_scale;
+    for (let i = 0; i < n; i++) {
+      x[i] = data.x[i] * xSc + xOff;
+      y[i] = data.y[i] * ySc + yOff;
+    }
+    const colorIdx = activeGenes.size % GENE_COLORS.length;
+    transcriptGenes[gene] = { x, y, n, color: GENE_COLORS[colorIdx] };
+    activeGenes.add(gene);
+    buildGeneList(document.getElementById('gene-search').value);
+    render();
+  } catch (e) { console.error(`Error loading gene ${gene}:`, e); }
+  if (row) row.classList.remove('loading');
+}
+
+function unloadGene(gene) { activeGenes.delete(gene); delete transcriptGenes[gene]; }
+
+function clearAllGenes() {
+  activeGenes.clear();
+  transcriptGenes = {};
+  buildGeneList(document.getElementById('gene-search')?.value || '');
+  render();
+}
+
+function updateTranscriptInfo() {
+  const el = document.getElementById('transcript-info');
+  const ctrl = document.getElementById('transcript-controls');
+  if (!el) return;
+  if (activeGenes.size === 0) {
+    el.textContent = 'Select genes to overlay transcript molecules';
+    if (ctrl) ctrl.classList.remove('visible');
+  } else {
+    const totalMols = [...activeGenes].reduce((s, g) => s + (transcriptGenes[g]?.n || 0), 0);
+    el.textContent = `${activeGenes.size} gene(s) | ${totalMols.toLocaleString()} molecules`;
+    if (ctrl) ctrl.classList.add('visible');
+  }
+}
+
 function precomputeColors() {
   if (!sampleData) return;
-
   const n = sampleData.n_cells;
   sampleData._colors = new Array(n);
-
   if (colorMode === 'subclass') {
     const cats = sampleData.subclass_cats;
     const palette = indexData.subclass_colors;
-    const catColors = cats.map(c => palette[c] || '#666');
-    for (let i = 0; i < n; i++) {
-      sampleData._colors[i] = catColors[sampleData.subclass[i]];
-    }
+    const cc = cats.map(c => palette[c] || '#666');
+    for (let i = 0; i < n; i++) sampleData._colors[i] = cc[sampleData.subclass[i]];
   } else if (colorMode === 'supertype') {
-    // Generate distinct colors for supertypes using hue/lightness variation
     const cats = sampleData.supertype_cats;
-    const catColors = cats.map(c => generateSupertypeColor(c, cats));
-    for (let i = 0; i < n; i++) {
-      sampleData._colors[i] = catColors[sampleData.supertype[i]];
-    }
+    const palette = indexData.supertype_colors || {};
+    const cc = cats.map(c => palette[c] || '#666');
+    for (let i = 0; i < n; i++) sampleData._colors[i] = cc[sampleData.supertype[i]];
   } else if (colorMode === 'class') {
     const cats = sampleData.class_cats;
     const palette = indexData.class_colors;
-    const catColors = cats.map(c => palette[c] || '#666');
-    for (let i = 0; i < n; i++) {
-      sampleData._colors[i] = catColors[sampleData.class[i]];
-    }
+    const cc = cats.map(c => palette[c] || '#666');
+    for (let i = 0; i < n; i++) sampleData._colors[i] = cc[sampleData.class[i]];
   } else if (colorMode === 'layer') {
     const cats = sampleData.layer_cats;
     const palette = indexData.layer_colors;
-    const catColors = cats.map(c => palette[c] || '#444');
+    const cc = cats.map(c => palette[c] || '#444');
     for (let i = 0; i < n; i++) {
       const li = sampleData.layer[i];
-      sampleData._colors[i] = li < catColors.length ? catColors[li] : '#444';
+      sampleData._colors[i] = li < cc.length ? cc[li] : '#444';
     }
   } else if (colorMode === 'depth') {
     for (let i = 0; i < n; i++) {
       const d = Math.max(0, Math.min(1, sampleData.depth[i]));
-      const idx = Math.round(d * 256);
-      sampleData._colors[i] = DEPTH_LUT[idx];
+      sampleData._colors[i] = DEPTH_LUT[Math.round(d * 256)];
+    }
+  } else if (colorMode === 'confidence') {
+    const confKey = 'conf_' + confidenceLevel;
+    const confArr = sampleData[confKey];
+    if (confArr) {
+      for (let i = 0; i < n; i++) {
+        const c = Math.max(0, Math.min(200, confArr[i]));
+        sampleData._colors[i] = CONF_LUT[c];
+      }
+    } else {
+      for (let i = 0; i < n; i++) sampleData._colors[i] = '#666';
+    }
+  } else if (colorMode === 'margin') {
+    const marginArr = sampleData.corr_margin;
+    if (marginArr) {
+      for (let i = 0; i < n; i++) {
+        // margin is quantized: 0-255 (value * 1000, clamped)
+        // Map to CONF_LUT (0-200 range)
+        const m = Math.max(0, Math.min(255, marginArr[i]));
+        sampleData._colors[i] = CONF_LUT[Math.round(m * 200 / 255)];
+      }
+    } else {
+      for (let i = 0; i < n; i++) sampleData._colors[i] = '#666';
     }
   }
 }
 
-function adjustBrightness(hex, factor) {
-  const r = Math.min(255, Math.round(parseInt(hex.slice(1,3), 16) * factor));
-  const g = Math.min(255, Math.round(parseInt(hex.slice(3,5), 16) * factor));
-  const b = Math.min(255, Math.round(parseInt(hex.slice(5,7), 16) * factor));
-  return `rgb(${r},${g},${b})`;
+function buildLayerGrid() {
+  if (!sampleData) return;
+  const BIN = 50;
+  const x = sampleData.x, y = sampleData.y;
+  const layerIndices = sampleData.layer;
+  const nLayers = sampleData.layer_cats.length;
+  const n = sampleData.n_cells;
+  const xMin = sampleData.x_range[0] - BIN, yMin = sampleData.y_range[0] - BIN;
+  const xMax = sampleData.x_range[1] + BIN, yMax = sampleData.y_range[1] + BIN;
+  const nx = Math.ceil((xMax - xMin) / BIN), ny = Math.ceil((yMax - yMin) / BIN);
+  const counts = new Uint16Array(ny * nx * nLayers);
+  for (let i = 0; i < n; i++) {
+    const xi = Math.min(nx-1, Math.max(0, Math.floor((x[i]-xMin)/BIN)));
+    const yi = Math.min(ny-1, Math.max(0, Math.floor((y[i]-yMin)/BIN)));
+    const li = layerIndices[i];
+    if (li < nLayers) counts[(yi*nx+xi)*nLayers+li]++;
+  }
+  const grid = new Uint8Array(ny * nx);
+  grid.fill(255);
+  for (let gi = 0; gi < ny*nx; gi++) {
+    let bc = 0, bl = 255;
+    const base = gi * nLayers;
+    for (let li = 0; li < nLayers; li++) { if (counts[base+li] > bc) { bc = counts[base+li]; bl = li; } }
+    if (bc > 0) grid[gi] = bl;
+  }
+  const smoothed = new Uint8Array(grid);
+  for (let pass = 0; pass < 2; pass++) {
+    for (let yi = 1; yi < ny-1; yi++) for (let xi = 1; xi < nx-1; xi++) {
+      const gi = yi*nx+xi;
+      if (smoothed[gi] !== 255) continue;
+      const nc = new Uint8Array(nLayers); let total = 0;
+      for (let dy=-1; dy<=1; dy++) for (let dx=-1; dx<=1; dx++) {
+        if (dx===0&&dy===0) continue;
+        const v = smoothed[(yi+dy)*nx+(xi+dx)];
+        if (v < nLayers) { nc[v]++; total++; }
+      }
+      if (total >= 4) { let best=0, bestL=255; for (let li=0;li<nLayers;li++) { if (nc[li]>best) {best=nc[li]; bestL=li;} } smoothed[gi]=bestL; }
+    }
+  }
+  sampleData._layerGrid = { nx, ny, xMin, yMin, binSize: BIN, data: smoothed };
 }
 
 function buildCellTypeFilter() {
   const el = document.getElementById('celltype-filter');
   el.innerHTML = '';
-
   if (!sampleData) return;
-
-  // Get categories based on color mode
   let cats, indices;
-  if (colorMode === 'supertype') {
-    cats = sampleData.supertype_cats;
-    indices = sampleData.supertype;
-  } else if (colorMode === 'layer') {
-    cats = sampleData.layer_cats;
-    indices = sampleData.layer;
-  } else if (colorMode === 'class') {
-    cats = sampleData.class_cats;
-    indices = sampleData.class;
-  } else {
-    // subclass, depth filter by subclass
-    cats = sampleData.subclass_cats;
-    indices = sampleData.subclass;
-  }
-
-  // Count cells per category
+  if (colorMode === 'supertype') { cats = sampleData.supertype_cats; indices = sampleData.supertype; }
+  else if (colorMode === 'layer') { cats = sampleData.layer_cats; indices = sampleData.layer; }
+  else if (colorMode === 'class') { cats = sampleData.class_cats; indices = sampleData.class; }
+  else { cats = sampleData.subclass_cats; indices = sampleData.subclass; } // subclass, depth, confidence all use subclass filter
   const counts = new Array(cats.length).fill(0);
   for (let i = 0; i < indices.length; i++) counts[indices[i]]++;
-
-  // Init active types on first load only (not after explicit None)
-  if (activeTypes.size === 0 && !activeTypes._explicitEmpty) {
-    cats.forEach(c => activeTypes.add(c));
-  }
-
-  // Sort alphabetically
-  const sorted = cats.map((c, i) => ({name: c, count: counts[i], idx: i}))
-    .sort((a, b) => a.name.localeCompare(b.name));
-
+  if (activeTypes.size === 0 && !activeTypes._explicitEmpty) cats.forEach(c => activeTypes.add(c));
+  const sorted = cats.map((c,i) => ({name:c, count:counts[i], idx:i})).sort((a,b) => a.name.localeCompare(b.name));
   sorted.forEach(({name, count}) => {
     const row = document.createElement('div');
     row.className = 'ct-row' + (activeTypes.has(name) ? '' : ' dimmed');
-
     const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = activeTypes.has(name);
-    cb.onchange = () => {
-      if (cb.checked) activeTypes.add(name);
-      else activeTypes.delete(name);
-      row.classList.toggle('dimmed', !cb.checked);
-      render();
-    };
-
-    let color;
-    if (colorMode === 'supertype') {
-      color = generateSupertypeColor(name, cats);
-    } else {
-      const palette = colorMode === 'layer' ? indexData.layer_colors :
-                      colorMode === 'class' ? indexData.class_colors :
-                      indexData.subclass_colors;
-      color = palette[name] || '#666';
-    }
-
-    const swatch = document.createElement('div');
-    swatch.className = 'ct-swatch';
-    swatch.style.background = color;
-
-    const label = document.createElement('span');
-    label.className = 'ct-label';
-    label.textContent = name;
-
-    const countEl = document.createElement('span');
-    countEl.className = 'ct-count';
-    countEl.textContent = count.toLocaleString();
-
-    row.appendChild(cb);
-    row.appendChild(swatch);
-    row.appendChild(label);
-    row.appendChild(countEl);
-
-    row.onclick = (e) => {
-      if (e.target === cb) return;
-      cb.checked = !cb.checked;
-      cb.onchange();
-    };
-
+    cb.type = 'checkbox'; cb.checked = activeTypes.has(name);
+    cb.onchange = () => { if (cb.checked) activeTypes.add(name); else activeTypes.delete(name); row.classList.toggle('dimmed',!cb.checked); render(); };
+    let palette;
+    if (colorMode === 'layer') palette = indexData.layer_colors;
+    else if (colorMode === 'class') palette = indexData.class_colors;
+    else if (colorMode === 'supertype') palette = (indexData.supertype_colors||{});
+    else palette = indexData.subclass_colors; // subclass, depth, confidence
+    const color = palette[name] || '#666';
+    const swatch = document.createElement('div'); swatch.className='ct-swatch'; swatch.style.background=color;
+    const label = document.createElement('span'); label.className='ct-label'; label.textContent=name;
+    const countEl = document.createElement('span'); countEl.className='ct-count'; countEl.textContent=count.toLocaleString();
+    row.appendChild(cb); row.appendChild(swatch); row.appendChild(label); row.appendChild(countEl);
+    row.onclick = (e) => { if (e.target===cb) return; cb.checked=!cb.checked; cb.onchange(); };
     el.appendChild(row);
   });
 }
 
 function getFilterCats() {
-  if (colorMode === 'supertype') return sampleData.supertype_cats;
-  if (colorMode === 'layer') return sampleData.layer_cats;
-  if (colorMode === 'class') return sampleData.class_cats;
-  return sampleData.subclass_cats;
+  if (colorMode==='supertype') return sampleData.supertype_cats;
+  if (colorMode==='layer') return sampleData.layer_cats;
+  if (colorMode==='class') return sampleData.class_cats;
+  return sampleData.subclass_cats; // subclass, depth, confidence
 }
-
-function selectAllTypes() {
-  activeTypes = new Set(getFilterCats());
-  buildCellTypeFilter();
-  render();
-}
-
-function selectNoneTypes() {
-  activeTypes = new Set();
-  activeTypes._explicitEmpty = true;
-  buildCellTypeFilter();
-  render();
-}
-
+function selectAllTypes() { activeTypes = new Set(getFilterCats()); buildCellTypeFilter(); render(); }
+function selectNoneTypes() { activeTypes = new Set(); activeTypes._explicitEmpty = true; buildCellTypeFilter(); render(); }
 function selectNeurons() {
-  activeTypes = new Set();
-  activeTypes._explicitEmpty = true;
-  const cats = getFilterCats();
-  cats.forEach(c => {
-    const parent = supertypeToSubclass(c);
-    if (NEURON_TYPES.has(parent) || NEURON_TYPES.has(c)) activeTypes.add(c);
-  });
-  if (activeTypes.size > 0) delete activeTypes._explicitEmpty;
-  buildCellTypeFilter();
-  render();
+  activeTypes = new Set(); activeTypes._explicitEmpty = true;
+  getFilterCats().forEach(c => { const p=c.replace(/_\d+$/,''); if (NEURON_TYPES.has(p)||NEURON_TYPES.has(c)) activeTypes.add(c); });
+  if (activeTypes.size>0) delete activeTypes._explicitEmpty; buildCellTypeFilter(); render();
 }
-
 function selectGlia() {
-  activeTypes = new Set();
-  activeTypes._explicitEmpty = true;
-  const cats = getFilterCats();
-  cats.forEach(c => {
-    const parent = supertypeToSubclass(c);
-    if (GLIA_TYPES.has(parent) || GLIA_TYPES.has(c)) activeTypes.add(c);
-  });
-  if (activeTypes.size > 0) delete activeTypes._explicitEmpty;
-  buildCellTypeFilter();
-  render();
+  activeTypes = new Set(); activeTypes._explicitEmpty = true;
+  getFilterCats().forEach(c => { const p=c.replace(/_\d+$/,''); if (GLIA_TYPES.has(p)||GLIA_TYPES.has(c)) activeTypes.add(c); });
+  if (activeTypes.size>0) delete activeTypes._explicitEmpty; buildCellTypeFilter(); render();
 }
 
 // ── View ──
 function fitView() {
   if (!sampleData) return;
-  const w = canvas.width;
-  const h = canvas.height - 30; // status bar
+  const w = canvas.width, h = canvas.height - 30;
   const dx = sampleData.x_range[1] - sampleData.x_range[0];
   const dy = sampleData.y_range[1] - sampleData.y_range[0];
-  viewScale = Math.min(w / dx, h / dy) * 0.9;
-  viewX = (w - dx * viewScale) / 2 - sampleData.x_range[0] * viewScale;
-  viewY = (h - dy * viewScale) / 2 - sampleData.y_range[0] * viewScale;
+  viewScale = Math.min(w/dx, h/dy) * 0.9;
+  baseScale = viewScale;
+  viewX = (w - dx*viewScale)/2 - sampleData.x_range[0]*viewScale;
+  viewY = (h - dy*viewScale)/2 - sampleData.y_range[0]*viewScale;
 }
 
 function resizeCanvas() {
   const main = document.getElementById('main');
-  canvas.width = main.clientWidth;
-  canvas.height = main.clientHeight;
-  if (sampleData) {
-    fitView();
-    render();
-  }
-}
-
-// ── Layer overlay rendering ──
-function renderLayerOverlay() {
-  if (!sampleData || !showLayerOverlay) return;
-
-  const w = canvas.width;
-  const h = canvas.height;
-  const n = sampleData.n_cells;
-  const x = sampleData.x;
-  const y = sampleData.y;
-  const layerIndices = sampleData.layer;
-  const layerCats = sampleData.layer_cats;
-  const layerPalette = indexData.layer_colors;
-
-  // Determine grid resolution in data space (~50px bins in screen space)
-  const binScreenSize = 50;
-  const binDataSize = binScreenSize / viewScale;
-
-  const xMin = sampleData.x_range[0];
-  const xMax = sampleData.x_range[1];
-  const yMin = sampleData.y_range[0];
-  const yMax = sampleData.y_range[1];
-
-  const nBinsX = Math.max(1, Math.ceil((xMax - xMin) / binDataSize));
-  const nBinsY = Math.max(1, Math.ceil((yMax - yMin) / binDataSize));
-
-  // Cap grid size for performance
-  const maxBins = 200;
-  const binsX = Math.min(nBinsX, maxBins);
-  const binsY = Math.min(nBinsY, maxBins);
-  const stepX = (xMax - xMin) / binsX;
-  const stepY = (yMax - yMin) / binsY;
-
-  // Count layer occurrences per bin
-  const nLayers = layerCats.length;
-  const grid = new Uint16Array(binsX * binsY * nLayers);
-
-  for (let i = 0; i < n; i++) {
-    const bx = Math.min(binsX - 1, Math.max(0, Math.floor((x[i] - xMin) / stepX)));
-    const by = Math.min(binsY - 1, Math.max(0, Math.floor((y[i] - yMin) / stepY)));
-    const li = layerIndices[i];
-    if (li >= 0 && li < nLayers) {
-      grid[(by * binsX + bx) * nLayers + li]++;
-    }
-  }
-
-  // Draw bins colored by dominant layer
-  ctx.globalAlpha = 0.15;
-
-  for (let by = 0; by < binsY; by++) {
-    for (let bx = 0; bx < binsX; bx++) {
-      // Find dominant layer in this bin
-      let maxCount = 0;
-      let dominantLayer = -1;
-      const offset = (by * binsX + bx) * nLayers;
-      let totalCount = 0;
-      for (let li = 0; li < nLayers; li++) {
-        const c = grid[offset + li];
-        totalCount += c;
-        if (c > maxCount) { maxCount = c; dominantLayer = li; }
-      }
-      if (totalCount < 2) continue;  // skip empty/sparse bins
-
-      const layerName = layerCats[dominantLayer];
-      const color = layerPalette[layerName];
-      if (!color) continue;
-
-      // Convert data coords to screen coords
-      const sx = (xMin + bx * stepX) * viewScale + viewX;
-      const sy = (yMin + by * stepY) * viewScale + viewY;
-      const sw = stepX * viewScale;
-      const sh = stepY * viewScale;
-
-      // Skip if completely off-screen
-      if (sx + sw < 0 || sx > w || sy + sh < 0 || sy > h) continue;
-
-      ctx.fillStyle = color;
-      ctx.fillRect(sx, sy, sw, sh);
-    }
-  }
-
-  ctx.globalAlpha = 1;
+  canvas.width = main.clientWidth; canvas.height = main.clientHeight;
+  if (sampleData) { fitView(); render(); }
 }
 
 // ── Render ──
 function render() {
   if (!sampleData) return;
-
-  const w = canvas.width;
-  const h = canvas.height;
-
+  const w = canvas.width, h = canvas.height;
   ctx.fillStyle = '#0d0d1a';
   ctx.fillRect(0, 0, w, h);
 
-  // Draw layer overlay behind cells
-  renderLayerOverlay();
-
   const n = sampleData.n_cells;
-  const x = sampleData.x;
-  const y = sampleData.y;
+  const x = sampleData.x, y = sampleData.y;
   const colors = sampleData._colors;
 
-  // Determine which cells are active
   let filterCats, filterIndices;
-  if (colorMode === 'supertype') {
-    filterCats = sampleData.supertype_cats;
-    filterIndices = sampleData.supertype;
-  } else if (colorMode === 'layer') {
-    filterCats = sampleData.layer_cats;
-    filterIndices = sampleData.layer;
-  } else if (colorMode === 'class') {
-    filterCats = sampleData.class_cats;
-    filterIndices = sampleData.class;
-  } else {
-    filterCats = sampleData.subclass_cats;
-    filterIndices = sampleData.subclass;
-  }
-
+  if (colorMode==='supertype') { filterCats=sampleData.supertype_cats; filterIndices=sampleData.supertype; }
+  else if (colorMode==='layer') { filterCats=sampleData.layer_cats; filterIndices=sampleData.layer; }
+  else if (colorMode==='class') { filterCats=sampleData.class_cats; filterIndices=sampleData.class; }
+  else { filterCats=sampleData.subclass_cats; filterIndices=sampleData.subclass; }
   const activeSet = new Set();
-  filterCats.forEach((c, i) => { if (activeTypes.has(c)) activeSet.add(i); });
+  filterCats.forEach((c,i) => { if (activeTypes.has(c)) activeSet.add(i); });
 
-  const r = pointSize;
+  const zoomRatio = baseScale > 0 ? viewScale / baseScale : 1;
+  const r = pointSize * Math.max(1, Math.sqrt(zoomRatio));
   let shown = 0;
 
-  // Batch render by color for performance
-  const colorBuckets = {};
-
-  for (let i = 0; i < n; i++) {
-    if (!activeSet.has(filterIndices[i])) continue;
-
-    const sx = x[i] * viewScale + viewX;
-    const sy = y[i] * viewScale + viewY;
-
-    if (sx < -r || sx > w + r || sy < -r || sy > h + r) continue;
-
-    const c = colors[i];
-    if (!colorBuckets[c]) colorBuckets[c] = [];
-    colorBuckets[c].push(sx, sy);
-    shown++;
-  }
-
-  ctx.globalAlpha = pointOpacity;
-
-  for (const [color, pts] of Object.entries(colorBuckets)) {
-    ctx.fillStyle = color;
-    for (let i = 0; i < pts.length; i += 2) {
-      ctx.fillRect(pts[i] - r/2, pts[i+1] - r/2, r, r);
+  // Layer overlay
+  if (showLayerOverlay && colorMode !== 'layer' && sampleData._layerGrid) {
+    const grid = sampleData._layerGrid;
+    const layerPalette = indexData.layer_colors;
+    const layerCats = sampleData.layer_cats;
+    const binPx = grid.binSize * viewScale;
+    const xi0 = Math.max(0, Math.floor((-viewX/viewScale-grid.xMin)/grid.binSize));
+    const yi0 = Math.max(0, Math.floor((-viewY/viewScale-grid.yMin)/grid.binSize));
+    const xi1 = Math.min(grid.nx-1, Math.floor(((w-viewX)/viewScale-grid.xMin)/grid.binSize));
+    const yi1 = Math.min(grid.ny-1, Math.floor(((h-viewY)/viewScale-grid.yMin)/grid.binSize));
+    ctx.globalAlpha = layerOverlayOpacity;
+    const layerColors = layerCats.map(c => layerPalette[c] || null);
+    for (let li=0; li<layerCats.length; li++) {
+      const lc = layerColors[li]; if (!lc) continue; ctx.fillStyle = lc;
+      for (let yi=yi0; yi<=yi1; yi++) for (let xi=xi0; xi<=xi1; xi++) {
+        if (grid.data[yi*grid.nx+xi] !== li) continue;
+        ctx.fillRect((grid.xMin+xi*grid.binSize)*viewScale+viewX, (grid.yMin+yi*grid.binSize)*viewScale+viewY, binPx+1, binPx+1);
+      }
     }
+    ctx.globalAlpha = 1;
   }
 
-  ctx.globalAlpha = 1;
+  // Determine if we should render boundaries or centroids
+  const renderBoundaries = showBoundaries && boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
+
+  if (renderBoundaries) {
+    // ── Render cells as filled polygons ──
+    const bd = boundaryData;
+    const vpc = bd.vpc;
+    ctx.globalAlpha = pointOpacity;
+
+    // Batch by color
+    const colorPolygons = {};
+
+    for (let i = 0; i < n; i++) {
+      if (!activeSet.has(filterIndices[i])) continue;
+      if (hideQcFail && sampleData.corr_qc && sampleData.corr_qc[i] === 0) continue;
+
+      // Quick check: is centroid on screen?
+      const cx = x[i] * viewScale + viewX;
+      const cy = y[i] * viewScale + viewY;
+      if (cx < -50 || cx > w + 50 || cy < -50 || cy > h + 50) continue;
+
+      const c = colors[i];
+      if (!colorPolygons[c]) colorPolygons[c] = [];
+      colorPolygons[c].push(i);
+      shown++;
+    }
+
+    for (const [color, cellIndices] of Object.entries(colorPolygons)) {
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 0.5;
+
+      for (const i of cellIndices) {
+        const base = i * vpc;
+        ctx.beginPath();
+        const sx0 = bd.bx[base] * viewScale + viewX;
+        const sy0 = bd.by[base] * viewScale + viewY;
+        ctx.moveTo(sx0, sy0);
+        for (let v = 1; v < vpc; v++) {
+          ctx.lineTo(bd.bx[base+v] * viewScale + viewX, bd.by[base+v] * viewScale + viewY);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+  } else {
+    // ── Render cells as point centroids (original behavior) ──
+    const colorBuckets = {};
+    for (let i = 0; i < n; i++) {
+      if (!activeSet.has(filterIndices[i])) continue;
+      if (hideQcFail && sampleData.corr_qc && sampleData.corr_qc[i] === 0) continue;
+      const sx = x[i]*viewScale+viewX, sy = y[i]*viewScale+viewY;
+      if (sx < -r || sx > w+r || sy < -r || sy > h+r) continue;
+      const c = colors[i];
+      if (!colorBuckets[c]) colorBuckets[c] = [];
+      colorBuckets[c].push(sx, sy);
+      shown++;
+    }
+    ctx.globalAlpha = pointOpacity;
+    for (const [color, pts] of Object.entries(colorBuckets)) {
+      ctx.fillStyle = color;
+      for (let i = 0; i < pts.length; i += 2) ctx.fillRect(pts[i]-r/2, pts[i+1]-r/2, r, r);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ── Render transcript molecules on top ──
+  let molsShown = 0;
+  if (activeGenes.size > 0) {
+    const mr = moleculeSize * Math.max(0.5, Math.sqrt(zoomRatio) * 0.5);
+    ctx.globalAlpha = moleculeOpacity;
+    for (const gene of activeGenes) {
+      const gd = transcriptGenes[gene]; if (!gd) continue;
+      ctx.fillStyle = gd.color;
+      const gx = gd.x, gy = gd.y, gn = gd.n;
+      for (let i = 0; i < gn; i++) {
+        const sx = gx[i]*viewScale+viewX, sy = gy[i]*viewScale+viewY;
+        if (sx < -mr || sx > w+mr || sy < -mr || sy > h+mr) continue;
+        ctx.fillRect(sx-mr/2, sy-mr/2, mr, mr);
+        molsShown++;
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
 
   document.getElementById('info-shown').textContent = shown.toLocaleString();
-  document.getElementById('status-right').textContent = `Zoom: ${viewScale.toFixed(1)}x | ${shown.toLocaleString()} cells`;
-
+  let statusText = `Zoom: ${viewScale.toFixed(1)}x | ${shown.toLocaleString()} cells`;
+  if (renderBoundaries) statusText += ' (boundaries)';
+  if (molsShown > 0) statusText += ` | ${molsShown.toLocaleString()} molecules`;
+  document.getElementById('status-right').textContent = statusText;
   updateLegend();
 }
 
 function updateLegend() {
   const el = document.getElementById('legend-overlay');
   let html = '';
-
+  if (activeGenes.size > 0) {
+    html += '<div class="leg-title">Transcripts</div>';
+    for (const gene of activeGenes) {
+      const gd = transcriptGenes[gene]; if (!gd) continue;
+      html += `<div class="leg-row"><div class="leg-swatch" style="background:${gd.color}"></div><span>${gene} (${gd.n.toLocaleString()})</span></div>`;
+    }
+    html += '<div style="height:6px;"></div>';
+  }
   if (colorMode === 'depth') {
-    html += `
-      <div class="leg-title">Cortical Depth</div>
-      <div style="display:flex; align-items:center; gap:6px;">
+    html += `<div class="leg-title">Cortical Depth</div>
+      <div style="display:flex;align-items:center;gap:6px;">
         <span style="font-size:10px;">Pia (0)</span>
-        <div style="width:100px; height:12px; background: linear-gradient(to right, rgb(68,1,84), rgb(59,82,139), rgb(33,145,140), rgb(94,201,98), rgb(253,231,37)); border-radius:2px;"></div>
-        <span style="font-size:10px;">WM (1)</span>
-      </div>
-    `;
+        <div style="width:100px;height:12px;background:linear-gradient(to right,rgb(68,1,84),rgb(59,82,139),rgb(33,145,140),rgb(94,201,98),rgb(253,231,37));border-radius:2px;"></div>
+        <span style="font-size:10px;">WM (1)</span></div>`;
   } else if (colorMode === 'layer') {
-    const palette = indexData.layer_colors;
-    html += '<div class="leg-title">Cortical Layer</div>' +
-      Object.entries(palette).map(([k,v]) =>
-        `<div class="leg-row"><div class="leg-swatch" style="background:${v}"></div><span>${k}</span></div>`
-      ).join('');
+    html += '<div class="leg-title">Cortical Layer</div>' + Object.entries(indexData.layer_colors).map(([k,v]) =>
+      `<div class="leg-row"><div class="leg-swatch" style="background:${v}"></div><span>${k}</span></div>`).join('');
   } else if (colorMode === 'class') {
-    const palette = indexData.class_colors;
-    html += '<div class="leg-title">Cell Class</div>' +
-      Object.entries(palette).map(([k,v]) =>
-        `<div class="leg-row"><div class="leg-swatch" style="background:${v}"></div><span>${k}</span></div>`
-      ).join('');
+    html += '<div class="leg-title">Cell Class</div>' + Object.entries(indexData.class_colors).map(([k,v]) =>
+      `<div class="leg-row"><div class="leg-swatch" style="background:${v}"></div><span>${k}</span></div>`).join('');
+  } else if (colorMode === 'margin') {
+    html += `<div class="leg-title">Correlation Margin</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:10px;color:#dc3030;">Low (0)</span>
+        <div style="width:100px;height:12px;background:linear-gradient(to right,rgb(220,30,30),rgb(180,220,40),rgb(40,240,60));border-radius:2px;"></div>
+        <span style="font-size:10px;color:#28f03c;">High</span></div>`;
+    if (sampleData.corr_qc) {
+      let nFail = 0;
+      for (let i = 0; i < sampleData.corr_qc.length; i++) if (sampleData.corr_qc[i] === 0) nFail++;
+      const pctFail = (nFail / sampleData.n_cells * 100).toFixed(1);
+      html += `<div style="margin-top:4px;font-size:10px;color:#aaa;">QC-fail: ${nFail.toLocaleString()} (${pctFail}%)</div>`;
+    }
+  } else if (colorMode === 'confidence') {
+    const levelName = confidenceLevel.charAt(0).toUpperCase() + confidenceLevel.slice(1);
+    html += `<div class="leg-title">HANN ${levelName} Confidence</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:10px;color:#dc3030;">Low (0)</span>
+        <div style="width:100px;height:12px;background:linear-gradient(to right,rgb(220,30,30),rgb(180,220,40),rgb(40,240,60));border-radius:2px;"></div>
+        <span style="font-size:10px;color:#28f03c;">High (1)</span></div>`;
+    // Show distribution stats
+    const confKey = 'conf_' + confidenceLevel;
+    const confArr = sampleData[confKey];
+    if (confArr) {
+      const n = confArr.length;
+      let sum = 0, below50 = 0, below28 = 0;
+      for (let i = 0; i < n; i++) {
+        sum += confArr[i];
+        if (confArr[i] < 100) below50++;
+        if (confArr[i] < 56) below28++;
+      }
+      const mean = (sum / n / 200).toFixed(2);
+      html += `<div style="margin-top:4px;font-size:10px;color:#aaa;">Mean: ${mean} | <0.50: ${(below50/n*100).toFixed(1)}% | <0.28: ${(below28/n*100).toFixed(1)}%</div>`;
+    }
   }
-
-  // Show layer legend when overlay is active (any color mode)
-  if (showLayerOverlay && colorMode !== 'layer') {
-    const palette = indexData.layer_colors;
-    if (html) html += '<div style="margin-top:8px; border-top:1px solid #333; padding-top:6px;"></div>';
-    html += '<div class="leg-title">Layer Overlay</div>' +
-      Object.entries(palette).map(([k,v]) =>
-        `<div class="leg-row"><div class="leg-swatch" style="background:${v}; opacity:0.4;"></div><span>${k}</span></div>`
-      ).join('');
-  }
-
   el.innerHTML = html;
 }
 
 // ── Events ──
 function setupEvents() {
-  // Color mode buttons
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       colorMode = btn.dataset.mode;
-      // Reset active types for new mode
       activeTypes = new Set();
-      precomputeColors();
-      buildCellTypeFilter();
-      render();
+      // Show/hide confidence level selector
+      document.getElementById('confidence-level-row').style.display = colorMode === 'confidence' ? 'block' : 'none';
+      precomputeColors(); buildCellTypeFilter(); render();
     };
   });
-
-  // Point size
-  document.getElementById('point-size').oninput = (e) => {
-    pointSize = parseFloat(e.target.value);
-    document.getElementById('size-val').textContent = pointSize;
-    render();
-  };
-
-  // Opacity
-  document.getElementById('point-opacity').oninput = (e) => {
-    pointOpacity = parseFloat(e.target.value);
-    document.getElementById('opacity-val').textContent = pointOpacity;
-    render();
-  };
-
-  // Layer overlay toggle
-  document.getElementById('layer-overlay-toggle').onchange = (e) => {
-    showLayerOverlay = e.target.checked;
-    render();
-  };
-
-  // Pan
-  canvas.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragViewX = viewX;
-    dragViewY = viewY;
-    canvas.style.cursor = 'grabbing';
+  // Confidence level buttons
+  document.querySelectorAll('.conf-level-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.conf-level-btn').forEach(b => {
+        b.style.background = '#1a1a2e'; b.style.color = '#aaa';
+      });
+      btn.style.background = '#533483'; btn.style.color = 'white';
+      confidenceLevel = btn.dataset.level;
+      if (colorMode === 'confidence') { precomputeColors(); render(); }
+    };
   });
+  document.getElementById('point-size').oninput = (e) => { pointSize=parseFloat(e.target.value); document.getElementById('size-val').textContent=pointSize; render(); };
+  document.getElementById('point-opacity').oninput = (e) => { pointOpacity=parseFloat(e.target.value); document.getElementById('opacity-val').textContent=pointOpacity; render(); };
+  document.getElementById('layer-overlay-toggle').onchange = (e) => { showLayerOverlay=e.target.checked; document.getElementById('layer-overlay-opacity-row').style.display=showLayerOverlay?'block':'none'; render(); };
+  document.getElementById('layer-overlay-opacity').oninput = (e) => { layerOverlayOpacity=parseFloat(e.target.value); document.getElementById('overlay-opacity-val').textContent=layerOverlayOpacity; render(); };
+  document.getElementById('show-boundaries-toggle').onchange = (e) => { showBoundaries=e.target.checked; render(); };
+  document.getElementById('hide-qc-fail-toggle').onchange = (e) => { hideQcFail=e.target.checked; render(); };
+  document.getElementById('mol-size').oninput = (e) => { moleculeSize=parseFloat(e.target.value); document.getElementById('mol-size-val').textContent=moleculeSize; render(); };
+  document.getElementById('mol-opacity').oninput = (e) => { moleculeOpacity=parseFloat(e.target.value); document.getElementById('mol-opacity-val').textContent=moleculeOpacity; render(); };
+  document.getElementById('gene-search').oninput = (e) => { buildGeneList(e.target.value); };
 
-  window.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      viewX = dragViewX + (e.clientX - dragStartX);
-      viewY = dragViewY + (e.clientY - dragStartY);
-      render();
-    } else {
-      handleHover(e);
-    }
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    canvas.style.cursor = 'crosshair';
-  });
-
-  // Zoom
+  canvas.addEventListener('mousedown', (e) => { isDragging=true; dragStartX=e.clientX; dragStartY=e.clientY; dragViewX=viewX; dragViewY=viewY; canvas.style.cursor='grabbing'; });
+  window.addEventListener('mousemove', (e) => { if (isDragging) { viewX=dragViewX+(e.clientX-dragStartX); viewY=dragViewY+(e.clientY-dragStartY); render(); } else { handleHover(e); } });
+  window.addEventListener('mouseup', () => { isDragging=false; canvas.style.cursor='crosshair'; });
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
-    const newScale = viewScale * factor;
-
-    // Zoom toward mouse position
-    viewX = mx - (mx - viewX) * factor;
-    viewY = my - (my - viewY) * factor;
-    viewScale = newScale;
-
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const factor = e.deltaY < 0 ? 1.15 : 1/1.15;
+    viewX = mx-(mx-viewX)*factor; viewY = my-(my-viewY)*factor; viewScale *= factor;
     render();
   }, { passive: false });
-
-  // Double-click to reset view
-  canvas.addEventListener('dblclick', () => {
-    fitView();
-    render();
-  });
-
-  // Resize
+  canvas.addEventListener('dblclick', () => { fitView(); render(); });
   window.addEventListener('resize', resizeCanvas);
 
-  // Keyboard shortcuts
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'r') { fitView(); render(); }
-    if (e.key === 'a') { selectAllTypes(); }
-    if (e.key === 'n') { selectNeurons(); }
-    if (e.key === 'g') { selectGlia(); }
-    if (e.key === 'l') {
-      showLayerOverlay = !showLayerOverlay;
-      document.getElementById('layer-overlay-toggle').checked = showLayerOverlay;
-      render();
+    if (e.target.id === 'gene-search') return;
+    if (e.key==='r') { fitView(); render(); }
+    if (e.key==='a') selectAllTypes();
+    if (e.key==='n') selectNeurons();
+    if (e.key==='g') selectGlia();
+    if (e.key==='l') { showLayerOverlay=!showLayerOverlay; document.getElementById('layer-overlay-toggle').checked=showLayerOverlay; document.getElementById('layer-overlay-opacity-row').style.display=showLayerOverlay?'block':'none'; render(); }
+    if (e.key==='b') { showBoundaries=!showBoundaries; document.getElementById('show-boundaries-toggle').checked=showBoundaries; render(); }
+    if (e.key==='f') { hideQcFail=!hideQcFail; document.getElementById('hide-qc-fail-toggle').checked=hideQcFail; render(); }
+    if (e.key==='t') {
+      const section = document.getElementById('transcript-section');
+      if (section.classList.contains('visible')) { clearAllGenes(); section.classList.remove('visible'); }
+      else if (transcriptIndex) { section.classList.add('visible'); buildGeneList(); }
     }
-
-    // Navigate samples with arrow keys
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      const samples = indexData.samples.map(s => s.sample_id);
-      const idx = samples.indexOf(currentSample);
-      const newIdx = e.key === 'ArrowRight' ?
-        Math.min(idx + 1, samples.length - 1) : Math.max(idx - 1, 0);
-      if (newIdx !== idx) loadSample(samples[newIdx]);
+    if (e.key==='c') {
+      // Toggle confidence mode
+      if (colorMode !== 'confidence') {
+        colorMode = 'confidence';
+      } else {
+        colorMode = 'subclass';
+      }
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === colorMode));
+      document.getElementById('confidence-level-row').style.display = colorMode === 'confidence' ? 'block' : 'none';
+      activeTypes = new Set();
+      precomputeColors(); buildCellTypeFilter(); render();
+    }
+    if (e.key==='q' && colorMode === 'confidence') {
+      // Cycle confidence level: subclass -> supertype -> class -> subclass
+      const levels = ['subclass', 'supertype', 'class'];
+      const ci = levels.indexOf(confidenceLevel);
+      confidenceLevel = levels[(ci + 1) % levels.length];
+      document.querySelectorAll('.conf-level-btn').forEach(b => {
+        const isActive = b.dataset.level === confidenceLevel;
+        b.style.background = isActive ? '#533483' : '#1a1a2e';
+        b.style.color = isActive ? 'white' : '#aaa';
+      });
+      precomputeColors(); render();
+    }
+    if (e.key==='ArrowLeft'||e.key==='ArrowRight') {
+      const samples=indexData.samples.map(s=>s.sample_id);
+      const idx=samples.indexOf(currentSample);
+      const ni = e.key==='ArrowRight' ? Math.min(idx+1,samples.length-1) : Math.max(idx-1,0);
+      if (ni!==idx) loadSample(samples[ni]);
     }
   });
 }
@@ -835,74 +1018,176 @@ function setupEvents() {
 let hoverTimeout;
 function handleHover(e) {
   if (!sampleData || isDragging) return;
-
   clearTimeout(hoverTimeout);
   hoverTimeout = setTimeout(() => {
     const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    // Find nearest cell
-    const threshold = Math.max(5, pointSize * 2);
-    let bestDist = threshold * threshold;
-    let bestIdx = -1;
-
-    const n = sampleData.n_cells;
-    const x = sampleData.x;
-    const y = sampleData.y;
-
-    // Only check visible cells
-    let filterCats, filterIndices;
-    if (colorMode === 'supertype') {
-      filterCats = sampleData.supertype_cats;
-      filterIndices = sampleData.supertype;
-    } else if (colorMode === 'layer') {
-      filterCats = sampleData.layer_cats;
-      filterIndices = sampleData.layer;
-    } else if (colorMode === 'class') {
-      filterCats = sampleData.class_cats;
-      filterIndices = sampleData.class;
-    } else {
-      filterCats = sampleData.subclass_cats;
-      filterIndices = sampleData.subclass;
-    }
-    const activeSet = new Set();
-    filterCats.forEach((c, i) => { if (activeTypes.has(c)) activeSet.add(i); });
-
-    for (let i = 0; i < n; i++) {
-      if (!activeSet.has(filterIndices[i])) continue;
-      const sx = x[i] * viewScale + viewX;
-      const sy = y[i] * viewScale + viewY;
-      const dx = mx - sx;
-      const dy = my - sy;
-      const d2 = dx * dx + dy * dy;
-      if (d2 < bestDist) { bestDist = d2; bestIdx = i; }
-    }
-
+    const mx = e.clientX-rect.left, my = e.clientY-rect.top;
     const tooltip = document.getElementById('tooltip');
-    if (bestIdx >= 0) {
-      const subclass = sampleData.subclass_cats[sampleData.subclass[bestIdx]];
-      const supertype = sampleData.supertype_cats[sampleData.supertype[bestIdx]];
-      const cls = sampleData.class_cats[sampleData.class[bestIdx]];
-      const depth = sampleData.depth[bestIdx];
-      const layerIdx = sampleData.layer[bestIdx];
-      const layer = sampleData.layer_cats[layerIdx] || 'Outside';
-      const layerColor = indexData.layer_colors[layer] || '#888';
+    const sidebarWidth = document.getElementById('sidebar').offsetWidth;
 
-      tooltip.innerHTML = `
-        <div class="tt-label">${supertype}</div>
-        <div>Subclass: ${subclass}</div>
-        <div>Class: ${cls}</div>
-        <div>Layer: <span style="color:${layerColor}; font-weight:700;">${layer}</span></div>
-        <div>Depth: ${depth.toFixed(3)}</div>
-        <div style="color:#666; font-size:10px;">x=${sampleData.x[bestIdx]}, y=${sampleData.y[bestIdx]}</div>
-      `;
-      tooltip.style.display = 'block';
-      tooltip.style.left = (e.clientX - document.getElementById('sidebar').offsetWidth + 12) + 'px';
-      tooltip.style.top = (e.clientY - 60) + 'px';
-    } else {
-      tooltip.style.display = 'none';
+    // ── Check transcript molecules first (they render on top) ──
+    // Work in data coordinates to avoid per-molecule screen transform
+    let bestMolDist = Infinity, bestMolGene = null, bestMolIdx = -1;
+    if (activeGenes.size > 0) {
+      const molThreshPx = Math.max(15, moleculeSize * 5);
+      const molThreshData = molThreshPx / viewScale; // threshold in data coords
+      const molThreshData2 = molThreshData * molThreshData;
+      // Mouse position in data coordinates
+      const mxData = (mx - viewX) / viewScale;
+      const myData = (my - viewY) / viewScale;
+      // Visible data range for frustum culling
+      const dataXMin = -viewX / viewScale - 20/viewScale;
+      const dataXMax = (canvas.width - viewX) / viewScale + 20/viewScale;
+      const dataYMin = -viewY / viewScale - 20/viewScale;
+      const dataYMax = (canvas.height - viewY) / viewScale + 20/viewScale;
+
+      for (const gene of activeGenes) {
+        const gd = transcriptGenes[gene]; if (!gd) continue;
+        const gx = gd.x, gy = gd.y, gn = gd.n;
+        for (let i = 0; i < gn; i++) {
+          const px = gx[i], py = gy[i];
+          // Skip off-screen molecules (frustum cull in data space)
+          if (px < dataXMin || px > dataXMax || py < dataYMin || py > dataYMax) continue;
+          const dx = mxData-px, dy = myData-py, d2 = dx*dx+dy*dy;
+          if (d2 < molThreshData2 && d2 < bestMolDist) {
+            bestMolDist = d2;
+            bestMolGene = gene;
+            bestMolIdx = i;
+          }
+        }
+      }
     }
+
+    // ── Check cells ──
+    // Strategy: if boundaries are loaded and we're zoomed in enough, use point-in-polygon
+    // hit testing. Otherwise fall back to centroid distance.
+    let bestCellDist = Infinity, bestCellIdx = -1;
+    const n=sampleData.n_cells, x=sampleData.x, y=sampleData.y;
+    let filterCats, filterIndices;
+    if (colorMode==='supertype') { filterCats=sampleData.supertype_cats; filterIndices=sampleData.supertype; }
+    else if (colorMode==='layer') { filterCats=sampleData.layer_cats; filterIndices=sampleData.layer; }
+    else if (colorMode==='class') { filterCats=sampleData.class_cats; filterIndices=sampleData.class; }
+    else { filterCats=sampleData.subclass_cats; filterIndices=sampleData.subclass; }
+    const activeSet = new Set();
+    filterCats.forEach((c,i) => { if (activeTypes.has(c)) activeSet.add(i); });
+
+    const zoomRatio = baseScale > 0 ? viewScale / baseScale : 1;
+    const useBoundaryHit = boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
+
+    if (useBoundaryHit) {
+      // Point-in-polygon test using boundary data
+      // Convert mouse to data coordinates
+      const mxD = (mx - viewX) / viewScale;
+      const myD = (my - viewY) / viewScale;
+      const bd = boundaryData;
+      const vpc = bd.vpc;
+      // Pre-filter: only check cells whose centroid is reasonably close (within ~50µm)
+      const searchRadius = 50;
+      const sr2 = searchRadius * searchRadius;
+
+      for (let i = 0; i < n; i++) {
+        if (!activeSet.has(filterIndices[i])) continue;
+        // Quick centroid distance check
+        const cdx = mxD - x[i], cdy = myD - y[i];
+        if (cdx*cdx + cdy*cdy > sr2) continue;
+        // Ray-casting point-in-polygon test
+        const base = i * vpc;
+        let inside = false;
+        for (let v = 0, w = vpc - 1; v < vpc; w = v++) {
+          const vx = bd.bx[base+v], vy = bd.by[base+v];
+          const wx = bd.bx[base+w], wy = bd.by[base+w];
+          if (((vy > myD) !== (wy > myD)) &&
+              (mxD < (wx - vx) * (myD - vy) / (wy - vy) + vx)) {
+            inside = !inside;
+          }
+        }
+        if (inside) {
+          // Found a cell — use centroid distance to pick the best if multiple overlap
+          const d2 = cdx*cdx + cdy*cdy;
+          if (d2 < bestCellDist) { bestCellDist = d2; bestCellIdx = i; }
+        }
+      }
+    } else {
+      // Fallback: centroid distance
+      const cellThreshold = Math.max(20, pointSize*3);
+      bestCellDist = cellThreshold*cellThreshold;
+      for (let i=0; i<n; i++) {
+        if (!activeSet.has(filterIndices[i])) continue;
+        const sx=x[i]*viewScale+viewX, sy=y[i]*viewScale+viewY;
+        const dx=mx-sx, dy=my-sy, d2=dx*dx+dy*dy;
+        if (d2 < bestCellDist) { bestCellDist=d2; bestCellIdx=i; }
+      }
+    }
+
+    // ── Determine what to show ──
+    // Molecules take priority if one is found (they're rendered on top)
+    const showMol = bestMolGene !== null;
+    const showCell = bestCellIdx >= 0;
+
+    if (showMol || showCell) {
+      let html = '';
+
+      // Molecule info (if found)
+      if (showMol) {
+        const gd = transcriptGenes[bestMolGene];
+        const molX = gd.x[bestMolIdx].toFixed(1);
+        const molY = gd.y[bestMolIdx].toFixed(1);
+        html += `<div class="tt-label" style="color:${gd.color}">${bestMolGene}</div>`;
+        html += `<div style="font-size:11px; color:#aaa;">Transcript molecule</div>`;
+        html += `<div style="color:#666;font-size:10px;">x=${molX}, y=${molY}</div>`;
+      }
+
+      // Cell info (if found) — show below molecule info, or as primary
+      if (showCell) {
+        if (showMol) html += '<div style="border-top:1px solid #333; margin:4px 0;"></div>';
+        const subclass=sampleData.subclass_cats[sampleData.subclass[bestCellIdx]];
+        const supertype=sampleData.supertype_cats[sampleData.supertype[bestCellIdx]];
+        const cls=sampleData.class_cats[sampleData.class[bestCellIdx]];
+        const depth=sampleData.depth[bestCellIdx];
+        const layerIdx=sampleData.layer[bestCellIdx];
+        const layer=sampleData.layer_cats[layerIdx]||'Outside';
+        const layerColor=indexData.layer_colors[layer]||'#888';
+        if (showMol) {
+          html += `<div style="font-size:11px; color:#888;">Nearest cell:</div>`;
+        }
+        html += `<div class="tt-label">${supertype}</div>`;
+        html += `<div>Subclass: ${subclass}</div>`;
+        html += `<div>Class: ${cls}</div>`;
+        html += `<div>Layer: <span style="color:${layerColor};font-weight:700;">${layer}</span></div>`;
+        html += `<div>Depth: ${depth.toFixed(3)}</div>`;
+        // Confidence scores (HANN mapping quality)
+        const confC = sampleData.conf_class ? (sampleData.conf_class[bestCellIdx] / 200).toFixed(2) : '?';
+        const confS = sampleData.conf_subclass ? (sampleData.conf_subclass[bestCellIdx] / 200).toFixed(2) : '?';
+        const confT = sampleData.conf_supertype ? (sampleData.conf_supertype[bestCellIdx] / 200).toFixed(2) : '?';
+        // Color-code: green if >=0.5, yellow if 0.28-0.5, red if <0.28
+        function confSpan(val) {
+          const v = parseFloat(val);
+          const color = v >= 0.5 ? '#28f03c' : v >= 0.28 ? '#e0d020' : '#dc3030';
+          return `<span style="color:${color};font-weight:600;">${val}</span>`;
+        }
+        html += `<div style="margin-top:2px;font-size:11px;color:#888;">HANN conf: ${confSpan(confC)} / ${confSpan(confS)} / ${confSpan(confT)}</div>`;
+        html += `<div style="font-size:9px;color:#555;">class / subclass / supertype</div>`;
+        // Correlation margin and QC flag
+        if (sampleData.corr_margin) {
+          const margin = (sampleData.corr_margin[bestCellIdx] / 1000).toFixed(3);
+          const isQcFail = sampleData.corr_qc && sampleData.corr_qc[bestCellIdx] === 0;
+          html += `<div style="margin-top:2px;font-size:11px;">Corr margin: ${margin}${isQcFail ? ' <span style="color:#e94560;font-weight:700;">QC-FAIL</span>' : ''}</div>`;
+        }
+        // HANN subclass comparison (if different)
+        if (sampleData.hann_subclass_cats && sampleData.hann_subclass) {
+          const hannSub = sampleData.hann_subclass_cats[sampleData.hann_subclass[bestCellIdx]];
+          if (hannSub !== subclass) {
+            html += `<div style="font-size:10px;color:#888;">HANN: ${hannSub}</div>`;
+          }
+        }
+        html += `<div style="color:#666;font-size:10px;">x=${x[bestCellIdx].toFixed(1)}, y=${y[bestCellIdx].toFixed(1)}</div>`;
+      }
+
+      tooltip.innerHTML = html;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX-sidebarWidth+12)+'px';
+      tooltip.style.top = (e.clientY-60)+'px';
+    } else { tooltip.style.display = 'none'; }
   }, 50);
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 5: Export viewer JSON files from annotated h5ad files.
+Step 7: Export viewer JSON files from annotated h5ad files.
 
 Reads per-sample h5ad files, filters to QC-pass cells only, and writes
 compact JSON files for the interactive Xenium spatial viewer.
@@ -59,19 +59,19 @@ SUBCLASS_COLORS = {
 }
 
 CLASS_COLORS = {
-    "Neuronal: Glutamatergic": "#00ADF8",
-    "Neuronal: GABAergic": "#F05A28",
-    "Non-neuronal and Non-neural": "#808080",
+    "Glutamatergic": "#00ADF8",
+    "GABAergic": "#F05A28",
+    "Non-neuronal": "#808080",
 }
 
 LAYER_COLORS = {
-    "L1": "#f1c40f",
-    "L2/3": "#e67e22",
-    "L4": "#f39c12",
-    "L5": "#2ecc71",
-    "L6": "#3498db",
-    "WM": "#9b59b6",
-    "Vascular": "#1abc9c",
+    "L1": "#E54C4C",
+    "L2/3": "#4CCC4C",
+    "L4": "#4C4CE5",
+    "L5": "#E5E533",
+    "L6": "#E57F19",
+    "WM": "#999999",
+    "Vascular": "#F24C99",
 }
 
 # Supertype → Subclass mapping for non-neuronal types whose supertype names
@@ -84,6 +84,41 @@ SUPERTYPE_SUBCLASS_MAP = {
     "Pericyte": "VLMC",
     "SMC": "VLMC",
 }
+
+
+def _build_supertype_colors(supertype_to_subclass, subclass_colors):
+    """Build per-supertype colors by varying brightness of parent subclass color."""
+    from collections import defaultdict
+
+    def hex_to_rgb(h):
+        h = h.lstrip('#')
+        return [int(h[i:i+2], 16) for i in (0, 2, 4)]
+
+    def rgb_to_hex(r, g, b):
+        return '#{:02X}{:02X}{:02X}'.format(
+            max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))
+
+    def adjust_brightness(hex_color, factor):
+        r, g, b = hex_to_rgb(hex_color)
+        return rgb_to_hex(int(r * factor), int(g * factor), int(b * factor))
+
+    # Group supertypes by parent subclass
+    subclass_to_supertypes = defaultdict(list)
+    for sup, sub in sorted(supertype_to_subclass.items()):
+        subclass_to_supertypes[sub].append(sup)
+
+    supertype_colors = {}
+    for sub, sups in sorted(subclass_to_supertypes.items()):
+        base_color = subclass_colors.get(sub, '#666666')
+        n = len(sups)
+        if n == 1:
+            supertype_colors[sups[0]] = base_color
+        else:
+            for i, sup in enumerate(sorted(sups)):
+                factor = 0.7 + (i / max(1, n - 1)) * 0.6
+                supertype_colors[sup] = adjust_brightness(base_color, factor)
+
+    return supertype_colors
 
 
 def main():
@@ -99,6 +134,8 @@ def main():
     sample_index = []
     total_cells_all = 0
     total_qc_pass = 0
+    # Track supertype -> subclass mapping across all samples
+    global_supertype_to_subclass = {}
 
     fnames = sorted(f for f in os.listdir(H5AD_DIR) if f.endswith("_annotated.h5ad"))
     print(f"Found {len(fnames)} h5ad files\n")
@@ -127,10 +164,35 @@ def main():
         # Extract data
         x = adata.obsm["spatial"][:, 0].astype(np.float32)
         y = adata.obsm["spatial"][:, 1].astype(np.float32)
-        subclass = adata.obs["subclass_label"].values.astype(str)
-        supertype = adata.obs["supertype_label"].values.astype(str)
-        class_label = adata.obs["class_label"].values.astype(str)
         depth = adata.obs["predicted_norm_depth"].values.astype(np.float32)
+
+        # Use correlation-derived labels as primary (fall back to HANN)
+        has_corr = "corr_subclass" in adata.obs.columns
+        if has_corr:
+            subclass = adata.obs["corr_subclass"].values.astype(str)
+            supertype = adata.obs["corr_supertype"].values.astype(str)
+            class_label = adata.obs["corr_class"].values.astype(str)
+            hann_subclass = adata.obs["subclass_label"].values.astype(str)
+        else:
+            subclass = adata.obs["subclass_label"].values.astype(str)
+            supertype = adata.obs["supertype_label"].values.astype(str)
+            class_label = adata.obs["class_label"].values.astype(str)
+            hann_subclass = subclass  # same as primary
+
+        # Mapping confidence scores (from HANN bootstrap voting)
+        # Quantize to uint8 (0-200 range, divide by 200 to recover) to save space
+        # while preserving 0.5% precision
+        conf_class = adata.obs["class_label_confidence"].values.astype(np.float32)
+        conf_subclass = adata.obs["subclass_label_confidence"].values.astype(np.float32)
+        conf_supertype = adata.obs["supertype_label_confidence"].values.astype(np.float32)
+        conf_class_q = np.clip(np.round(conf_class * 200), 0, 200).astype(np.uint8)
+        conf_subclass_q = np.clip(np.round(conf_subclass * 200), 0, 200).astype(np.uint8)
+        conf_supertype_q = np.clip(np.round(conf_supertype * 200), 0, 200).astype(np.uint8)
+
+        # Track supertype -> subclass mapping
+        for sup_val, sub_val in zip(supertype, subclass):
+            if sup_val not in global_supertype_to_subclass:
+                global_supertype_to_subclass[sup_val] = sub_val
 
         # Round coordinates to save space
         x = np.round(x, 1)
@@ -162,6 +224,10 @@ def main():
                 layer_cats.append(lbl)
                 layer_idx[lbl] = len(layer_cats) - 1
 
+        # HANN subclass for tooltip comparison (integer-encoded)
+        hann_subclass_cats = sorted(set(hann_subclass))
+        hann_subclass_idx = {c: i for i, c in enumerate(hann_subclass_cats)}
+
         data = {
             "sample_id": sample_id,
             "diagnosis": dx_map.get(sample_id, "Unknown"),
@@ -179,7 +245,24 @@ def main():
             "depth": depth.tolist(),
             "layer_cats": layer_cats,
             "layer": [layer_idx[lbl] for lbl in layers],
+            # HANN mapping confidence (uint8 quantized: divide by 200 to get 0-1)
+            "conf_class": conf_class_q.tolist(),
+            "conf_subclass": conf_subclass_q.tolist(),
+            "conf_supertype": conf_supertype_q.tolist(),
+            # HANN subclass for tooltip comparison
+            "hann_subclass_cats": hann_subclass_cats,
+            "hann_subclass": [hann_subclass_idx[s] for s in hann_subclass],
         }
+
+        # Correlation classifier QC flag and margin
+        if has_corr and "corr_qc_pass" in adata.obs.columns:
+            corr_qc = adata.obs["corr_qc_pass"].values.astype(bool)
+            data["corr_qc"] = [1 if q else 0 for q in corr_qc]
+
+            margin = adata.obs["corr_subclass_margin"].values.astype(np.float32)
+            # Quantize margin: multiply by 1000, clamp to 0-255
+            margin_q = np.clip(np.round(margin * 1000), 0, 255).astype(np.uint8)
+            data["corr_margin"] = margin_q.tolist()
 
         # Write compact JSON (no whitespace)
         json_path = os.path.join(VIEWER_DIR, f"{sample_id}.json")
@@ -195,10 +278,17 @@ def main():
             "n_cells": len(x),
         })
 
+    # Build supertype colors from the observed supertype -> subclass mapping
+    supertype_colors = _build_supertype_colors(
+        global_supertype_to_subclass, SUBCLASS_COLORS)
+    print(f"\nBuilt supertype colors: {len(supertype_colors)} supertypes "
+          f"from {len(set(global_supertype_to_subclass.values()))} subclasses")
+
     # Write index.json
     index_data = {
         "samples": sample_index,
         "subclass_colors": SUBCLASS_COLORS,
+        "supertype_colors": supertype_colors,
         "class_colors": CLASS_COLORS,
         "layer_colors": LAYER_COLORS,
         "supertype_subclass_map": SUPERTYPE_SUBCLASS_MAP,

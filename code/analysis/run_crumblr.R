@@ -19,12 +19,26 @@ library(limma)
 cat("Libraries loaded\n")
 
 # ── Paths ──────────────────────────────────────────────────────────
-base_dir <- "/Users/shreejoy/Desktop/scz_xenium_test"
+base_dir <- path.expand("~/Github/SCZ_Xenium")
 in_dir <- file.path(base_dir, "output", "crumblr")
 out_dir <- in_dir  # results go in same directory
 
+# ── Parse command line args ────────────────────────────────────────
+args <- commandArgs(trailingOnly = TRUE)
+suffix <- ""
+if (length(args) > 0 && args[1] == "--corr") {
+  suffix <- "_corr"
+  cat("Running with CORR QC inputs (non-default)\n")
+}
+
 # ── Discover input files ───────────────────────────────────────────
-input_files <- Sys.glob(file.path(in_dir, "crumblr_input_*.csv"))
+if (suffix == "") {
+  # Default (hybrid): match files that do NOT end with _corr.csv or _hybrid.csv
+  all_files <- Sys.glob(file.path(in_dir, "crumblr_input_*.csv"))
+  input_files <- all_files[!grepl("_(corr|hybrid)\\.csv$", all_files)]
+} else {
+  input_files <- Sys.glob(file.path(in_dir, sprintf("crumblr_input_*%s.csv", suffix)))
+}
 cat(sprintf("Found %d input files:\n", length(input_files)))
 for (f in input_files) cat(sprintf("  %s\n", basename(f)))
 
@@ -32,9 +46,10 @@ all_results <- list()
 idx <- 1
 
 for (fpath in input_files) {
-  # Parse level from filename: crumblr_input_{level}.csv
+  # Parse level from filename: crumblr_input_{level}[_hybrid].csv
   fname <- tools::file_path_sans_ext(basename(fpath))
   level <- sub("crumblr_input_", "", fname)
+  level <- sub("_(corr|hybrid)$", "", level)  # strip suffix for clean level name
   cat(sprintf("\n══ Processing: %s ══\n", level))
 
   # ── Load data ──────────────────────────────────────────────────
@@ -112,7 +127,7 @@ for (fpath in input_files) {
 
   # Save individual results
   res_sorted <- res[order(res$P.Value), ]
-  out_file <- file.path(out_dir, sprintf("crumblr_results_%s.csv", level))
+  out_file <- file.path(out_dir, sprintf("crumblr_results_%s%s.csv", level, suffix))
   write.csv(res_sorted, out_file, row.names = FALSE)
   cat(sprintf("  Saved: %s (%d types)\n", basename(out_file), nrow(res)))
 
@@ -144,7 +159,7 @@ for (fpath in input_files) {
 if (length(all_results) > 0) {
   combined <- do.call(rbind, all_results)
   combined <- combined[order(combined$P.Value), ]
-  out_file <- file.path(out_dir, "crumblr_results_all.csv")
+  out_file <- file.path(out_dir, sprintf("crumblr_results_all%s.csv", suffix))
   write.csv(combined, out_file, row.names = FALSE)
   cat(sprintf("\nSaved combined: %s (%d total rows)\n",
               basename(out_file), nrow(combined)))

@@ -17,42 +17,16 @@ import os
 import sys
 import glob
 import time
+import argparse
 import pandas as pd
-import anndata as ad
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import BASE_DIR, H5AD_DIR, CRUMBLR_DIR, EXCLUDE_SAMPLES, SUBCLASS_CONF_THRESH
+from config import BASE_DIR, H5AD_DIR, CRUMBLR_DIR, EXCLUDE_SAMPLES, load_cells
 
 sys.path.insert(0, os.path.join(BASE_DIR, "code"))
 from modules.metadata import get_subject_info
 
 METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
-
-
-def load_sample(fpath):
-    """Load one h5ad, filter to QC-pass cortical cells with confidence filter."""
-    adata = ad.read_h5ad(fpath, backed="r")
-    obs = adata.obs[["sample_id", "subclass_label", "supertype_label",
-                      "subclass_label_confidence",
-                      "spatial_domain", "layer", "qc_pass"]].copy()
-
-    # Filter: QC pass + cortical + not WM
-    mask = (
-        (obs["qc_pass"] == True) &
-        (obs["spatial_domain"] == "Cortical") &
-        (obs["layer"] != "WM")
-    )
-    obs = obs[mask]
-
-    # Bottom-1% subclass confidence filter
-    n_before = len(obs)
-    obs = obs[obs["subclass_label_confidence"].astype(float) >= SUBCLASS_CONF_THRESH]
-    n_dropped = n_before - len(obs)
-    if n_dropped > 0:
-        pct = n_dropped / n_before * 100
-        print(f"    Confidence filter: dropped {n_dropped:,} cells ({pct:.1f}%)")
-
-    return obs
 
 
 def build_counts(obs_df, level_col):
@@ -65,8 +39,19 @@ def build_counts(obs_df, level_col):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Build crumblr input CSVs")
+    parser.add_argument("--qc-mode", default="hybrid", choices=["corr", "hybrid"],
+                        help="QC mode: 'hybrid' (default, nuclear doublet-resolved) or 'corr'")
+    args = parser.parse_args()
+
+    qc_mode = args.qc_mode
+    # Output suffix: default (hybrid) writes to standard filenames; corr gets suffix
+    suffix = "_corr" if qc_mode == "corr" else ""
+
     t0 = time.time()
     os.makedirs(CRUMBLR_DIR, exist_ok=True)
+
+    print(f"QC mode: {qc_mode}")
 
     # Load donor metadata
     print("Loading donor metadata...")
@@ -86,7 +71,10 @@ def main():
             print(f"  Skipping {sid} (excluded)")
             continue
 
-        obs = load_sample(fpath)
+        obs = load_cells(sid, cortical_only=True, qc_mode=qc_mode)
+        # Additional crumblr filter: spatial_domain=='Cortical' (excludes
+        # cortical-layer cells in non-cortical spatial domains)
+        obs = obs[obs["spatial_domain"] == "Cortical"]
         n_total = len(obs)
         print(f"  {sid}: {n_total:,} cortical cells")
         all_obs.append(obs)
@@ -110,7 +98,7 @@ def main():
         counts = counts.sort_values(["donor", "celltype"]).reset_index(drop=True)
 
         n_types = counts["celltype"].nunique()
-        outpath = os.path.join(CRUMBLR_DIR, f"crumblr_input_{level_name}.csv")
+        outpath = os.path.join(CRUMBLR_DIR, f"crumblr_input_{level_name}{suffix}.csv")
         counts.to_csv(outpath, index=False)
         print(f"\n  {level_name}: {n_samples} donors x {n_types} types -> {outpath}")
 

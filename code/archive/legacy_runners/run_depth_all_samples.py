@@ -12,6 +12,8 @@ import glob
 import time
 import os
 
+_BASE_DIR = os.path.expanduser("~/Github/SCZ_Xenium")
+
 # ---- Globals set by initializer ----
 _model = None
 _sub_to_idx = None
@@ -150,7 +152,7 @@ def process_sample(h5ad_path):
         fig.suptitle(f'{sample_id} — Predicted Normalized Cortical Depth',
                      fontsize=22, fontweight='bold', y=1.02)
         plt.tight_layout()
-        plot_path = f'/Users/shreejoy/Desktop/scz_xenium_test/output/plots/{sample_id}_depth.png'
+        plot_path = f'{_BASE_DIR}/output/plots/{sample_id}_depth.png'
         plt.savefig(plot_path, dpi=200, bbox_inches='tight')
         plt.close()
         
@@ -165,8 +167,8 @@ def process_sample(h5ad_path):
         return sample_id, 0, 0, 0, False
 
 if __name__ == '__main__':
-    model_path = '/Users/shreejoy/Desktop/scz_xenium_test/output/depth_model_normalized.pkl'
-    h5ad_dir = '/Users/shreejoy/Desktop/scz_xenium_test/output/h5ad/'
+    model_path = f'{_BASE_DIR}/output/depth_model_normalized.pkl'
+    h5ad_dir = f'{_BASE_DIR}/output/h5ad/'
     h5ad_files = sorted(glob.glob(os.path.join(h5ad_dir, '*_annotated.h5ad')))
     
     print(f"Found {len(h5ad_files)} samples")
@@ -196,7 +198,7 @@ if __name__ == '__main__':
         adatas.append(a)
     
     combined = ad.concat(adatas, join='outer')
-    combined_path = '/Users/shreejoy/Desktop/scz_xenium_test/output/all_samples_annotated.h5ad'
+    combined_path = f'{_BASE_DIR}/output/all_samples_annotated.h5ad'
     combined.write_h5ad(combined_path)
     
     print(f"Merge took {time.time()-t_merge:.0f}s")

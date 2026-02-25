@@ -16,7 +16,6 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-import anndata as ad
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from matplotlib.lines import Line2D
@@ -24,8 +23,8 @@ from scipy.stats import pearsonr, spearmanr
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
-    BG_COLOR, H5AD_DIR, MERFISH_PATH, PRESENTATION_DIR,
-    CONTROL_SAMPLES, CORTICAL_LAYERS, SUBCLASS_CONF_THRESH, classify_celltype,
+    BG_COLOR, PRESENTATION_DIR, CONTROL_SAMPLES, CORTICAL_LAYERS,
+    classify_celltype, load_cells, load_merfish_cortical,
 )
 
 OUT_DIR = PRESENTATION_DIR
@@ -40,13 +39,12 @@ def compute_merfish_manual_proportions(level="Supertype"):
     """Compute mean proportions across MERFISH donors using only manually
     annotated cells (those with 'Normalized depth from pia')."""
     print(f"  MERFISH manually annotated ({level})...")
-    merfish = ad.read_h5ad(MERFISH_PATH, backed="r")
-    obs = merfish.obs[["Donor ID", level, "Normalized depth from pia"]].copy()
+    obs = load_merfish_cortical()
 
-    # Filter to manually annotated cells only
-    obs["depth"] = obs["Normalized depth from pia"].astype(float)
-    obs = obs[~np.isnan(obs["depth"].values)]
-    obs = obs.rename(columns={"Donor ID": "donor", level: "celltype"})
+    # Map level to column name
+    col_map = {"Supertype": "supertype", "Subclass": "subclass"}
+    celltype_col = col_map.get(level, level.lower())
+    obs = obs.rename(columns={celltype_col: "celltype"})
 
     n_cells = len(obs)
     n_donors = obs["donor"].nunique()
@@ -73,28 +71,26 @@ def compute_xenium_proportions(level="supertype_label", crop_layers=None):
 
     If crop_layers is provided, filter to those layer values first.
     """
-    tag = f"L1-L6 cropped" if crop_layers else "uncropped"
+    tag = "L1-L6 cropped" if crop_layers else "uncropped"
     print(f"  Xenium controls ({level}, {tag})...")
+
+    # Map level to standard column name
+    col_map = {"subclass_label": "subclass_label",
+               "supertype_label": "supertype_label"}
+    use_col = col_map.get(level, level)
+
     records = []
     total_cells = 0
     for sample_id in CONTROLS:
-        fpath = os.path.join(H5AD_DIR, f"{sample_id}_annotated.h5ad")
-        adata = ad.read_h5ad(fpath, backed="r")
-
-        cols = [level, "layer", "qc_pass", "subclass_label_confidence"]
-        obs = adata.obs[cols].copy()
-        obs = obs[obs["qc_pass"] == True]
-
-        # Bottom-1% subclass confidence filter
-        obs = obs[obs["subclass_label_confidence"].astype(float) >= SUBCLASS_CONF_THRESH]
+        cortical_only = crop_layers is not None
+        obs = load_cells(sample_id, cortical_only=cortical_only)
 
         if crop_layers:
-            obs["layer"] = obs["layer"].astype(str)
             obs = obs[obs["layer"].isin(crop_layers)]
 
         total = len(obs)
         total_cells += total
-        counts = obs[level].value_counts()
+        counts = obs[use_col].value_counts()
         for ct, n in counts.items():
             records.append({"donor": sample_id, "celltype": str(ct),
                             "proportion": n / total})

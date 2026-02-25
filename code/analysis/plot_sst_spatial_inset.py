@@ -18,9 +18,22 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
     PRESENTATION_DIR, BG_COLOR, DX_COLORS, ALL_CELL_COLOR, MARKER_SIZE_BG,
-    SST_TYPES, SST_COLORS, REPRESENTATIVE_SAMPLES, CORTICAL_LAYERS,
+    SST_COLORS, REPRESENTATIVE_SAMPLES, CORTICAL_LAYERS,
     load_all_cells, draw_inset, style_dark_axis,
 )
+
+# Subset of SST types for this figure
+SST_PLOT_TYPES = ["Sst_25", "Sst_22", "Sst_2"]
+
+# Override representative samples for SST figure:
+# Br6032 replaces Br2421 — it is the exact median for summed Sst_25+22+2
+# proportion among SCZ samples (0.53%) and has all cortical layers represented.
+SST_REPRESENTATIVE = [
+    ("Br6389", "Control"),
+    ("Br8433", "Control"),
+    ("Br6437", "SCZ"),
+    ("Br6032", "SCZ"),
+]
 
 MARKER_SIZE_SST = 18
 
@@ -31,7 +44,7 @@ def main():
                            wspace=0.05, hspace=0.22,
                            left=0.02, right=0.98, top=0.89, bottom=0.06)
 
-    for idx, (sample_id, diagnosis) in enumerate(REPRESENTATIVE_SAMPLES):
+    for idx, (sample_id, diagnosis) in enumerate(SST_REPRESENTATIVE):
         row, col = divmod(idx, 2)
         ax = fig.add_subplot(gs[row, col])
         ax.set_facecolor(BG_COLOR)
@@ -49,7 +62,7 @@ def main():
         # Overlay vulnerable Sst cells
         sst_counts = {}
         total_sst_vuln = 0
-        for sst_type in SST_TYPES:
+        for sst_type in SST_PLOT_TYPES:
             mask = cortical["supertype_label"] == sst_type
             sub = cortical[mask]
             n = len(sub)
@@ -68,7 +81,7 @@ def main():
                      fontweight="bold", color=title_color, pad=4)
 
         count_lines = [f"Vulnerable Sst: {total_sst_vuln} ({vuln_pct:.2f}%)"]
-        for t in SST_TYPES:
+        for t in SST_PLOT_TYPES:
             count_lines.append(f"  {t}: {sst_counts[t]}")
 
         ax.text(0.02, 0.98, "\n".join(count_lines), transform=ax.transAxes,
@@ -94,14 +107,14 @@ def main():
                markerfacecolor=SST_COLORS[t],
                markeredgecolor="white", markeredgewidth=0.5,
                markersize=12, label=t, linewidth=0)
-        for t in SST_TYPES
+        for t in SST_PLOT_TYPES
     ]
     legend_elements.append(
         Line2D([0], [0], marker='o', color=BG_COLOR,
                markerfacecolor=ALL_CELL_COLOR,
                markersize=6, label="All cortical cells", linewidth=0, alpha=0.5)
     )
-    fig.legend(handles=legend_elements, loc="lower center", ncol=5,
+    fig.legend(handles=legend_elements, loc="lower center", ncol=4,
                fontsize=13, frameon=False, labelcolor="white",
                bbox_to_anchor=(0.5, 0.005))
 

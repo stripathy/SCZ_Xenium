@@ -83,16 +83,25 @@ def load_xenium_sample():
     print(f"Loading Xenium {XENIUM_SAMPLE}...")
     fpath = os.path.join(H5AD_DIR, f"{XENIUM_SAMPLE}_annotated.h5ad")
     adata = ad.read_h5ad(fpath, backed="r")
+
+    has_corr = "corr_qc_pass" in adata.obs.columns
     cols = ["sample_id", "predicted_norm_depth", "layer",
-            "spatial_domain", "qc_pass", "subclass_label_confidence"]
+            "spatial_domain", "qc_pass"]
+    if has_corr:
+        cols.append("corr_qc_pass")
+    else:
+        cols.append("subclass_label_confidence")
     obs = adata.obs[cols].copy()
     coords = adata.obsm["spatial"]
     obs["x"] = coords[:, 0]
     obs["y"] = coords[:, 1]
     obs = obs[obs["qc_pass"] == True].copy()
 
-    # Bottom-1% subclass confidence filter
-    obs = obs[obs["subclass_label_confidence"].astype(float) >= SUBCLASS_CONF_THRESH]
+    # Correlation QC or legacy confidence filter
+    if has_corr:
+        obs = obs[obs["corr_qc_pass"] == True]
+    else:
+        obs = obs[obs["subclass_label_confidence"].astype(float) >= SUBCLASS_CONF_THRESH]
     obs["depth"] = obs["predicted_norm_depth"].astype(float)
     return obs
 
