@@ -5,12 +5,14 @@ Step 5: Retrain depth model from MERFISH and predict depth for all Xenium sample
 This retrains the GradientBoostingRegressor depth model from the SEA-AD MERFISH
 reference (using K=50 neighborhood composition features), then applies it to all
 24 Xenium samples. Uses hybrid_qc_pass (from step 04) when available to exclude
-confirmed doublets from neighborhood features. Also fits the 1-NN model for OOD
-scoring (used by step 06).
+confirmed doublets from neighborhood features.
 
 Saves:
-  - output/depth_model_normalized.pkl (model bundle with OOD calibration)
+  - output/depth_model_normalized.pkl (model bundle)
   - Updates predicted_norm_depth column in each h5ad file
+
+Note: Domain classification (Vascular, WM, L1 border) is handled by step 06
+using BANKSY spatial clustering (see banksy_domains.py).
 
 Usage:
     python3 -u 05_run_depth_prediction.py
@@ -66,13 +68,12 @@ def _process_sample(h5ad_path):
                 qc_mask = qc_mask.values.astype(bool)
         adata_pass = adata[qc_mask].copy()
 
-        # Predict depth (without OOD — that happens in step 04)
+        # Predict depth
         # Use correlation-derived subclass labels if available (from step 02b)
         subclass_col = ('corr_subclass' if 'corr_subclass' in adata_pass.obs.columns
                         else 'subclass_label')
         pred_depth = predict_depth(adata_pass, _model_bundle,
-                                    subclass_col=subclass_col,
-                                    compute_ood=False)
+                                    subclass_col=subclass_col)
 
         # Store back
         adata.obs['predicted_norm_depth'] = np.nan
@@ -111,7 +112,6 @@ def main():
     model_bundle = train_depth_model(merfish, K=50)
     save_model(model_bundle, MODEL_PATH)
     print(f"  Model saved: {MODEL_PATH}")
-    print(f"  OOD threshold (99th pctl): {model_bundle['ood_threshold_99']:.4f}")
 
     # Step 2: Predict depth for all samples
     print(f"\n{'='*60}")

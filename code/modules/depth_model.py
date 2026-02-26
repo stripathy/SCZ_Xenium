@@ -12,10 +12,11 @@ control for variable tissue sampling geometry across sections.
 Key insight: predictions are NOT clamped to [0,1] — cells in white matter
 may receive depth > 1 and cells above pia may receive depth < 0.
 
-OOD scoring: cells whose local neighborhood composition is far from any
-MERFISH training neighborhood are flagged as "Extra-cortical" (e.g.,
-pia, meninges, dura mater) since these tissue types were not sampled
-by the SEA-AD MERFISH reference.
+Note: OOD (out-of-distribution) detection was previously implemented here
+via 1-NN distance thresholds but was never used in the pipeline. Domain
+classification (Extra-cortical, Vascular, WM) is now handled by
+banksy_domains.py using BANKSY spatial clustering, which correctly
+identifies L1 border cells and white matter.
 """
 
 import numpy as np
@@ -35,7 +36,7 @@ DEPTH_STRATA = {
     'L6': (0.65, 0.85),
 }
 
-# Discrete layer bins (including L1, WM, and Extra-cortical)
+# Discrete layer bins (L1 through WM)
 LAYER_BINS = {
     'L1': (-np.inf, 0.10),
     'L2/3': (0.10, 0.30),
@@ -291,31 +292,6 @@ def train_depth_model(merfish_adata, test_donors=None, K=50,
     feature_names = ([f'neigh_{s}' for s in subclass_names] +
                      [f'own_{s}' for s in subclass_names])
 
-    # Fit 1-NN model on training features for OOD scoring
-    # Use only the neighborhood composition features (first n_sub columns),
-    # not the own-type one-hot, since we want to assess whether the local
-    # *neighborhood* is represented in the reference
-    print("  Fitting 1-NN model on training neighborhood features for OOD scoring...")
-    t_ood = time.time()
-    X_train_neigh = X_train[:, :n_sub]  # neighborhood fractions only
-    ood_nn = NearestNeighbors(n_neighbors=1, algorithm='ball_tree', metric='euclidean')
-    ood_nn.fit(X_train_neigh)
-
-    # Calibrate OOD threshold using held-out TEST set distances
-    # Test cells are in-distribution (cortical tissue from MERFISH) but were
-    # not in the BallTree, so their distances represent genuine
-    # "new cell → nearest training cell" distances
-    X_test_neigh = X_test[:, :n_sub]
-    test_dists, _ = ood_nn.kneighbors(X_test_neigh)
-    test_dists = test_dists.ravel()
-    ood_threshold_99 = float(np.percentile(test_dists, 99))
-    ood_threshold_95 = float(np.percentile(test_dists, 95))
-    print(f"  OOD 1-NN fitting + calibration: {time.time()-t_ood:.0f}s")
-    print(f"  Test-set distance stats: median={np.median(test_dists):.4f}, "
-          f"mean={np.mean(test_dists):.4f}, "
-          f"95th={ood_threshold_95:.4f}, 99th={ood_threshold_99:.4f}, "
-          f"max={np.max(test_dists):.4f}")
-
     return {
         'model': model,
         'subclass_names': subclass_names,
@@ -326,10 +302,6 @@ def train_depth_model(merfish_adata, test_donors=None, K=50,
         'target': 'normalized_depth_from_pia',
         'train_donors': train_donors,
         'test_donors': test_donors,
-        'ood_nn': ood_nn,
-        'ood_threshold_99': ood_threshold_99,
-        'ood_threshold_95': ood_threshold_95,
-        'ood_test_dist_median': float(np.median(test_dists)),
         **metrics,
     }
 
@@ -347,47 +319,13 @@ def load_model(path):
         return pickle.load(f)
 
 
-def compute_ood_scores(features, model_bundle):
-    """
-    Compute out-of-distribution scores for query cells.
-
-    For each cell, measures the Euclidean distance from its neighborhood
-    composition feature vector to the nearest MERFISH training point.
-    High distance = neighborhood not well represented in the reference
-    (e.g., meninges, pia, dura mater).
-
-    Parameters
-    ----------
-    features : np.ndarray
-        Feature matrix from build_neighborhood_features() (n_cells x 2*n_sub).
-    model_bundle : dict
-        Trained model bundle containing 'ood_nn' and 'n_sub'.
-
-    Returns
-    -------
-    np.ndarray
-        OOD distance per cell (float). Higher = more out-of-distribution.
-    """
-    ood_nn = model_bundle['ood_nn']
-    n_sub = model_bundle['n_sub']
-
-    # Use only neighborhood composition features (first n_sub columns)
-    X_neigh = features[:, :n_sub]
-    dists, _ = ood_nn.kneighbors(X_neigh)
-    return dists.ravel()
-
-
-def predict_depth(adata, model_bundle, subclass_col='subclass_label',
-                  compute_ood=True):
+def predict_depth(adata, model_bundle, subclass_col='subclass_label'):
     """
     Predict normalized cortical depth for all cells in a Xenium sample.
 
     Builds K-nearest-neighbor features from spatial coordinates and
     subclass labels, then applies the trained model. Predictions are
     NOT clamped to [0,1].
-
-    If compute_ood=True and the model bundle contains an OOD model,
-    also computes OOD scores for each cell.
 
     Parameters
     ----------
@@ -398,14 +336,11 @@ def predict_depth(adata, model_bundle, subclass_col='subclass_label',
         Trained model from train_depth_model() or load_model().
     subclass_col : str
         Column name for subclass labels in adata.obs.
-    compute_ood : bool
-        Whether to compute OOD scores (default True).
 
     Returns
     -------
-    np.ndarray or tuple of (np.ndarray, np.ndarray)
-        If compute_ood=False: predicted depth per cell.
-        If compute_ood=True: (predicted_depth, ood_scores).
+    np.ndarray
+        Predicted normalized depth per cell.
     """
     model = model_bundle['model']
     subclass_names = model_bundle['subclass_names']
@@ -418,13 +353,7 @@ def predict_depth(adata, model_bundle, subclass_col='subclass_label',
         coords, subclass, subclass_names, K=K, sections=None
     )
 
-    pred_depth = model.predict(features)
-
-    if compute_ood and 'ood_nn' in model_bundle:
-        ood_scores = compute_ood_scores(features, model_bundle)
-        return pred_depth, ood_scores
-    else:
-        return pred_depth
+    return model.predict(features)
 
 
 def assign_discrete_layers(depths, layer_bins=None):
@@ -453,47 +382,183 @@ def assign_discrete_layers(depths, layer_bins=None):
     return layers
 
 
-def assign_layers_with_ood(depths, ood_scores, ood_threshold=None,
-                            model_bundle=None, layer_bins=None):
-    """
-    Assign discrete cortical layers, marking OOD cells as 'Extra-cortical'.
+# ── Spatial layer smoothing constants ────────────────────────────────
 
-    Cells whose neighborhood is not well-represented in the MERFISH
-    reference (ood_score > threshold) are assigned to 'Extra-cortical'
-    regardless of their predicted depth. In-distribution cells get
-    standard layer assignments.
+SMOOTH_K = 30                   # spatial neighbors for smoothing
+SMOOTH_ROUNDS = 2               # majority-vote iterations
+
+VASC_TRIM_CORTICAL_THRESH = 0.33   # trim Vascular if >33% neighbors in L2/3–L6
+VASC_TRIM_WM_L1_THRESH = 0.66     # trim Vascular if >66% neighbors in any non-Vasc
+
+L1_PROMOTE_DEPTH_THRESH = 0.20     # promote banksy_is_l1 cells to L1 if depth < 0.20
+L1_PROMOTE_NBR_THRESH = 0.05       # … and ≥5% of neighbors are already L1
+L1_ISOLATED_BANKSY_THRESH = 0.05   # banksy L1 cells need ≥5% L1 neighbors to stay
+L1_ISOLATED_OTHER_THRESH = 0.20    # non-banksy L1 cells need ≥20% L1 neighbors
+
+# Layer categories used for indexing in smoothing
+_SMOOTH_LAYER_ORDER = ['L1', 'L2/3', 'L4', 'L5', 'L6', 'WM', 'Vascular']
+
+
+def smooth_layers_spatial(coords, layers, domains, is_l1_banksy, depths,
+                          k=None, n_rounds=None, verbose=True):
+    """
+    Spatially smooth layer assignments using 3-step pipeline:
+
+    1. Within-domain majority vote — smooths cortical layer boundaries
+       without crossing BANKSY domain borders.
+    2. Vascular border trim — reassigns border Vascular cells to cortical
+       layers when a sufficient fraction of spatial neighbors are in
+       cortical layers (L2/3–L6).
+    3. BANKSY-anchored L1 contiguity — promotes banksy_is_l1 cells with
+       shallow depth to L1, and removes isolated non-BANKSY L1 cells.
 
     Parameters
     ----------
-    depths : np.ndarray
-        Predicted normalized depth values.
-    ood_scores : np.ndarray
-        OOD distance scores from compute_ood_scores().
-    ood_threshold : float, optional
-        Cells with OOD score above this are Extra-cortical.
-        If None, uses model_bundle['ood_threshold_99'].
-    model_bundle : dict, optional
-        Model bundle (used to get default threshold).
-    layer_bins : dict, optional
-        Layer boundaries. Defaults to LAYER_BINS.
+    coords : np.ndarray (n_cells, 2)
+        Spatial coordinates.
+    layers : np.ndarray of str (n_cells,)
+        Initial layer assignments (from assign_discrete_layers + Vascular
+        override). Values must be in _SMOOTH_LAYER_ORDER.
+    domains : np.ndarray of str (n_cells,)
+        BANKSY domain labels ('Cortical', 'Vascular', 'WM').
+    is_l1_banksy : np.ndarray of bool (n_cells,)
+        BANKSY L1 border flag per cell.
+    depths : np.ndarray (n_cells,)
+        Predicted normalized depth per cell.
+    k : int, optional
+        Number of spatial neighbors. Default: SMOOTH_K (30).
+    n_rounds : int, optional
+        Number of within-domain smoothing rounds. Default: SMOOTH_ROUNDS (2).
+    verbose : bool
+        Print summary statistics.
 
     Returns
     -------
-    np.ndarray of str
-        Layer label per cell, with 'Extra-cortical' for OOD cells.
+    np.ndarray of str (n_cells,)
+        Smoothed layer assignments.
     """
-    if ood_threshold is None:
-        if model_bundle is not None and 'ood_threshold_99' in model_bundle:
-            ood_threshold = model_bundle['ood_threshold_99']
-        else:
-            raise ValueError("Must provide ood_threshold or model_bundle "
-                             "with 'ood_threshold_99'")
+    if k is None:
+        k = SMOOTH_K
+    if n_rounds is None:
+        n_rounds = SMOOTH_ROUNDS
 
-    # Start with standard layer assignment
-    layers = assign_discrete_layers(depths, layer_bins)
+    n_cells = len(layers)
+    layer_to_idx = {l: i for i, l in enumerate(_SMOOTH_LAYER_ORDER)}
+    idx_to_layer = {i: l for l, i in layer_to_idx.items()}
+    n_cats = len(_SMOOTH_LAYER_ORDER)
 
-    # Override OOD cells
-    ood_mask = ood_scores > ood_threshold
-    layers[ood_mask] = 'Extra-cortical'
+    CORTICAL_IDXS = {layer_to_idx[l] for l in ['L2/3', 'L4', 'L5', 'L6']}
+    VASC_IDX = layer_to_idx['Vascular']
+    WM_IDX = layer_to_idx['WM']
+    L1_IDX = layer_to_idx['L1']
 
-    return layers
+    # Encode layers as integers
+    layer_int = np.array([layer_to_idx.get(l, 0) for l in layers])
+    original = layer_int.copy()
+
+    # Build spatial k-NN graph
+    t0 = time.time()
+    nn = NearestNeighbors(n_neighbors=k + 1, algorithm='ball_tree')
+    nn.fit(coords)
+    _, indices = nn.kneighbors(coords)
+    if verbose:
+        print(f"    Spatial k-NN (k={k}): {time.time()-t0:.1f}s")
+
+    # ── Step 1: Within-domain majority vote ───────────────────────
+    t1 = time.time()
+    for _ in range(n_rounds):
+        nbr_layers = layer_int[indices]  # (n_cells, k+1)
+        # Mask out cross-domain neighbors
+        domain_self = domains[:, None]
+        domain_nbrs = domains[indices]
+        nbr_layers = nbr_layers.copy()
+        nbr_layers[domain_self != domain_nbrs] = -1
+
+        new = np.empty(n_cells, dtype=int)
+        for i in range(n_cells):
+            valid = nbr_layers[i][nbr_layers[i] >= 0]
+            if len(valid) == 0:
+                new[i] = layer_int[i]
+            else:
+                counts = np.bincount(valid, minlength=n_cats)
+                new[i] = np.argmax(counts)
+        layer_int = new
+
+    n_step1 = (layer_int != original).sum()
+    if verbose:
+        print(f"    Step 1 (within-domain smooth, {n_rounds} rounds): "
+              f"{n_step1:,} changed ({time.time()-t1:.1f}s)")
+
+    # ── Step 2: Vascular border trim ──────────────────────────────
+    t2 = time.time()
+    n_vasc_trimmed = 0
+    for i in range(n_cells):
+        if layer_int[i] != VASC_IDX:
+            continue
+        nbr = layer_int[indices[i, 1:]]
+        n_cortical = sum(1 for l in nbr if l in CORTICAL_IDXS)
+        n_wm_l1 = sum(1 for l in nbr if l in (WM_IDX, L1_IDX))
+
+        do_trim = False
+        if n_cortical / k >= VASC_TRIM_CORTICAL_THRESH:
+            do_trim = True
+        elif (n_cortical + n_wm_l1) / k >= VASC_TRIM_WM_L1_THRESH:
+            do_trim = True
+
+        if do_trim:
+            non_vasc = nbr[nbr != VASC_IDX]
+            if len(non_vasc) > 0:
+                counts = np.bincount(non_vasc, minlength=n_cats)
+                layer_int[i] = np.argmax(counts)
+                n_vasc_trimmed += 1
+
+    if verbose:
+        print(f"    Step 2 (vascular trim): {n_vasc_trimmed:,} cells "
+              f"({time.time()-t2:.1f}s)")
+
+    # ── Step 3: BANKSY-anchored L1 contiguity ─────────────────────
+    t3 = time.time()
+    n_l1_promoted = 0
+    n_l1_removed = 0
+
+    # 3a: Promote banksy_is_l1 cells with shallow depth to L1
+    for i in range(n_cells):
+        if (is_l1_banksy[i]
+                and layer_int[i] != L1_IDX
+                and depths[i] < L1_PROMOTE_DEPTH_THRESH):
+            nbr = layer_int[indices[i, 1:]]
+            l1_frac = (nbr == L1_IDX).sum() / k
+            if l1_frac >= L1_PROMOTE_NBR_THRESH:
+                layer_int[i] = L1_IDX
+                n_l1_promoted += 1
+
+    # 3b: Remove isolated L1 cells
+    for i in range(n_cells):
+        if layer_int[i] != L1_IDX:
+            continue
+        nbr = layer_int[indices[i, 1:]]
+        l1_frac = (nbr == L1_IDX).sum() / k
+        thresh = (L1_ISOLATED_BANKSY_THRESH if is_l1_banksy[i]
+                  else L1_ISOLATED_OTHER_THRESH)
+        if l1_frac < thresh:
+            non_l1 = nbr[nbr != L1_IDX]
+            if len(non_l1) > 0:
+                counts = np.bincount(non_l1, minlength=n_cats)
+                layer_int[i] = np.argmax(counts)
+                n_l1_removed += 1
+
+    if verbose:
+        print(f"    Step 3 (L1 contiguity): +{n_l1_promoted:,} promoted, "
+              f"-{n_l1_removed:,} removed ({time.time()-t3:.1f}s)")
+
+    # Convert back to string labels
+    smoothed = np.array([idx_to_layer[i] for i in layer_int])
+
+    n_total_changed = (smoothed != layers).sum()
+    if verbose:
+        print(f"    Total changed: {n_total_changed:,} / {n_cells:,} "
+              f"({100*n_total_changed/n_cells:.1f}%)")
+
+    return smoothed
+
+

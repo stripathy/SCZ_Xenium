@@ -1,17 +1,42 @@
 #!/usr/bin/env python3
 """
-Step 6: Spatial domain classification + depth-based layer assignment.
+Step 6: BANKSY spatial domain classification + depth-based layer assignment.
 
 For each sample:
   1. Load annotated h5ad (with QC, hierarchical labels, depth predictions)
   2. Subset to hybrid_qc_pass cells (from step 04; falls back to qc_pass)
-  3. Run spatial domain clustering to identify Extra-cortical / Vascular / Cortical
-  4. Assign layers: ALL cells get depth-bin layer from predicted depth,
-     EXCEPT Vascular cells (from OOD) which get 'Vascular' label.
-     Extra-cortical cells keep their depth-bin layer (no override).
-  5. Save updated h5ad with new columns
+  3. Run BANKSY clustering (λ=0.8, res=0.3) for spatially coherent domains
+  4. Classify domains: Cortical / Vascular / WM, with L1 border flag
+  5. Assign layers: depth-bin layers for all cells, Vascular cells overridden
+  6. Spatially smooth layers (within-domain majority vote + vascular trim
+     + BANKSY-anchored L1 contiguity)
+  7. Save updated h5ad with new columns
 
-Requires: Step 04 (hybrid_qc_pass) and Step 05 (depth predictions).
+BANKSY (Nature Genetics 2024) augments gene expression with spatial
+neighbor expression, producing spatially coherent clusters that improve
+domain classification vs the older K-NN composition approach:
+  - L1 border cells correctly identified as Cortical (not "Extra-cortical")
+  - White matter detected via oligo + depth thresholds
+  - Vascular threshold lowered to 0.50 (clusters are spatially coherent)
+
+Spatial smoothing pipeline (3 steps):
+  - Within-domain majority vote (k=30, 2 rounds): smooths cortical layer
+    boundaries without crossing BANKSY domain borders
+  - Vascular border trim: reassigns border Vascular cells to cortical layers
+    when >33% of neighbors are in L2/3–L6
+  - BANKSY-anchored L1 contiguity: promotes banksy_is_l1 cells with shallow
+    depth to L1, removes isolated non-BANKSY L1 cells
+
+Requires: Step 04 (hybrid_qc_pass), Step 05 (depth predictions), pybanksy.
+
+New/updated h5ad columns:
+  - banksy_cluster:  int   — raw BANKSY cluster ID
+  - banksy_domain:   str   — Cortical / Vascular / WM
+  - banksy_is_l1:    bool  — True if cell in L1 border cluster
+  - spatial_domain:  str   — backward-compat: Cortical / Vascular (WM → Cortical)
+  - layer:           str   — final spatially-smoothed layer assignment
+  - layer_unsmoothed: str  — pre-smoothing layer (depth bins + Vascular override)
+  - layer_depth_only: str  — depth-bin-only layers (no Vascular, no smoothing)
 
 Usage:
     python3 -u 06_run_spatial_domains.py
@@ -23,44 +48,29 @@ import time
 import numpy as np
 import pandas as pd
 import anndata as ad
-from multiprocessing import Pool, current_process
 
 # Pipeline config
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from pipeline_config import H5AD_DIR, OUTPUT_DIR, DEPTH_MODEL_PATH, MODULES_DIR, N_WORKERS
+from pipeline_config import H5AD_DIR, OUTPUT_DIR, MODULES_DIR, N_WORKERS
 
 # Modules
 sys.path.insert(0, MODULES_DIR)
-from depth_model import load_model, assign_discrete_layers, LAYER_BINS
-from spatial_domains import classify_spatial_domains
-
-# Globals
-_model_bundle = None
-
-
-def _init_worker():
-    """Load depth model once per worker (for subclass_names)."""
-    global _model_bundle
-    pid = current_process().pid
-    print(f"  [Worker {pid}] Loading depth model...")
-    _model_bundle = load_model(DEPTH_MODEL_PATH)
-    print(f"  [Worker {pid}] Ready.")
+from depth_model import assign_discrete_layers, smooth_layers_spatial, LAYER_BINS
+from banksy_domains import (
+    preprocess_for_banksy, run_banksy, classify_banksy_domains,
+)
 
 
 def _process_one_sample(h5ad_path):
-    """Process one sample: spatial domain classification + layer assignment."""
-    global _model_bundle
-    pid = current_process().pid
+    """Process one sample: BANKSY → domain classification → layer assignment."""
     t0 = time.time()
-
     sample_id = os.path.basename(h5ad_path).replace("_annotated.h5ad", "")
 
     try:
         adata = ad.read_h5ad(h5ad_path)
         n_total = adata.shape[0]
 
-        # Prefer hybrid_qc_pass (from step 04) to exclude confirmed doublets;
-        # fall back to qc_pass if step 04 not run
+        # Prefer hybrid_qc_pass (from step 04); fall back to qc_pass
         if "hybrid_qc_pass" in adata.obs.columns:
             qc_mask = adata.obs["hybrid_qc_pass"].values.astype(bool)
         elif "qc_pass" in adata.obs.columns:
@@ -69,79 +79,137 @@ def _process_one_sample(h5ad_path):
             qc_mask = np.ones(n_total, dtype=bool)
 
         n_pass = qc_mask.sum()
-
-        # Work on QC-pass cells
         adata_pass = adata[qc_mask].copy()
+        print(f"  [{sample_id}] {n_pass:,} / {n_total:,} QC-pass cells")
 
-        # Run spatial domain classification
-        # Use correlation-derived subclass labels if available (from step 02b)
-        subclass_col = ('corr_subclass' if 'corr_subclass' in adata_pass.obs.columns
-                        else 'subclass_label')
-        subclass_names = _model_bundle['subclass_names']
-        domain_labels, cluster_stats = classify_spatial_domains(
-            adata_pass, subclass_names, K=50, resolution=0.8,
-            subclass_col=subclass_col
+        # ── BANKSY clustering ─────────────────────────────────
+        t_banksy = time.time()
+        adata_b = preprocess_for_banksy(adata_pass)
+        banksy_labels = run_banksy(adata_b)
+        del adata_b  # free memory
+        n_clusters = len(np.unique(banksy_labels))
+        print(f"  [{sample_id}] BANKSY: {n_clusters} clusters "
+              f"({time.time()-t_banksy:.0f}s)")
+
+        # ── Domain classification ─────────────────────────────
+        domains, is_l1, cluster_info = classify_banksy_domains(
+            adata_pass, banksy_labels
         )
+        domain_counts = {
+            d: int((domains == d).sum())
+            for d in ["Cortical", "Vascular", "WM"]
+        }
+        n_l1 = int(is_l1.sum())
+        print(f"  [{sample_id}] Domains: "
+              + ", ".join(f"{d}={n:,}" for d, n in domain_counts.items())
+              + f", L1_border={n_l1:,}")
 
-        n_extra = (domain_labels == 'Extra-cortical').sum()
-        n_vasc = (domain_labels == 'Vascular').sum()
-        n_cort = (domain_labels == 'Cortical').sum()
-
-        # Assign layers: depth bins for all cells, only Vascular overridden from OOD
+        # ── Layer assignment ──────────────────────────────────
         pred_depth = adata_pass.obs['predicted_norm_depth'].values
         depth_layers = assign_discrete_layers(pred_depth)
 
-        # Hybrid: depth bins for everything, only override Vascular from OOD
-        # Extra-cortical cells KEEP their depth-bin layer (e.g. L1, L2/3)
+        # Hybrid: depth bins for all, override Vascular only
         combined_layers = depth_layers.copy()
-        combined_layers[domain_labels == 'Vascular'] = 'Vascular'
+        combined_layers[domains == 'Vascular'] = 'Vascular'
 
-        # Store results back into the full adata (including QC-fail cells)
-        # Domain labels
-        full_domain = np.full(n_total, 'Unassigned', dtype=object)
-        full_domain[qc_mask] = domain_labels
-        adata.obs['spatial_domain'] = full_domain
+        # ── Spatial smoothing ───────────────────────────────────
+        # 3-step pipeline: within-domain vote → vascular trim → L1 contiguity
+        t_smooth = time.time()
+        smoothed_layers = smooth_layers_spatial(
+            coords=adata_pass.obsm['spatial'],
+            layers=combined_layers,
+            domains=domains,
+            is_l1_banksy=is_l1,
+            depths=pred_depth,
+            verbose=True,
+        )
+        print(f"  [{sample_id}] Spatial smoothing: {time.time()-t_smooth:.0f}s")
 
-        # Combined layer
+        # ── Backward-compatible spatial_domain column ─────────
+        # Map BANKSY domains to the format other scripts expect
+        #   Cortical → Cortical (L1 border cells are Cortical, not Extra-cortical)
+        #   Vascular → Vascular
+        #   WM → Cortical (WM is near-cortical; depth handles the distinction)
+        spatial_domain_compat = np.where(
+            domains == "Vascular", "Vascular", "Cortical"
+        )
+
+        # ── Write back to full adata ──────────────────────────
+        # BANKSY columns
+        full_banksy_cluster = np.full(n_total, -1, dtype=int)
+        full_banksy_cluster[qc_mask] = banksy_labels
+        adata.obs["banksy_cluster"] = full_banksy_cluster
+
+        full_banksy_domain = np.full(n_total, "", dtype=object)
+        full_banksy_domain[qc_mask] = domains
+        adata.obs["banksy_domain"] = full_banksy_domain
+
+        full_banksy_is_l1 = np.zeros(n_total, dtype=bool)
+        full_banksy_is_l1[qc_mask] = is_l1
+        adata.obs["banksy_is_l1"] = full_banksy_is_l1
+
+        # Backward-compatible columns
+        full_spatial_domain = np.full(n_total, 'Unassigned', dtype=object)
+        full_spatial_domain[qc_mask] = spatial_domain_compat
+        adata.obs['spatial_domain'] = full_spatial_domain
+
+        # layer = final spatially-smoothed assignment
         full_layer = np.full(n_total, 'Unassigned', dtype=object)
-        full_layer[qc_mask] = combined_layers
+        full_layer[qc_mask] = smoothed_layers
         adata.obs['layer'] = full_layer
 
-        # Also keep the old depth-only layer for comparison
+        # layer_unsmoothed = pre-smoothing (depth bins + Vascular override)
+        full_unsmoothed = np.full(n_total, 'Unassigned', dtype=object)
+        full_unsmoothed[qc_mask] = combined_layers
+        adata.obs['layer_unsmoothed'] = full_unsmoothed
+
+        # layer_depth_only = depth-bin-only (no Vascular, no smoothing)
         full_depth_layer = np.full(n_total, 'Unassigned', dtype=object)
         full_depth_layer[qc_mask] = depth_layers
         adata.obs['layer_depth_only'] = full_depth_layer
+
+        # ── Drop stale columns from archived exploration scripts ──
+        stale_cols = [
+            'cortical_strip_id', 'cortical_strip_tier', 'in_cortical_strip',
+            'curved_strip_id', 'in_curved_strip', 'curved_strip_tier',
+            'curved_strip_bank',
+        ]
+        dropped = []
+        for col in stale_cols:
+            if col in adata.obs.columns:
+                del adata.obs[col]
+                dropped.append(col)
+        if dropped:
+            print(f"  [{sample_id}] Dropped {len(dropped)} stale columns: "
+                  f"{', '.join(dropped)}")
 
         # Save
         adata.write_h5ad(h5ad_path)
 
         elapsed = time.time() - t0
-        print(f"  [{pid}] {sample_id}: {n_pass:,} pass -> "
-              f"Extra-cortical:{n_extra:,}({100*n_extra/n_pass:.1f}%) "
-              f"Vascular:{n_vasc:,}({100*n_vasc/n_pass:.1f}%) "
-              f"Cortical:{n_cort:,}({100*n_cort/n_pass:.1f}%) "
-              f"[{elapsed:.0f}s]")
+        print(f"  [{sample_id}] Saved h5ad ({elapsed:.0f}s)")
 
-        # Layer distribution
+        # Layer distribution for summary (using smoothed layers)
         layer_dist = {}
         for lname in list(LAYER_BINS.keys()) + ['Vascular']:
-            layer_dist[lname] = int((combined_layers == lname).sum())
+            layer_dist[lname] = int((smoothed_layers == lname).sum())
 
         return {
             "sample_id": sample_id, "status": "success",
             "n_total": n_total, "n_pass": int(n_pass),
-            "n_extra": int(n_extra), "n_vasc": int(n_vasc),
-            "n_cort": int(n_cort),
+            "n_cortical": domain_counts.get("Cortical", 0),
+            "n_vascular": domain_counts.get("Vascular", 0),
+            "n_wm": domain_counts.get("WM", 0),
+            "n_l1_border": n_l1,
+            "n_clusters": n_clusters,
             "layer_dist": layer_dist,
-            "cluster_stats": {cl: {k: v for k, v in s.items() if k != 'top3'}
-                              for cl, s in cluster_stats.items()},
             "time": elapsed,
         }
 
     except Exception as e:
         import traceback
         elapsed = time.time() - t0
-        print(f"  [{pid}] {sample_id}: FAILED - {e}")
+        print(f"  [{sample_id}] FAILED - {e}")
         traceback.print_exc()
         return {
             "sample_id": sample_id, "status": "error",
@@ -159,15 +227,21 @@ def main():
         if f.endswith("_annotated.h5ad")
     )
     print(f"Found {len(h5ad_files)} samples")
-    print(f"Using {N_WORKERS} workers")
-    print(f"Pipeline: spatial domain clustering (K=50, res=0.8) + depth layers")
+    print(f"Pipeline: BANKSY domain classification (λ=0.8, res=0.3) "
+          f"+ depth layers + spatial smoothing")
     print(f"{'='*60}")
 
-    # Process in parallel
-    with Pool(processes=N_WORKERS, initializer=_init_worker) as pool:
-        results = pool.map(_process_one_sample, h5ad_files)
+    # Process sequentially (BANKSY is memory-intensive)
+    results = []
+    for i, h5ad_path in enumerate(h5ad_files):
+        sid = os.path.basename(h5ad_path).replace("_annotated.h5ad", "")
+        print(f"\n{'='*60}")
+        print(f"[{i+1}/{len(h5ad_files)}] {sid}")
+        print(f"{'='*60}")
+        result = _process_one_sample(h5ad_path)
+        results.append(result)
 
-    # ── Summary ────────────────────────────────────────────────────
+    # ── Summary ────────────────────────────────────────────────
     total_time = time.time() - t_start
     print(f"\n{'='*60}")
     print(f"SUMMARY - {total_time:.0f}s total")
@@ -177,70 +251,85 @@ def main():
     print(f"  Success: {n_ok}/{len(results)}")
 
     # Aggregate stats
-    total_pass = sum(r.get("n_pass", 0) for r in results if r["status"] == "success")
-    total_extra = sum(r.get("n_extra", 0) for r in results if r["status"] == "success")
-    total_vasc = sum(r.get("n_vasc", 0) for r in results if r["status"] == "success")
-    total_cort = sum(r.get("n_cort", 0) for r in results if r["status"] == "success")
+    success = [r for r in results if r["status"] == "success"]
+    if success:
+        total_pass = sum(r["n_pass"] for r in success)
+        total_cortical = sum(r["n_cortical"] for r in success)
+        total_vascular = sum(r["n_vascular"] for r in success)
+        total_wm = sum(r["n_wm"] for r in success)
+        total_l1 = sum(r["n_l1_border"] for r in success)
 
-    print(f"\n  Total QC-pass cells: {total_pass:,}")
-    print(f"  Extra-cortical: {total_extra:,} ({100*total_extra/total_pass:.1f}%)")
-    print(f"  Vascular:       {total_vasc:,} ({100*total_vasc/total_pass:.1f}%)")
-    print(f"  Cortical:       {total_cort:,} ({100*total_cort/total_pass:.1f}%)")
+        print(f"\n  Total QC-pass cells: {total_pass:,}")
+        print(f"  Cortical: {total_cortical:,} "
+              f"({100*total_cortical/total_pass:.1f}%)")
+        print(f"    of which L1 border: {total_l1:,} "
+              f"({100*total_l1/total_pass:.1f}%)")
+        print(f"  Vascular: {total_vascular:,} "
+              f"({100*total_vascular/total_pass:.1f}%)")
+        print(f"  WM: {total_wm:,} "
+              f"({100*total_wm/total_pass:.1f}%)")
 
-    # Aggregate layer distribution
-    agg_layers = {}
-    for r in results:
-        if r["status"] == "success":
+        # Aggregate layer distribution
+        agg_layers = {}
+        for r in success:
             for lname, n in r["layer_dist"].items():
                 agg_layers[lname] = agg_layers.get(lname, 0) + n
 
-    print(f"\n  Combined layer distribution:")
-    for lname in ['L1', 'L2/3', 'L4', 'L5', 'L6', 'WM', 'Vascular']:
-        n = agg_layers.get(lname, 0)
-        print(f"    {lname:20s}: {n:>8,} ({100*n/total_pass:5.1f}%)")
+        print(f"\n  Combined layer distribution:")
+        for lname in ['L1', 'L2/3', 'L4', 'L5', 'L6', 'WM', 'Vascular']:
+            n = agg_layers.get(lname, 0)
+            print(f"    {lname:20s}: {n:>8,} ({100*n/total_pass:5.1f}%)")
 
-    # Per-sample table
-    print(f"\n  Per-sample breakdown:")
-    print(f"  {'Sample':>10s} {'QC-pass':>8s} {'Extra%':>6s} {'Vasc%':>6s} {'Time':>5s}")
-    for r in sorted(results, key=lambda x: x['sample_id']):
-        if r["status"] == "success":
+        # Per-sample table
+        print(f"\n  Per-sample breakdown:")
+        print(f"  {'Sample':>10s} {'QC-pass':>8s} {'Cort%':>6s} "
+              f"{'Vasc%':>6s} {'WM%':>5s} {'L1%':>5s} {'Time':>5s}")
+        for r in sorted(success, key=lambda x: x['sample_id']):
             n = r["n_pass"]
             print(f"  {r['sample_id']:>10s} {n:>8,} "
-                  f"{100*r['n_extra']/n:>5.1f}% "
-                  f"{100*r['n_vasc']/n:>5.1f}% "
+                  f"{100*r['n_cortical']/n:>5.1f}% "
+                  f"{100*r['n_vascular']/n:>5.1f}% "
+                  f"{100*r['n_wm']/n:>4.1f}% "
+                  f"{100*r['n_l1_border']/n:>4.1f}% "
                   f"{r['time']:>4.0f}s")
-        else:
-            print(f"  {r['sample_id']:>10s} FAILED: {r.get('error', '?')}")
+
+    failed = [r for r in results if r["status"] != "success"]
+    if failed:
+        print(f"\nFailed ({len(failed)}):")
+        for r in failed:
+            print(f"  {r['sample_id']}: {r.get('error', 'unknown')}")
 
     # Save summary CSV
-    summary_rows = []
-    for r in results:
-        if r["status"] == "success":
+    if success:
+        summary_rows = []
+        for r in success:
             row = {
                 'sample_id': r['sample_id'],
                 'n_pass': r['n_pass'],
-                'n_extra_cortical': r['n_extra'],
-                'n_vascular': r['n_vasc'],
-                'n_cortical': r['n_cort'],
-                'pct_extra_cortical': 100 * r['n_extra'] / r['n_pass'],
-                'pct_vascular': 100 * r['n_vasc'] / r['n_pass'],
+                'n_cortical': r['n_cortical'],
+                'n_vascular': r['n_vascular'],
+                'n_wm': r['n_wm'],
+                'n_l1_border': r['n_l1_border'],
+                'n_clusters': r['n_clusters'],
+                'pct_cortical': 100 * r['n_cortical'] / r['n_pass'],
+                'pct_vascular': 100 * r['n_vascular'] / r['n_pass'],
+                'pct_l1_border': 100 * r['n_l1_border'] / r['n_pass'],
             }
             row.update(r['layer_dist'])
             summary_rows.append(row)
 
-    df = pd.DataFrame(summary_rows)
-    csv_path = os.path.join(OUTPUT_DIR, "spatial_domain_summary.csv")
-    df.to_csv(csv_path, index=False)
-    print(f"\n  Saved: {csv_path}")
+        df = pd.DataFrame(summary_rows)
+        csv_path = os.path.join(OUTPUT_DIR, "spatial_domain_summary.csv")
+        df.to_csv(csv_path, index=False)
+        print(f"\n  Saved: {csv_path}")
 
-    # ── Merge into combined h5ad ───────────────────────────────────
+    # ── Merge into combined h5ad ───────────────────────────────
     print("\nMerging all samples into combined h5ad...")
     t_merge = time.time()
     adatas = []
-    for r in results:
-        if r["status"] == "success":
-            path = os.path.join(H5AD_DIR, f"{r['sample_id']}_annotated.h5ad")
-            adatas.append(ad.read_h5ad(path))
+    for r in success:
+        path = os.path.join(H5AD_DIR, f"{r['sample_id']}_annotated.h5ad")
+        adatas.append(ad.read_h5ad(path))
     combined = ad.concat(adatas, join='outer')
     combined_path = os.path.join(OUTPUT_DIR, "all_samples_annotated.h5ad")
     combined.write_h5ad(combined_path)
@@ -248,7 +337,7 @@ def main():
     print(f"  Saved: {combined_path} ({file_size:.2f} GB, {combined.shape})")
     print(f"  Merge took {time.time()-t_merge:.0f}s")
 
-    print(f"\nTotal time: {total_time:.0f}s")
+    print(f"\nTotal time: {time.time()-t_start:.0f}s")
 
 
 if __name__ == "__main__":

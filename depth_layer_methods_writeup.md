@@ -4,7 +4,7 @@
 
 Assigning cortical depth and layer identity to spatially resolved cells requires either labor-intensive manual annotation or a computational model that can generalize across tissue sections with variable geometry. We use a neighborhood composition-based depth model trained on the SEA-AD MERFISH reference (which has manual cortical depth annotations) to predict normalized cortical depth for every Xenium cell, then combine this with unsupervised spatial domain classification to assign discrete layer labels and identify non-cortical tissue regions (pia/meninges, vascular clusters).
 
-The pipeline produces three annotations per cell: a continuous depth value (0 = pia, 1 = white matter boundary), a spatial domain label (Cortical, Extra-cortical, or Vascular), and a discrete layer assignment (L1 through WM, or Vascular).
+The pipeline produces three annotations per cell: a continuous depth value (0 = pia, 1 = white matter boundary), a spatial domain label (Cortical, Vascular, or WM), and a spatially-smoothed discrete layer assignment (L1 through WM, or Vascular). A 3-step spatial smoothing pipeline refines the raw depth-bin layers to produce spatially contiguous layer boundaries.
 
 ---
 
@@ -56,39 +56,46 @@ Predictions are deliberately **not clamped** to [0, 1]. Cells in white matter re
 
 Not all tissue on a Xenium section is cortex. Sections may include pia/meningeal tissue (cell-sparse, dominated by astrocytes and microglia), vascular clusters (concentrated Endothelial and VLMC cells), and white matter. The depth model is trained on cortical tissue from MERFISH, so its predictions for non-cortical regions are unreliable. Spatial domain classification identifies these regions so they can be handled appropriately.
 
-### Method
+### Method: BANKSY spatial clustering
 
-For each sample, we perform unsupervised clustering on the same K=50 neighborhood composition features used by the depth model:
+We use BANKSY (Singhal et al., Nature Genetics 2024) for spatial domain classification. BANKSY augments each cell's gene expression with spatial neighbor expression and expression gradients, then performs dimensionality reduction and Leiden clustering in this augmented feature space. This produces spatially coherent clusters by construction — neighboring cells with similar expression are grouped together, naturally recovering tissue domains without requiring separate neighborhood feature engineering.
 
-1. **PCA** on neighbor fraction vectors (20 components)
-2. **KNN graph** in PCA space (n_neighbors=30)
-3. **Leiden clustering** (resolution=0.8, igraph flavor, 2 iterations)
+**BANKSY parameters:** λ=0.8 (spatial weighting), Leiden resolution=0.3, k_geom=15 spatial neighbors, 20 PCA dimensions. Preprocessing: library-size normalization (target 10,000), log1p, z-scoring.
 
-Each resulting cluster is classified by its cell type composition:
+Each resulting cluster is classified by its cell type composition and mean predicted depth (from step 05):
 
 | Domain | Rule |
 |--------|------|
-| **Vascular** | >80% Endothelial + VLMC |
-| **Extra-cortical** | >60% non-neuronal AND mean predicted depth < 0.15 |
-| **Cortical** | Everything else |
+| **Vascular** | >50% Endothelial + VLMC |
+| **White Matter** | >40% Oligodendrocyte AND mean depth > 0.80 |
+| **L1 Border** | >50% non-neuronal AND mean depth < 0.20 → classified as **Cortical** with `banksy_is_l1=True` flag |
+| **Neuronal Cortex** | Neuronal fraction > 20% AND 0 ≤ mean depth ≤ 0.90 |
+| **Deep WM** | Mean depth > 0.80 (fallback) |
+| **Cortical** | Default |
 
-The Vascular threshold is stringent (80%) because blood vessels are scattered throughout cortex and must be sharply distinguished from nearby cortical tissue. The Extra-cortical rule combines composition (high non-neuronal) with spatial position (shallow depth) to avoid misclassifying deep non-neuronal-rich regions (e.g., white matter oligodendrocyte clusters) as pia.
+Key improvements over the previous approach:
 
-### Out-of-distribution detection
+1. **L1 border detection**: Shallow non-neuronal-dominated BANKSY clusters are correctly identified as L1 cortex, not "Extra-cortical." This was validated by MERFISH comparison: L1 has ~81% non-neuronal composition (astrocytes, microglia, endothelial), which the previous K-NN Leiden approach misclassified as pia/meninges. The `banksy_is_l1` flag marks these cells for downstream use.
 
-The depth model also includes a 1-NN reference model that measures each cell's Euclidean distance in neighborhood composition space to the nearest MERFISH training point. Cells whose neighborhoods are far from any training example (above the 99th percentile of held-out test distances) have compositions not represented in the cortical MERFISH reference — typically pia or meningeal tissue. This OOD score provides an independent signal that complements the Leiden-based domain classification.
+2. **White matter detection**: BANKSY clusters with high oligodendrocyte fraction (>40%) and deep mean depth (>0.80) are classified as WM. The previous approach had no explicit WM detection.
+
+3. **Lower vascular threshold**: BANKSY clusters are spatially coherent by construction, so the vascular threshold can be lowered from 80% to 50% without increasing false positives from scattered cortical vascular cells.
+
+### Previous approach (superseded)
+
+The original spatial domain classification used K=50 neighborhood composition features (the same features as the depth model) → PCA → KNN graph → Leiden clustering (resolution=0.8), then classified clusters as Extra-cortical (>60% non-neuronal + shallow depth) or Vascular (>80% Endo+VLMC). An OOD detection model (1-NN distance to MERFISH training data, calibrated at the 99th percentile of held-out test distances) was also developed but never deployed in the pipeline. Both approaches have been superseded by the BANKSY method, which provides more accurate domain classification with explicit L1 border and WM detection.
 
 ### Aggregate domain breakdown
 
-Across all 24 samples (1,302,631 QC-pass cells):
+Across all 24 samples (1,302,631 QC-pass cells), the BANKSY domain distribution is:
 
 | Domain | Cells | % |
 |--------|-------|---|
-| Cortical | 1,183,158 | 90.8% |
-| Extra-cortical | 74,298 | 5.7% |
-| Vascular | 45,175 | 3.5% |
+| Cortical (including L1 border) | 821,034 | 63.0% |
+| Vascular | 223,438 | 17.2% |
+| White Matter | 258,159 | 19.8% |
 
-Extra-cortical fraction varies by sample (1.6% - 9.7%), reflecting differences in how much pia/meningeal tissue was captured. Vascular fraction ranges from 0.0% to 8.3%.
+Note: The Vascular domain fraction (17.2%) is larger than the final Vascular layer fraction (6.6%) because BANKSY captures spatially coherent vascular-associated tissue including border cells. Spatial smoothing (Section 4) subsequently reassigns most border Vascular cells to cortical layers. Similarly, the L1 border flag (6.3% of cells) is used to promote additional cells to L1 during smoothing.
 
 ![Layer composition by sample](output/presentation/slide_layer_stacked_bar.png)
 *Figure 3. Per-sample layer composition showing the proportion of cells in each cortical layer, white matter, and vascular domains.*
@@ -108,29 +115,46 @@ Discrete layer labels are assigned by binning the continuous depth predictions:
 | L6 | 0.65 - 0.85 |
 | WM | > 0.85 |
 
-Vascular-domain cells are overridden to "Vascular" regardless of predicted depth, since depth predictions are unreliable for spatially isolated vascular clusters. Extra-cortical cells retain their depth-bin layer (they are typically assigned to L1 or L2/3 given their shallow position).
+Vascular-domain cells are overridden to "Vascular" regardless of predicted depth, since depth predictions are unreliable for spatially isolated vascular clusters. L1 border cells (identified by BANKSY with `banksy_is_l1=True`) retain their depth-bin layer, which is typically L1 given their shallow position.
 
-### Aggregate layer distribution
+### Spatial layer smoothing
+
+Raw depth-bin layers produce noisy boundaries: individual cells may receive incorrect layer assignments due to local depth prediction noise, and border Vascular cells may be classified as Vascular despite being surrounded by cortical tissue. A 3-step spatial smoothing pipeline (`smooth_layers_spatial()` in `depth_model.py`) addresses these issues:
+
+**Step 1: Within-domain majority vote (k=30, 2 rounds).** For each cell, the layer labels of its k=30 spatial nearest neighbors *within the same BANKSY domain* are tallied, and the cell is reassigned to the majority layer. This smooths noisy cortical layer boundaries without allowing reassignments to cross BANKSY domain borders (e.g., a cortical cell cannot be voted into Vascular). Two rounds of voting are applied for convergence.
+
+**Step 2: Vascular border trim.** Border Vascular cells — those with >33% of spatial neighbors in cortical layers (L2/3, L4, L5, L6) — are reassigned to the most common non-Vascular layer among their neighbors. A secondary rule reassigns Vascular cells with >66% of neighbors in any non-Vascular layer (including WM and L1). This trims the Vascular domain from 17.2% (BANKSY domain) to 6.6% (smoothed layer), removing spurious Vascular assignments at domain boundaries while preserving truly spatially contiguous blood vessel regions.
+
+**Step 3: BANKSY-anchored L1 contiguity.** Two sub-steps refine L1 assignment: (a) *Promotion*: cells flagged as `banksy_is_l1` with predicted depth < 0.20 and at least 5% L1 neighbors are promoted to L1, recovering cells that depth binning alone missed. (b) *Removal*: isolated L1 cells (non-BANKSY L1 cells with <20% L1 neighbors, or BANKSY L1 cells with <5% L1 neighbors) are reassigned to their neighbors' majority layer.
+
+The pre-smoothing layers are preserved as `layer_unsmoothed` (depth bins + Vascular override) and `layer_depth_only` (depth bins only, no domain override) for comparison.
+
+### Aggregate layer distribution (spatially smoothed)
 
 | Layer | Cells | % |
 |-------|-------|---|
-| L1 | 51,843 | 4.0% |
-| L2/3 | 251,982 | 19.3% |
-| L4 | 174,661 | 13.4% |
-| L5 | 324,864 | 24.9% |
-| L6 | 145,203 | 11.1% |
-| WM | 308,903 | 23.7% |
-| Vascular | 45,175 | 3.5% |
+| L1 | 68,335 | 5.2% |
+| L2/3 | 227,799 | 17.5% |
+| L4 | 151,765 | 11.7% |
+| L5 | 323,939 | 24.9% |
+| L6 | 136,486 | 10.5% |
+| WM | 308,452 | 23.7% |
+| Vascular | 85,855 | 6.6% |
 
 ### Output columns
 
-Each annotated h5ad file receives three new columns:
+Each annotated h5ad file receives the following depth/domain/layer columns:
 
 | Column | Values | Description |
 |--------|--------|-------------|
 | `predicted_norm_depth` | float | Continuous depth (0 = pia, 1 = WM boundary) |
-| `spatial_domain` | Cortical / Extra-cortical / Vascular / Unassigned | Tissue domain |
-| `layer` | L1 / L2-3 / L4 / L5 / L6 / WM / Vascular / Unassigned | Discrete layer (depth bins + Vascular override) |
+| `banksy_cluster` | int | BANKSY cluster ID (-1 for QC-failed cells) |
+| `banksy_domain` | Cortical / Vascular / WM | BANKSY-based tissue domain |
+| `banksy_is_l1` | bool | True if cell in L1 border cluster (shallow, non-neuronal) |
+| `spatial_domain` | Cortical / Vascular / Unassigned | Backward-compatible domain (WM mapped to Cortical) |
+| `layer` | L1 / L2/3 / L4 / L5 / L6 / WM / Vascular / Unassigned | Discrete layer (spatially smoothed: depth bins + Vascular override + 3-step smoothing) |
+| `layer_unsmoothed` | L1 / L2/3 / L4 / L5 / L6 / WM / Vascular / Unassigned | Pre-smoothing layer (depth bins + Vascular override) |
+| `layer_depth_only` | L1 / L2/3 / L4 / L5 / L6 / WM | Depth-bin-only layers (no domain override, no smoothing) |
 
 ---
 
@@ -161,7 +185,9 @@ At finer resolution, we compare depth distributions for every supertype within e
 
 ### Key design decisions
 
-1. **Neighborhood-based features** rather than per-cell expression: robust to individual cell misclassification; captures local tissue context
+1. **Neighborhood-based features for depth** rather than per-cell expression: robust to individual cell misclassification; captures local tissue context
 2. **Unclamped predictions**: naturally detects cells outside the cortical column (depth < 0 or > 1) without arbitrary thresholds
 3. **Donor-level train/test split**: ensures the model generalizes to new individuals, not just new cells from the same donors
-4. **Combined domain classification**: unsupervised clustering captures contiguous pia regions, while composition thresholds identify scattered vascular spots — together they cover both spatially coherent and distributed non-cortical tissue
+4. **BANKSY for domain classification**: spatially aware clustering (gene expression + spatial context) produces coherent domains without manual neighborhood feature engineering, enabling correct L1 border detection and explicit WM identification
+5. **L1 as cortex, not extra-cortical**: MERFISH validation showed L1 has ~81% non-neuronal composition — it is cortex, not meninges. The `banksy_is_l1` flag preserves this distinction for downstream analyses
+6. **Spatial smoothing over raw depth bins**: individual cell depth predictions are noisy; spatial majority voting within BANKSY domains produces layer boundaries that are spatially coherent without requiring manual curation. The 3-step pipeline (within-domain vote, vascular trim, L1 contiguity) addresses distinct error modes: noisy cortical boundaries, over-extended vascular domains, and fragmented L1 assignment

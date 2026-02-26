@@ -16,7 +16,7 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 | 03 | `pipeline/03_export_transcripts.py` | Export per-gene transcript coordinates (feeds step 04 + viewer) |
 | 04 | `pipeline/04_run_nuclear_doublet_resolution.py` | Hybrid nuclear doublet resolution → `hybrid_qc_pass` |
 | 05 | `pipeline/05_run_depth_prediction.py` | Retrain MERFISH depth model, predict cortical depth → `predicted_norm_depth` |
-| 06 | `pipeline/06_run_spatial_domains.py` | Spatial domain clustering + layer assignment → `layer` column |
+| 06 | `pipeline/06_run_spatial_domains.py` | BANKSY spatial domain classification + layer assignment + spatial smoothing → `layer` column |
 | 07 | `pipeline/07_export_viewer.py` | Export JSON for interactive HTML viewer |
 | 08 | `pipeline/08_export_boundaries.py` | Export cell + nucleus boundary polygons for viewer |
 
@@ -31,7 +31,18 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 MERFISH-trained cortical depth prediction from K=50 neighborhood composition features.
 - GradientBoostingRegressor, test R² ≈ 0.897 on held-out donors
 - Predictions NOT clamped to [0,1] (cells outside cortex can be < 0 or > 1)
-- Includes OOD scoring via 1-NN distance to calibrated MERFISH reference
+- `smooth_layers_spatial()`: 3-step spatial layer smoothing (within-domain majority vote, vascular border trim, BANKSY-anchored L1 contiguity)
+
+### `banksy_domains.py`
+BANKSY-based spatial domain classification (replaces older K-NN Leiden approach).
+- BANKSY clustering (λ=0.8, res=0.3) for spatially coherent domains
+- Classifies: Cortical, Vascular (>50% Endo+VLMC), WM (>40% Oligo + deep)
+- L1 border detection: shallow non-neuronal clusters correctly identified as L1 cortex
+- Used by pipeline step 06
+
+### `spatial_domains.py` (legacy)
+Original K-NN composition → PCA → Leiden domain classifier. Superseded by
+`banksy_domains.py`. Retained for `VASCULAR_TYPES` and `NON_NEURONAL_TYPES` constants.
 
 ### `analysis.py`
 Depth-stratified SCZ vs Control comparison with MERFISH validation.
@@ -55,7 +66,8 @@ output/
   h5ad/                           # Per-sample annotated h5ad files
     {sample_id}_annotated.h5ad    # .obs: sample_id, class_label, subclass_label,
                                   #        supertype_label, predicted_norm_depth,
-                                  #        qc_pass, layer
+                                  #        qc_pass, layer, layer_unsmoothed
+  all_samples_annotated.h5ad      # Combined dataset (1.34M cells, ~1.3 GB)
   viewer/                         # Interactive HTML viewer
     index.html                    # Multi-sample spatial viewer
     xenium_viewer_standalone.html # Self-contained standalone version
@@ -63,6 +75,7 @@ output/
     index.json                    # Global metadata + color palettes
   depth_model_normalized.pkl      # Trained depth prediction model
   qc_summary.csv                  # Per-sample QC statistics
+  spatial_domain_summary.csv      # Per-sample domain classification & layer counts
 ```
 
 ## Cell Type Taxonomy
@@ -103,5 +116,7 @@ Legacy code is preserved in `code/archive/` for reference:
 - `label_transfer.py` — Old kNN-based label transfer (superseded by MapMyCells)
 - `layers.py` — Old density-based layer segmentation (superseded by depth model)
 - `legacy_runners/` — Old monolithic pipeline runners
-- `ood_methods/` — Exploratory OOD detection approaches
+- `ood_methods/` — Exploratory OOD detection approaches (superseded by BANKSY domains)
 - `spatial_domain_exploration/` — Experimental spatial domain scripts
+- `banksy_exploration/` — BANKSY parameter tuning, validation, and batch runner (logic now in `modules/banksy_domains.py`)
+- `curved_strips/` — Curved cortex strip identification pipeline (experimental approach for selecting cortical strips with complete L1–L6 laminar structure)

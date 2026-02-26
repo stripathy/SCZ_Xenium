@@ -1,19 +1,18 @@
 """
-Spatial domain classification from local cell type neighborhood composition.
+Spatial domain classification — cell type constants and legacy classifier.
 
-Clusters cells by K-nearest-neighbor subclass composition, then classifies
-each cluster as:
-  - Extra-cortical: >60% non-neuronal AND mean_depth < 0.15 (pia/meninges)
-  - Vascular: >80% Endothelial + VLMC (blood vessels throughout cortex)
-  - Cortical: everything else (normal cortical tissue)
+SUPERSEDED: The classify_spatial_domains() function in this module has been
+replaced by banksy_domains.py, which uses BANKSY clustering for more
+accurate domain classification:
+  - Correctly identifies L1 border cells as Cortical (not "Extra-cortical")
+  - Detects white matter via oligo + depth thresholds
+  - Lowered vascular threshold (0.50 vs 0.80) enabled by spatially coherent clusters
 
-This enables pia/meninges identification without relying on the MERFISH
-reference — it works directly on the Xenium data itself.
+This module is retained for:
+  - VASCULAR_TYPES, NON_NEURONAL_TYPES constants (used throughout codebase)
+  - classify_spatial_domains_legacy() for reference/comparison
 
-The key insight: pia/meningeal tissue has a distinct neighborhood composition
-(dominated by astrocytes, vascular cells, and microglia with few neurons)
-that naturally separates from normal cortical layers and scattered blood
-vessels via unsupervised clustering.
+For new code, use banksy_domains.py instead.
 """
 
 import numpy as np
@@ -25,7 +24,7 @@ NON_NEURONAL_TYPES = {'Endothelial', 'VLMC', 'Astrocyte', 'Microglia-PVM',
                       'Oligodendrocyte', 'OPC'}
 
 
-def classify_spatial_domains(adata, subclass_names, K=50, resolution=0.8,
+def classify_spatial_domains_legacy(adata, subclass_names, K=50, resolution=0.8,
                               subclass_col='subclass_label',
                               depth_col='predicted_norm_depth',
                               pia_nn_thresh=0.60, pia_depth_thresh=0.15,

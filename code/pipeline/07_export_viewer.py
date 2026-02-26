@@ -25,7 +25,7 @@ from pipeline_config import H5AD_DIR, VIEWER_DIR, METADATA_PATH, MODULES_DIR
 sys.path.insert(0, MODULES_DIR)
 from metadata import get_diagnosis_map
 
-# ── Layer categories (depth bins + Vascular from OOD) ──
+# ── Layer categories (depth bins + Vascular from BANKSY) ──
 LAYER_CATS = ["L1", "L2/3", "L4", "L5", "L6", "WM", "Vascular"]
 
 
@@ -229,7 +229,7 @@ def main():
         supertype_idx = {c: i for i, c in enumerate(supertype_cats)}
         class_idx = {c: i for i, c in enumerate(class_cats)}
 
-        # Layer column (from step 04)
+        # Layer column (from step 06)
         if "layer" in adata.obs.columns:
             layers = adata.obs["layer"].values.astype(str)
         else:

@@ -188,21 +188,23 @@ Trains and applies a cortical depth model from the SEA-AD MERFISH reference:
 
 - GradientBoostingRegressor using K=50 neighborhood composition features
 - Predicts normalized cortical depth (0=pia, 1=white matter)
-- Fits a 1-NN model for out-of-distribution (OOD) scoring
 - Uses `hybrid_qc_pass` (from step 04) to exclude confirmed doublets from neighborhood features
 
 **Output:** `output/depth_model_normalized.pkl`; `predicted_norm_depth` column in each h5ad
 
-### Step 06: Spatial Domains & Layers (`06_run_spatial_domains.py`)
+### Step 06: BANKSY Spatial Domains & Layers (`06_run_spatial_domains.py`)
 
-Classifies tissue domains and assigns cortical layers:
+Classifies tissue domains using BANKSY (Nature Genetics 2024) and assigns cortical layers:
 
-- **Spatial clustering:** K=50 neighborhood composition -> PCA -> KNN graph -> Leiden clustering
-- **Domain classification:** Vascular (>80% Endothelial+VLMC), Extra-cortical (>60% non-neuronal, low depth), Cortical (remainder)
-- **Layer assignment:** Cortical cells -> depth-based layers (L1, L2/3, L4, L5, L6, WM)
+- **BANKSY clustering:** Gene expression + spatial neighbor expression (λ=0.8, res=0.3) produces spatially coherent domains
+- **Domain classification:** Vascular (>50% Endothelial+VLMC), WM (>40% Oligodendrocyte + deep), L1 border (>50% non-neuronal + shallow — correctly classified as Cortical, not "Extra-cortical"), Cortical (remainder)
+- **Layer assignment:** Cortical cells → depth-based layers (L1, L2/3, L4, L5, L6, WM); Vascular cells overridden
+- **Spatial smoothing:** 3-step pipeline refines layer boundaries: (1) within-domain majority vote (k=30, 2 rounds) smooths cortical layers without crossing BANKSY domain borders; (2) vascular border trim reassigns border Vascular cells with >33% cortical neighbors; (3) BANKSY-anchored L1 contiguity promotes shallow `banksy_is_l1` cells to L1 and removes isolated L1 assignments
 - Uses `hybrid_qc_pass` (from step 04) to exclude confirmed doublets
 
-**Output:** `spatial_domain`, `layer` columns; `output/spatial_domain_summary.csv`; merged `output/all_samples_annotated.h5ad`
+BANKSY replaces the earlier K-NN Leiden approach, which misclassified L1 border cells as "Extra-cortical" and lacked white matter detection. The BANKSY approach was validated against SEA-AD MERFISH ground truth.
+
+**Output:** `banksy_cluster`, `banksy_domain`, `banksy_is_l1`, `spatial_domain`, `layer`, `layer_unsmoothed`, `layer_depth_only` columns; `output/spatial_domain_summary.csv`; merged `output/all_samples_annotated.h5ad`
 
 ### Step 07: Export Viewer (`07_export_viewer.py`)
 
@@ -228,8 +230,9 @@ Exports cell and nucleus boundary polygons for spatial overlay visualization.
 | `correlation_classifier.py` | Two-stage Pearson correlation classifier + spatial doublet detection |
 | `nuclear_counts.py` | Nuclear-only transcript counting via point-in-polygon spatial queries |
 | `hybrid_qc.py` | Hybrid QC: marker-based class inference + nuclear doublet QC logic |
-| `depth_model.py` | GBR depth model, neighborhood features, OOD scoring |
-| `spatial_domains.py` | Pia/vascular spatial domain classification |
+| `depth_model.py` | GBR depth model, neighborhood features, layer assignment, spatial layer smoothing |
+| `banksy_domains.py` | BANKSY-based spatial domain classification (Cortical/Vascular/WM + L1 border) |
+| `spatial_domains.py` | Legacy domain classifier; retained for `VASCULAR_TYPES`, `NON_NEURONAL_TYPES` constants |
 | `cell_qc.py` | Cell QC metrics and MAD-based filtering |
 | `metadata.py` | Sample metadata and diagnosis mapping |
 | `plotting.py` | Rasterized spatial visualization utilities |
@@ -284,6 +287,7 @@ Downstream statistical analyses comparing SCZ vs. Control. Configuration is cent
 
 # 2. Install Python dependencies
 pip install -r requirements.txt
+pip install pybanksy  # Required for step 06 (BANKSY spatial domain classification)
 pip install "cell_type_mapper @ git+https://github.com/AllenInstitute/cell_type_mapper"  # Python 3.10+
 
 # 3. Run the pipeline (sequentially)
@@ -360,9 +364,13 @@ Each `{sample}_annotated.h5ad` contains:
 | `doublet_type` | str | '' / 'Glut+GABA' / 'GABA+GABA' |
 | **Depth & layers (steps 05-06)** | | |
 | `predicted_norm_depth` | float64 | Predicted normalized cortical depth (0=pia, 1=WM) |
-| `spatial_domain` | category | Cortical / Extra-cortical / Vascular |
-| `layer` | category | L1 / L2/3 / L4 / L5 / L6 / WM / Vascular |
-| `layer_depth_only` | category | Layer from depth bins only (no Vascular override) |
+| `banksy_cluster` | int | BANKSY cluster ID (-1 for QC-failed cells) |
+| `banksy_domain` | str | Cortical / Vascular / WM (BANKSY-based domain) |
+| `banksy_is_l1` | bool | True if cell in L1 border cluster (shallow, non-neuronal) |
+| `spatial_domain` | category | Cortical / Vascular (backward-compatible; WM mapped to Cortical) |
+| `layer` | category | L1 / L2/3 / L4 / L5 / L6 / WM / Vascular (spatially smoothed) |
+| `layer_unsmoothed` | category | Pre-smoothing layer (depth bins + Vascular override) |
+| `layer_depth_only` | category | Layer from depth bins only (no Vascular override, no smoothing) |
 | **Nuclear doublet resolution (step 04)** | | |
 | `nuclear_total_counts` | int | Total UMI counts from nuclear-only transcripts |
 | `nuclear_n_genes` | int | Number of genes detected in nuclear transcripts |
@@ -388,11 +396,12 @@ The pipeline uses the [SEA-AD MTG taxonomy](https://portal.brain-map.org/):
 
 Layers are assigned through a combined approach:
 
-1. **Spatial domain clustering** identifies contiguous pia/meninges tissue (Extra-cortical) and scattered vascular spots (Vascular)
-2. **MERFISH depth model** (GradientBoostingRegressor on K=50 neighborhood composition features) predicts normalized cortical depth (0=pia, 1=WM; R²=0.90, MAE=0.031 on held-out donors), then bins into discrete layers
+1. **BANKSY spatial domain classification** (step 06) uses BANKSY clustering (Nature Genetics 2024; λ=0.8, res=0.3) to identify spatially coherent tissue domains: Cortical (including L1 border cells), Vascular, and White Matter. BANKSY augments gene expression with spatial neighbor expression, producing clusters that respect tissue geometry. L1 border cells (shallow, non-neuronal-dominated clusters) are correctly identified as Cortical with a `banksy_is_l1` flag — validated by SEA-AD MERFISH comparison showing L1 has ~81% non-neuronal composition.
+2. **MERFISH depth model** (step 05; GradientBoostingRegressor on K=50 neighborhood composition features) predicts normalized cortical depth (0=pia, 1=WM; R²=0.90, MAE=0.031 on held-out donors), then bins into discrete layers
 3. **Layer bins:** L1 (<0.10), L2/3 (0.10–0.30), L4 (0.30–0.45), L5 (0.45–0.65), L6 (0.65–0.85), WM (>0.85)
+4. **Spatial smoothing** refines layer boundaries via 3-step pipeline: within-domain majority vote (k=30, 2 rounds) smooths noisy boundaries while respecting BANKSY domains; vascular border trim reassigns Vascular cells whose neighborhoods are predominantly cortical; BANKSY-anchored L1 contiguity promotes shallow `banksy_is_l1` cells to L1 and removes isolated L1 assignments. This reduces Vascular from 17.2% (BANKSY domain) to 6.6% (smoothed layer) and improves L1 contiguity.
 
-Final layer categories: **L1, L2/3, L4, L5, L6, WM, Vascular** — median depth per subclass correlates at r=0.92 with the MERFISH reference.
+Final layer categories: **L1 (5.2%), L2/3 (17.5%), L4 (11.7%), L5 (24.9%), L6 (10.5%), WM (23.7%), Vascular (6.6%)** — median depth per subclass correlates at r=0.92 with the MERFISH reference.
 
 See **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** for full details, validation figures, and design decisions.
 
@@ -405,8 +414,10 @@ Contains legacy and exploratory scripts from earlier iterations of the analysis:
 | `stale_analysis/` | Superseded analysis scripts (threshold analysis, old comparisons, scCODA) |
 | `one_time_utils/` | One-time data migration scripts (rename columns, annotate MERFISH depth) |
 | `legacy_runners/` | Old pipeline runners (pre-numbered-step architecture) |
-| `ood_methods/` | OOD method exploration scripts |
+| `ood_methods/` | OOD method exploration scripts (superseded by BANKSY domain classification) |
 | `spatial_domain_exploration/` | Early spatial domain clustering experiments |
+| `banksy_exploration/` | BANKSY parameter tuning (pilot), early domain+strip prototype, validation, batch runner. Logic extracted to `modules/banksy_domains.py` |
+| `curved_strips/` | Curved cortex strip identification: pia curve fitting, strip boundary detection, MERFISH adapter, gallery visualization. Experimental approach for selecting cortical strips with complete L1–L6 laminar structure |
 | *(root)* | Archived modules: `label_transfer.py`, `layers.py`, old pipeline scripts |
 
 These are kept for reference but are not part of the active pipeline.
