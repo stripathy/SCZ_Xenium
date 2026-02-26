@@ -73,17 +73,13 @@ Each resulting cluster is classified by its cell type composition and mean predi
 | **Deep WM** | Mean depth > 0.80 (fallback) |
 | **Cortical** | Default |
 
-Key improvements over the previous approach:
+Key advantages of this approach:
 
-1. **L1 border detection**: Shallow non-neuronal-dominated BANKSY clusters are correctly identified as L1 cortex, not "Extra-cortical." This was validated by MERFISH comparison: L1 has ~81% non-neuronal composition (astrocytes, microglia, endothelial), which the previous K-NN Leiden approach misclassified as pia/meninges. The `banksy_is_l1` flag marks these cells for downstream use.
+1. **L1 border detection**: Shallow non-neuronal-dominated BANKSY clusters are correctly identified as L1 cortex rather than pia/meninges. This is validated by MERFISH comparison: L1 has ~81% non-neuronal composition (astrocytes, microglia, endothelial), yet is cortical tissue. The `banksy_is_l1` flag marks these cells for downstream use.
 
-2. **White matter detection**: BANKSY clusters with high oligodendrocyte fraction (>40%) and deep mean depth (>0.80) are classified as WM. The previous approach had no explicit WM detection.
+2. **White matter detection**: BANKSY clusters with high oligodendrocyte fraction (>40%) and deep mean depth (>0.80) are classified as WM, providing explicit white matter identification.
 
-3. **Lower vascular threshold**: BANKSY clusters are spatially coherent by construction, so the vascular threshold can be lowered from 80% to 50% without increasing false positives from scattered cortical vascular cells.
-
-### Previous approach (superseded)
-
-The original spatial domain classification used K=50 neighborhood composition features (the same features as the depth model) → PCA → KNN graph → Leiden clustering (resolution=0.8), then classified clusters as Extra-cortical (>60% non-neuronal + shallow depth) or Vascular (>80% Endo+VLMC). An OOD detection model (1-NN distance to MERFISH training data, calibrated at the 99th percentile of held-out test distances) was also developed but never deployed in the pipeline. Both approaches have been superseded by the BANKSY method, which provides more accurate domain classification with explicit L1 border and WM detection.
+3. **Lower vascular threshold**: BANKSY clusters are spatially coherent by construction, so a 50% Endo+VLMC threshold reliably identifies vascular regions without false positives from scattered cortical vascular cells.
 
 ### Aggregate domain breakdown
 
@@ -183,11 +179,14 @@ At finer resolution, we compare depth distributions for every supertype within e
 ![Supertype depth distributions — GABAergic](output/presentation/supertype_depth_violins_gabaergic.png)
 *Figure 6. Supertype depth distributions for GABAergic subclasses. Interneuron supertypes show broader depth distributions than excitatory types, consistent with their wider laminar spread, but the overall ordering and distribution shapes are well-matched between MERFISH and Xenium.*
 
+![Supertype depth distributions — Non-neuronal](output/presentation/supertype_depth_violins_nonneuronal.png)
+*Figure 7. Supertype depth distributions for non-neuronal subclasses. Non-neuronal types are distributed across all cortical depths, with astrocytes and microglia spanning the full column and oligodendrocytes concentrated in deep cortex/white matter.*
+
 ### Key design decisions
 
 1. **Neighborhood-based features for depth** rather than per-cell expression: robust to individual cell misclassification; captures local tissue context
 2. **Unclamped predictions**: naturally detects cells outside the cortical column (depth < 0 or > 1) without arbitrary thresholds
 3. **Donor-level train/test split**: ensures the model generalizes to new individuals, not just new cells from the same donors
 4. **BANKSY for domain classification**: spatially aware clustering (gene expression + spatial context) produces coherent domains without manual neighborhood feature engineering, enabling correct L1 border detection and explicit WM identification
-5. **L1 as cortex, not extra-cortical**: MERFISH validation showed L1 has ~81% non-neuronal composition — it is cortex, not meninges. The `banksy_is_l1` flag preserves this distinction for downstream analyses
+5. **L1 as cortex, not meninges**: MERFISH validation showed L1 has ~81% non-neuronal composition — it is cortex, not pia/meninges. The `banksy_is_l1` flag preserves this distinction for downstream analyses
 6. **Spatial smoothing over raw depth bins**: individual cell depth predictions are noisy; spatial majority voting within BANKSY domains produces layer boundaries that are spatially coherent without requiring manual curation. The 3-step pipeline (within-domain vote, vascular trim, L1 contiguity) addresses distinct error modes: noisy cortical boundaries, over-extended vascular domains, and fragmented L1 assignment
