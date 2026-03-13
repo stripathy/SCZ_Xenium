@@ -44,6 +44,16 @@ MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
 METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
 CRUMBLR_DIR = os.path.join(BASE_DIR, "output", "crumblr")
 PRESENTATION_DIR = os.path.join(BASE_DIR, "output", "presentation")
+MARKER_ANALYSIS_DIR = os.path.join(BASE_DIR, "output", "marker_analysis")
+
+# Xenium panel metadata CSVs (downloaded from 10x)
+PANEL_5K_PATH = os.path.expanduser(
+    "~/Downloads/XeniumPrimeHuman5Kpan_tissue_pathways_metadata.csv")
+PANEL_V1_PATH = os.path.expanduser(
+    "~/Downloads/Xenium_hBrain_v1_metadata.csv")
+
+# MERSCOPE data directory
+MERSCOPE_H5AD_DIR = os.path.join(BASE_DIR, "output", "merscope_h5ad")
 
 # ──────────────────────────────────────────────────────────────────────
 # MapMyCells confidence filter
