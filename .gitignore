@@ -58,6 +58,15 @@ output/de/
 output/merfish_benchmark/
 output/crumblr_seaad/
 
+# MERSCOPE annotated h5ad files (regenerate with merscope pipeline)
+output/merscope_h5ad/
+
+# MERSCOPE viewer JSON (regenerate with merscope_export_viewer.py)
+output/merscope_viewer/
+
+# MERSCOPE raw data
+data/merscope_4k_probe_testing/
+
 # Correlation centroids (regenerate with step 02b)
 output/h5ad/correlation_centroids.pkl
 
