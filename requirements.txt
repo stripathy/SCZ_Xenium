@@ -9,6 +9,10 @@ matplotlib>=3.8
 h5py>=3.10
 openpyxl>=3.1
 
+# Analysis dependencies
+adjustText
+statsmodels
+
 # MapMyCells label transfer (step 02)
 # Requires Python 3.10+
 # Install with: pip install "cell_type_mapper @ git+https://github.com/AllenInstitute/cell_type_mapper"

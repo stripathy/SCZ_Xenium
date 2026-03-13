@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────────────
-# Data files (see DATA.md for download instructions)
+# Data files (see data/README.md for download instructions)
 # ──────────────────────────────────────────────────────────────────────
 
 # Raw Xenium data (download from GEO: GSE307404)
@@ -15,9 +15,6 @@ data/reference/SEAAD_*.csv
 
 # External code dependencies
 code/scrattch.mapping-main/
-
-# GWAS data
-data/scz_gwas/
 
 # Documentation PDFs (copyrighted; cite DOIs instead)
 docs/

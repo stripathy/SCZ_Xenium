@@ -30,7 +30,6 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from shapely import Polygon
 import statsmodels.formula.api as smf
 from statsmodels.stats.multitest import multipletests
 
@@ -68,6 +67,12 @@ def find_boundary_file(sample_id, kind='cell'):
     return matches[0] if matches else None
 
 
+def _shoelace_area(verts):
+    """Polygon area via the shoelace formula (no shapely dependency)."""
+    x, y = verts[:, 0], verts[:, 1]
+    return 0.5 * abs(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1)))
+
+
 def compute_polygon_areas(boundary_path):
     """Load boundary CSV → compute polygon area per cell_id.
 
@@ -83,15 +88,10 @@ def compute_polygon_areas(boundary_path):
         if len(verts) < 3:
             n_invalid += 1
             continue
-        try:
-            poly = Polygon(verts)
-            if not poly.is_valid or poly.area <= 0:
-                poly = poly.buffer(0)
-            if poly.is_valid and poly.area > 0:
-                areas[cell_id] = poly.area
-            else:
-                n_invalid += 1
-        except Exception:
+        area = _shoelace_area(verts)
+        if area > 0:
+            areas[cell_id] = area
+        else:
             n_invalid += 1
 
     return areas
