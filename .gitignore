@@ -104,3 +104,4 @@ GSE307404_series_matrix*
 
 # Local Netlify folder
 .netlify
+node_modules/

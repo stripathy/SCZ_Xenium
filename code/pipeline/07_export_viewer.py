@@ -215,20 +215,15 @@ def main():
             qc_status[(qc_status == 0) & low_margin] = 2
 
         n_qc_fail = (qc_status > 0).sum()
-        QC_LABELS = {1: "QC: Spatial Fail", 2: "QC: Low Margin", 3: "QC: Doublet Suspect"}
         if n_qc_fail > 0:
             subclass = subclass.copy()
             supertype = supertype.copy()
             class_label = class_label.copy()
-            for code, label in QC_LABELS.items():
-                mask = qc_status == code
-                if mask.any():
-                    subclass[mask] = label
-                    supertype[mask] = label
-                    class_label[mask] = label
-        # Ensure QC labels are in the supertype mapping
-        for label in list(QC_LABELS.values()) + ["QC Failed"]:
-            global_supertype_to_subclass[label] = label
+            qc_fail_mask = qc_status > 0
+            subclass[qc_fail_mask] = "QC Failed"
+            supertype[qc_fail_mask] = "QC Failed"
+            class_label[qc_fail_mask] = "QC Failed"
+        global_supertype_to_subclass["QC Failed"] = "QC Failed"
 
         # Round coordinates to save space
         x = np.round(x, 1)

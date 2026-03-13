@@ -33,7 +33,7 @@ New/updated h5ad columns:
   - banksy_cluster:  int   — raw BANKSY cluster ID
   - banksy_domain:   str   — Cortical / Vascular / WM
   - banksy_is_l1:    bool  — True if cell in L1 border cluster
-  - spatial_domain:  str   — backward-compat: Cortical / Vascular (WM → Cortical)
+  - spatial_domain:  str   — Cortical / Vascular / WM
   - layer:           str   — final spatially-smoothed layer assignment
   - layer_unsmoothed: str  — pre-smoothing layer (depth bins + Vascular override)
   - layer_depth_only: str  — depth-bin-only layers (no Vascular, no smoothing)
@@ -126,14 +126,15 @@ def _process_one_sample(h5ad_path):
         )
         print(f"  [{sample_id}] Spatial smoothing: {time.time()-t_smooth:.0f}s")
 
-        # ── Backward-compatible spatial_domain column ─────────
-        # Map BANKSY domains to the format other scripts expect
-        #   Cortical → Cortical (L1 border cells are Cortical, not Extra-cortical)
+        # ── spatial_domain column ──────────────────────────────
+        # Map BANKSY domains to canonical spatial_domain values:
+        #   Cortical → Cortical
         #   Vascular → Vascular
-        #   WM → Cortical (WM is near-cortical; depth handles the distinction)
-        spatial_domain_compat = np.where(
-            domains == "Vascular", "Vascular", "Cortical"
-        )
+        #   WM → WM (white matter cells excluded from cortical analyses)
+        # Also: cells with smoothed layer == 'WM' get spatial_domain = 'WM'
+        # (handles edge cases where BANKSY says Cortical but depth says WM)
+        spatial_domain_compat = domains.copy()
+        spatial_domain_compat[smoothed_layers == 'WM'] = 'WM'
 
         # ── Write back to full adata ──────────────────────────
         # BANKSY columns
@@ -149,24 +150,50 @@ def _process_one_sample(h5ad_path):
         full_banksy_is_l1[qc_mask] = is_l1
         adata.obs["banksy_is_l1"] = full_banksy_is_l1
 
-        # Backward-compatible columns
+        # Backward-compatible columns (QC-pass cells)
         full_spatial_domain = np.full(n_total, 'Unassigned', dtype=object)
         full_spatial_domain[qc_mask] = spatial_domain_compat
-        adata.obs['spatial_domain'] = full_spatial_domain
 
-        # layer = final spatially-smoothed assignment
         full_layer = np.full(n_total, 'Unassigned', dtype=object)
         full_layer[qc_mask] = smoothed_layers
-        adata.obs['layer'] = full_layer
 
-        # layer_unsmoothed = pre-smoothing (depth bins + Vascular override)
         full_unsmoothed = np.full(n_total, 'Unassigned', dtype=object)
         full_unsmoothed[qc_mask] = combined_layers
-        adata.obs['layer_unsmoothed'] = full_unsmoothed
 
-        # layer_depth_only = depth-bin-only (no Vascular, no smoothing)
         full_depth_layer = np.full(n_total, 'Unassigned', dtype=object)
         full_depth_layer[qc_mask] = depth_layers
+
+        # ── Impute layer/spatial_domain for QC-fail cells via KNN ──
+        # Use spatial proximity to QC-pass neighbors so every cell
+        # gets a layer assignment (needed for viewer rendering).
+        n_fail = n_total - n_pass
+        if n_fail > 0:
+            from scipy.spatial import cKDTree
+            coords_all = adata.obsm["spatial"][:, :2]
+            pass_idx = np.where(qc_mask)[0]
+            fail_idx = np.where(~qc_mask)[0]
+            tree = cKDTree(coords_all[pass_idx])
+            _, nn_idx = tree.query(coords_all[fail_idx], k=min(15, len(pass_idx)))
+            # nn_idx indexes into pass_idx
+            for col_full, col_pass in [
+                (full_spatial_domain, spatial_domain_compat),
+                (full_layer, smoothed_layers),
+                (full_unsmoothed, combined_layers),
+                (full_depth_layer, depth_layers),
+            ]:
+                for j, fi in enumerate(fail_idx):
+                    neighbors = nn_idx[j] if nn_idx.ndim > 1 else [nn_idx[j]]
+                    # Majority vote among k nearest QC-pass neighbors
+                    votes = {}
+                    for ni in neighbors:
+                        v = col_pass[ni]
+                        votes[v] = votes.get(v, 0) + 1
+                    col_full[fi] = max(votes, key=votes.get)
+            print(f"  [{sample_id}] Imputed layer/domain for {n_fail:,} QC-fail cells via KNN")
+
+        adata.obs['spatial_domain'] = full_spatial_domain
+        adata.obs['layer'] = full_layer
+        adata.obs['layer_unsmoothed'] = full_unsmoothed
         adata.obs['layer_depth_only'] = full_depth_layer
 
         # ── Drop stale columns from archived exploration scripts ──

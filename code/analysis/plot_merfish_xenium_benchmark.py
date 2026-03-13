@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
     H5AD_DIR, MERFISH_PATH, PRESENTATION_DIR, EXCLUDE_SAMPLES,
     CORTICAL_LAYERS, SUBCLASS_TO_CLASS, classify_celltype,
-    load_merfish_cortical, load_cells, SUBCLASS_CONF_THRESH,
+    load_merfish_cortical, load_cells, load_sample_adata, SUBCLASS_CONF_THRESH,
 )
 
 OUT_DIR = PRESENTATION_DIR
@@ -74,11 +74,10 @@ def load_merfish_cortical_proportions(level="subclass"):
 
 
 def load_xenium_cortical_data():
-    """Load all Xenium cortical cells with corr labels + depth via standard load_cells().
+    """Load all Xenium cortical cells via load_sample_adata() (standard QC).
 
-    Note: This returns a DataFrame with standardized columns (subclass_label,
-    supertype_label) plus the original corr_* and harmony_* columns from the h5ad.
-    For backward compatibility, we load the full AnnData to get all obs columns.
+    Returns a single DataFrame with all obs columns (including corr_* and
+    harmony_* columns needed for the benchmark comparison).
     """
     print("Loading Xenium cortical cells...")
     h5ad_files = sorted(
@@ -90,21 +89,9 @@ def load_xenium_cortical_data():
         sample_id = fname.replace("_annotated.h5ad", "")
         if sample_id in EXCLUDE_SAMPLES:
             continue
-        adata = ad.read_h5ad(os.path.join(H5AD_DIR, fname))
-        obs = adata.obs.copy()
-        obs["sample_id"] = sample_id
-
-        # Unified QC + cortical filter: qc_pass + corr_qc_pass + spatial_domain
-        mask = obs["qc_pass"] == True
-        if "corr_qc_pass" in obs.columns:
-            mask = mask & (obs["corr_qc_pass"] == True)
-        if "spatial_domain" in obs.columns:
-            mask = mask & (obs["spatial_domain"] == "Cortical")
-        if "layer" in obs.columns:
-            mask = mask & (obs["layer"] != "WM")
-
-        obs = obs[mask].copy()
-        dfs.append(obs)
+        adata = load_sample_adata(sample_id, cortical_only=True)
+        dfs.append(adata.obs)
+        print(f"  {sample_id}: {len(adata):,} cortical cells")
 
     df = pd.concat(dfs, ignore_index=True)
     print(f"  {len(df):,} cortical QC-pass cells from {len(dfs)} samples")

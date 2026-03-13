@@ -111,7 +111,7 @@ def get_subject_info(xlsx_path):
     -------
     pd.DataFrame
         One row per Xenium sample with columns: sample_id, diagnosis,
-        sex, age, rin, pmi.
+        sex, age, pmi.
     """
     df = load_subject_metadata(xlsx_path)
 
@@ -127,10 +127,12 @@ def get_subject_info(xlsx_path):
     for _, row in df.iterrows():
         sid = str(row[id_col]).strip()
         dx = 'SCZ' if 'Schiz' in str(row[dx_col]) else 'Control'
+        pmi_val = row.get('PMI', '')
         records.append({
             'sample_id': sid,
             'diagnosis': dx,
             'sex': str(row.get('Sex', '')),
             'age': float(row.get('Age', 0)) if row.get('Age', '') else None,
+            'pmi': float(pmi_val) if pmi_val not in ('', None, 'nan') else None,
         })
     return pd.DataFrame(records)

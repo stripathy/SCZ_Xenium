@@ -9,7 +9,7 @@
 # Output: output/crumblr/crumblr_results_{subclass,cluster}.csv
 #         output/crumblr/crumblr_results_all.csv
 #
-# Formula: ~ diagnosis + sex + scale(age)
+# Formula: ~ diagnosis + sex + scale(age) + scale(pmi)
 
 library(crumblr)
 library(dreamlet)
@@ -90,12 +90,13 @@ for (fpath in input_files) {
   }
 
   # ── Build metadata ─────────────────────────────────────────────
-  meta <- unique(df[, c("donor", "diagnosis", "sex", "age")])
+  meta <- unique(df[, c("donor", "diagnosis", "sex", "age", "pmi")])
   rownames(meta) <- meta$donor
   meta <- meta[rownames(count_wide), ]
   meta$diagnosis <- factor(meta$diagnosis, levels = c("Control", "SCZ"))
   meta$sex <- factor(meta$sex)
   meta$age_num <- as.numeric(meta$age)
+  meta$pmi <- as.numeric(meta$pmi)
 
   cat(sprintf("  %d Control, %d SCZ\n",
               sum(meta$diagnosis == "Control"),
@@ -114,7 +115,7 @@ for (fpath in input_files) {
   if (is.null(cobj)) next
 
   # ── Fit dream model ────────────────────────────────────────────
-  form <- ~ diagnosis + sex + scale(age_num)
+  form <- ~ diagnosis + sex + scale(age_num) + scale(pmi)
 
   fit <- tryCatch({
     f <- dream(cobj, form, meta)

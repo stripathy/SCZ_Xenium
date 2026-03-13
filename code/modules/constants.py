@@ -28,7 +28,7 @@ SAMPLE_TO_DX = {
 
 CONTROL_SAMPLES = sorted(k for k, v in SAMPLE_TO_DX.items() if v == "Control")
 SCZ_SAMPLES = sorted(k for k, v in SAMPLE_TO_DX.items() if v == "SCZ")
-EXCLUDE_SAMPLES = {"Br2039"}  # WM outlier (54% white matter); used by analysis scripts only (pipeline runs all 24)
+EXCLUDE_SAMPLES = set()  # No samples excluded; Br2039 (WM-heavy) included — improves snRNAseq concordance
 
 # ──────────────────────────────────────────────────────────────────────
 # Cortical layers

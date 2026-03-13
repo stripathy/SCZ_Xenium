@@ -223,7 +223,7 @@ def load_cells(sample_id, cortical_only=False, extra_obs_columns=None,
         mask = obs["qc_pass"] == True
 
     if cortical_only:
-        mask = mask & (obs["spatial_domain"] == "Cortical") & (obs["layer"] != "WM")
+        mask = mask & (obs["spatial_domain"] == "Cortical")
     obs = obs[mask]
 
     # Apply classifier-specific QC filter (only needed for non-hybrid modes)
@@ -368,7 +368,7 @@ def load_sample_adata(sample_id, cortical_only=True, qc_mode='corr'):
     sample_id : str
         Sample ID (e.g., "Br6389").
     cortical_only : bool
-        If True, restrict to cortical + not-WM cells.
+        If True, restrict to spatial_domain == 'Cortical'.
     qc_mode : str
         QC filtering strategy (same as load_cells):
         - 'corr'   : use corr_qc_pass (default; spatial QC + margin filter + doublet exclusion)
@@ -399,7 +399,6 @@ def load_sample_adata(sample_id, cortical_only=True, qc_mode='corr'):
 
     if cortical_only:
         mask = mask & (adata.obs["spatial_domain"] == "Cortical")
-        mask = mask & (adata.obs["layer"] != "WM")
 
     # Classifier-specific QC (only needed for non-hybrid modes)
     if effective_mode != 'hybrid':

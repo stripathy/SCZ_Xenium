@@ -409,7 +409,7 @@ def step5_build_crumblr_inputs(candidate_thresholds):
 
     METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
     CRUMBLR_DIR = os.path.join(BASE_DIR, "output", "crumblr")
-    EXCLUDE_SAMPLES = {'Br2039'}
+    EXCLUDE_SAMPLES = set()  # No samples excluded
 
     meta = get_subject_info(METADATA_PATH).set_index("sample_id")
 

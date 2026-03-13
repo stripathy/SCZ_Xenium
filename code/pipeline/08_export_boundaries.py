@@ -2,9 +2,9 @@
 """
 Step 8: Export cell and nucleus boundary polygons for the viewer.
 
-Reads the raw cell_boundaries.csv.gz and nucleus_boundaries.csv.gz files,
-filters to QC-pass cells, and writes compact JSON files that the browser
-viewer can load on demand when zoomed in.
+Reads the raw cell_boundaries.csv.gz and nucleus_boundaries.csv.gz files
+for ALL cells (including QC-fail) and writes compact JSON files that the
+browser viewer can load on demand when zoomed in.
 
 Each cell has exactly 25 boundary vertices (Xenium default for both cell
 and nucleus segmentation). Vertices are quantized to uint16 for compact storage.
@@ -119,17 +119,14 @@ def process_sample(sample_id, raw_dir, h5ad_dir, output_dir):
         return None
 
     adata = ad.read_h5ad(h5ad_path)
-    if "qc_pass" in adata.obs.columns:
-        qc_mask = adata.obs["qc_pass"].values.astype(bool)
-        qc_cell_ids = adata.obs_names[qc_mask].tolist()
-    else:
-        qc_cell_ids = adata.obs_names.tolist()
-
-    qc_set = set(qc_cell_ids)
-    n_qc = len(qc_cell_ids)
+    # Include ALL cells (not just QC-pass) so the viewer can render
+    # boundaries for QC-failed cells too (shown as white)
+    all_cell_ids = adata.obs_names.tolist()
+    all_set = set(all_cell_ids)
+    n_qc = len(all_cell_ids)
 
     # ── Cell boundaries ────────────────────────────────────────────
-    cell_polys = _read_boundary_csv(cell_boundary_files[0], qc_set)
+    cell_polys = _read_boundary_csv(cell_boundary_files[0], all_set)
 
     # Compute global coordinate range (from cell boundaries)
     all_x = [v[0] for vs in cell_polys.values() for v in vs]
@@ -146,7 +143,7 @@ def process_sample(sample_id, raw_dir, h5ad_dir, output_dir):
     assert y_range_q < 65535, f"Y range too large for uint16: {y_range_q}"
 
     bx, by, n_cell_matched = _build_quantized_arrays(
-        cell_polys, qc_cell_ids, x_min, y_min)
+        cell_polys, all_cell_ids, x_min, y_min)
 
     cell_fpath = os.path.join(output_dir, f"{sample_id}.json")
     cell_size = _write_boundary_json(
@@ -157,10 +154,10 @@ def process_sample(sample_id, raw_dir, h5ad_dir, output_dir):
     nucleus_size = 0
     n_nuc_matched = 0
     if has_nucleus:
-        nuc_polys = _read_boundary_csv(nucleus_boundary_files[0], qc_set)
+        nuc_polys = _read_boundary_csv(nucleus_boundary_files[0], all_set)
 
         nbx, nby, n_nuc_matched = _build_quantized_arrays(
-            nuc_polys, qc_cell_ids, x_min, y_min)
+            nuc_polys, all_cell_ids, x_min, y_min)
 
         nuc_fpath = os.path.join(output_dir, f"{sample_id}_nucleus.json")
         nucleus_size = _write_boundary_json(

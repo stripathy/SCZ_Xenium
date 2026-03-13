@@ -2,15 +2,15 @@
 """
 Build crumblr input CSVs for SCZ vs Control compositional analysis.
 
-Uses cortical-only cells (cropped: spatial_domain=='Cortical' AND layer!='WM')
-from all Xenium samples (excluding Br2039 outlier). Generates whole-composition
+Uses cortical-only cells (spatial_domain=='Cortical', via load_cells())
+from all 24 Xenium samples. Generates whole-composition
 inputs (neurons + non-neurons together) at subclass and supertype levels.
 
 Output:
   output/crumblr/crumblr_input_subclass.csv
   output/crumblr/crumblr_input_supertype.csv
 
-Each CSV is long-format: donor, celltype, count, total, diagnosis, sex, age
+Each CSV is long-format: donor, celltype, count, total, diagnosis, sex, age, pmi
 """
 
 import os
@@ -86,7 +86,7 @@ def main():
 
         # Attach metadata
         counts = counts.merge(
-            meta[["diagnosis", "sex", "age"]].reset_index(),
+            meta[["diagnosis", "sex", "age", "pmi"]].reset_index(),
             left_on="donor", right_on="sample_id", how="left"
         ).drop(columns=["sample_id"])
 

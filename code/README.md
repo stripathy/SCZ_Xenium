@@ -23,7 +23,7 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 ## Samples
 
 24 Xenium samples: 12 SCZ, 12 Control (1,339,151 total cells, 300-gene panel)
-- Outlier: **Br2039** (SCZ) flagged for excess white matter (65%) — excluded from disease comparisons
+- **Br2039** (SCZ) is WM-heavy (65%) but included in all analyses — improves snRNAseq concordance
 
 ## Modules (`code/modules/`)
 

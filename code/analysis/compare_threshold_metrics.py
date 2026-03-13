@@ -196,7 +196,7 @@ def _load_xenium_obs_all():
     """Load obs from all Xenium h5ad files (just the columns we need)."""
     print("  Loading Xenium obs data...")
     h5ad_files = sorted(glob.glob(os.path.join(H5AD_DIR, "*_annotated.h5ad")))
-    EXCLUDE = {'Br2039'}
+    EXCLUDE = set()  # No samples excluded
     all_obs = []
     for fpath in h5ad_files:
         sid = os.path.basename(fpath).replace("_annotated.h5ad", "")
