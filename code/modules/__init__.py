@@ -13,4 +13,10 @@ Modules:
     analysis        - Statistical testing
     layers          - Layer assignment utilities
     bundle_viewer   - Standalone HTML viewer bundler
+
+    # Shared utilities for probe design / cross-platform analysis
+    panel_utils     - Xenium panel loading, detection efficiency lookup
+    reference_utils - snRNAseq reference loading, normalization, subsampling
+    pseudobulk      - Pseudobulk mean expression computation
+    gene_properties - Gene biotype classification, quality filtering
 """

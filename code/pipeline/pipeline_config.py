@@ -35,6 +35,11 @@ GENE_MAPPING_PATH = os.path.join(
     BASE_DIR, "data", "reference",
     "gene_symbol_to_ensembl.json"
 )
+# Comprehensive gene mapping (36K genes, built from snRNAseq reference + precomputed stats)
+GENE_MAPPING_COMPREHENSIVE_PATH = os.path.join(
+    BASE_DIR, "data", "reference",
+    "gene_symbol_to_ensembl_comprehensive.json"
+)
 
 # Output directories
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
