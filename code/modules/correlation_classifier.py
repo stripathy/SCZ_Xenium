@@ -622,7 +622,8 @@ def run_two_stage_classifier(adata, subclass_centroids,
 # 4. QC FLAGGING
 # ═══════════════════════════════════════════════════════════════════════
 
-def flag_low_margin_cells(margins, sample_ids, percentile=1.0):
+def flag_low_margin_cells(margins, sample_ids, percentile=1.0,
+                          subclass_labels=None, l6b_margin_threshold=None):
     """Flag bottom percentile of cells by Stage 1 subclass margin, per sample.
 
     Parameters
@@ -633,6 +634,12 @@ def flag_low_margin_cells(margins, sample_ids, percentile=1.0):
         Per-cell sample ID
     percentile : float
         Bottom percentage to flag (e.g., 5.0 = bottom 5%)
+    subclass_labels : np.ndarray, optional
+        Per-cell subclass labels (e.g., corr_subclass). Required for
+        cell-type-specific thresholds.
+    l6b_margin_threshold : float, optional
+        Absolute margin threshold for L6b cells. L6b cells with
+        margin < this value are flagged regardless of percentile.
 
     Returns
     -------
@@ -652,8 +659,21 @@ def flag_low_margin_cells(margins, sample_ids, percentile=1.0):
         corr_qc_pass[fail_mask] = False
         thresholds[sid] = threshold
 
+    n_pctl_fail = (~corr_qc_pass).sum()
+    print(f"  Percentile QC: {n_pctl_fail:,} cells flagged ({100*n_pctl_fail/len(margins):.1f}%)")
+
+    # Additional L6b-specific absolute margin filter
+    if subclass_labels is not None and l6b_margin_threshold is not None:
+        l6b_mask = subclass_labels == 'L6b'
+        l6b_low = l6b_mask & (margins < l6b_margin_threshold) & corr_qc_pass
+        n_l6b_extra = l6b_low.sum()
+        corr_qc_pass[l6b_low] = False
+        n_l6b_total = l6b_mask.sum()
+        print(f"  L6b margin filter: {n_l6b_extra:,} additional L6b cells flagged "
+              f"(margin < {l6b_margin_threshold}, {n_l6b_total:,} L6b total)")
+
     n_fail = (~corr_qc_pass).sum()
-    print(f"  QC flagging: {n_fail:,} cells flagged ({100*n_fail/len(margins):.1f}%)")
+    print(f"  QC flagging total: {n_fail:,} cells flagged ({100*n_fail/len(margins):.1f}%)")
 
     return corr_qc_pass, thresholds
 

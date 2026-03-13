@@ -223,7 +223,7 @@ def load_cells(sample_id, cortical_only=False, extra_obs_columns=None,
         mask = obs["qc_pass"] == True
 
     if cortical_only:
-        mask = mask & obs["layer"].isin(CORTICAL_LAYERS)
+        mask = mask & (obs["spatial_domain"] == "Cortical") & (obs["layer"] != "WM")
     obs = obs[mask]
 
     # Apply classifier-specific QC filter (only needed for non-hybrid modes)

@@ -38,6 +38,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pipeline_config import (
     H5AD_DIR, MODULES_DIR, CENTROID_PATH,
     CORR_CLASSIFIER_TOP_N, CORR_CLASSIFIER_QC_PERCENTILE,
+    L6B_MARGIN_THRESHOLD,
 )
 
 # Shared constants
@@ -128,7 +129,9 @@ def main():
     sample_ids_arr = combined.obs['sample_id'].astype(str).values
     margins = results['corr_subclass_margin'].values
     corr_qc_pass, thresholds = flag_low_margin_cells(
-        margins, sample_ids_arr, percentile=qc_pctl)
+        margins, sample_ids_arr, percentile=qc_pctl,
+        subclass_labels=results['corr_subclass'].values,
+        l6b_margin_threshold=L6B_MARGIN_THRESHOLD)
 
     # ── QC flagging: spatial doublets ──
     print(f"\nDetecting spatial doublets...")

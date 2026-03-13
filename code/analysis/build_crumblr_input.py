@@ -72,9 +72,6 @@ def main():
             continue
 
         obs = load_cells(sid, cortical_only=True, qc_mode=qc_mode)
-        # Additional crumblr filter: spatial_domain=='Cortical' (excludes
-        # cortical-layer cells in non-cortical spatial domains)
-        obs = obs[obs["spatial_domain"] == "Cortical"]
         print(f"  {sid}: {len(obs):,} cortical cells")
         all_obs.append(obs)
 

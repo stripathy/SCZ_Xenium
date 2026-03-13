@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
     H5AD_DIR, MERFISH_PATH, PRESENTATION_DIR, EXCLUDE_SAMPLES,
     CORTICAL_LAYERS, SUBCLASS_TO_CLASS, classify_celltype,
-    load_merfish_cortical, SUBCLASS_CONF_THRESH,
+    load_merfish_cortical, load_cells, SUBCLASS_CONF_THRESH,
 )
 
 OUT_DIR = PRESENTATION_DIR
@@ -74,7 +74,12 @@ def load_merfish_cortical_proportions(level="subclass"):
 
 
 def load_xenium_cortical_data():
-    """Load all Xenium cortical cells with corr and harmony labels + depth."""
+    """Load all Xenium cortical cells with corr labels + depth via standard load_cells().
+
+    Note: This returns a DataFrame with standardized columns (subclass_label,
+    supertype_label) plus the original corr_* and harmony_* columns from the h5ad.
+    For backward compatibility, we load the full AnnData to get all obs columns.
+    """
     print("Loading Xenium cortical cells...")
     h5ad_files = sorted(
         f for f in os.listdir(H5AD_DIR) if f.endswith("_annotated.h5ad")
@@ -89,15 +94,14 @@ def load_xenium_cortical_data():
         obs = adata.obs.copy()
         obs["sample_id"] = sample_id
 
-        # QC + cortical filter
+        # Unified QC + cortical filter: qc_pass + corr_qc_pass + spatial_domain
         mask = obs["qc_pass"] == True
-        if "layer" in obs.columns:
-            mask = mask & obs["layer"].isin(CORTICAL_LAYERS)
-
-        # Corr QC
-        has_corr = "corr_qc_pass" in obs.columns
-        if has_corr:
+        if "corr_qc_pass" in obs.columns:
             mask = mask & (obs["corr_qc_pass"] == True)
+        if "spatial_domain" in obs.columns:
+            mask = mask & (obs["spatial_domain"] == "Cortical")
+        if "layer" in obs.columns:
+            mask = mask & (obs["layer"] != "WM")
 
         obs = obs[mask].copy()
         dfs.append(obs)

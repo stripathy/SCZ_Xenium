@@ -269,10 +269,12 @@ let dragStartX, dragStartY, dragViewX, dragViewY;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+let logicalWidth = 0, logicalHeight = 0;
 
 // ── Cell boundary state ──
 let boundaryData = null;  // decoded boundary polygon data for current sample
 let nucleusData = null;   // decoded nucleus boundary polygon data
+let cellToBoundaryIdx = null; // mapping from cell index to boundary polygon index
 let showBoundaries = true;
 let showNucleus = true;
 let showQcDetails = false; // show HANN conf, margin, doublet info in tooltips
@@ -404,6 +406,49 @@ function decodeBoundaryJson(raw) {
   return { n, vpc, bx, by };
 }
 
+// Build mapping from cell indices to boundary polygon indices.
+// Boundary data may have fewer entries than cell data (e.g. QC-filtered cells
+// were removed from boundaries but kept in the cell table).  The two arrays
+// are in the same spatial order, so we walk them in lockstep, skipping cell
+// entries that have no matching boundary polygon.
+function buildCellToBoundaryMap(bd) {
+  if (!bd || !sampleData) { cellToBoundaryIdx = null; return; }
+  const nCells = sampleData.n_cells;
+  const nBound = bd.n;
+  const vpc = bd.vpc;
+  const map = new Int32Array(nCells).fill(-1); // -1 = no boundary
+
+  if (nCells === nBound) {
+    // Perfect 1:1 — no mapping needed, but fill identity for uniformity
+    for (let i = 0; i < nCells; i++) map[i] = i;
+  } else {
+    // Precompute boundary centroids
+    const bcx = new Float32Array(nBound);
+    const bcy = new Float32Array(nBound);
+    for (let bi = 0; bi < nBound; bi++) {
+      const base = bi * vpc;
+      let sx = 0, sy = 0;
+      for (let v = 0; v < vpc; v++) { sx += bd.bx[base + v]; sy += bd.by[base + v]; }
+      bcx[bi] = sx / vpc;
+      bcy[bi] = sy / vpc;
+    }
+    // Walk both arrays in lockstep
+    let bi = 0;
+    const tol = 5; // µm tolerance for centroid matching
+    for (let ci = 0; ci < nCells && bi < nBound; ci++) {
+      const dx = sampleData.x[ci] - bcx[bi];
+      const dy = sampleData.y[ci] - bcy[bi];
+      if (dx * dx + dy * dy < tol * tol) {
+        map[ci] = bi;
+        bi++;
+      }
+      // else: this cell has no boundary polygon, skip it
+    }
+    console.log(`Boundary mapping: ${bi}/${nBound} boundaries matched to ${nCells} cells (${nCells - bi} cells without boundaries)`);
+  }
+  cellToBoundaryIdx = map;
+}
+
 async function loadBoundaryData(sampleId) {
   // Load cell and nucleus boundaries in parallel
   const [cellResp, nucResp] = await Promise.allSettled([
@@ -424,6 +469,9 @@ async function loadBoundaryData(sampleId) {
   } else {
     nucleusData = null;
   }
+
+  // Build cell→boundary index mapping (handles mismatched counts)
+  buildCellToBoundaryMap(boundaryData);
 }
 
 // ── Transcript data loading ──
@@ -725,7 +773,7 @@ function selectGlia() {
 // ── View ──
 function fitView() {
   if (!sampleData) return;
-  const w = canvas.width, h = canvas.height - 30;
+  const w = logicalWidth, h = logicalHeight - 30;
   const dx = sampleData.x_range[1] - sampleData.x_range[0];
   const dy = sampleData.y_range[1] - sampleData.y_range[0];
   viewScale = Math.min(w/dx, h/dy) * 0.9;
@@ -736,14 +784,21 @@ function fitView() {
 
 function resizeCanvas() {
   const main = document.getElementById('main');
-  canvas.width = main.clientWidth; canvas.height = main.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+  logicalWidth = main.clientWidth;
+  logicalHeight = main.clientHeight;
+  canvas.width = logicalWidth * dpr;
+  canvas.height = logicalHeight * dpr;
+  canvas.style.width = logicalWidth + 'px';
+  canvas.style.height = logicalHeight + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   if (sampleData) { fitView(); render(); }
 }
 
 // ── Render ──
 function render() {
   if (!sampleData) return;
-  const w = canvas.width, h = canvas.height;
+  const w = logicalWidth, h = logicalHeight;
   ctx.fillStyle = '#0d0d1a';
   ctx.fillRect(0, 0, w, h);
 
@@ -787,15 +842,17 @@ function render() {
 
   // Determine if we should render boundaries or centroids
   const renderBoundaries = showBoundaries && boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
+  const bMap = cellToBoundaryIdx; // cell index → boundary index (-1 if none)
 
   if (renderBoundaries) {
-    // ── Render cells as filled polygons ──
+    // ── Render cells as filled polygons (with point fallback) ──
     const bd = boundaryData;
     const vpc = bd.vpc;
     ctx.globalAlpha = pointOpacity;
 
-    // Batch by color
-    const colorPolygons = {};
+    // Batch by color, separating cells with/without boundary polygons
+    const colorPolygons = {};  // cells that have boundary data
+    const colorPoints = {};    // cells without boundary data (fallback to dots)
 
     for (let i = 0; i < n; i++) {
       if (!activeSet.has(filterIndices[i])) continue;
@@ -807,18 +864,26 @@ function render() {
       if (cx < -50 || cx > w + 50 || cy < -50 || cy > h + 50) continue;
 
       const c = colors[i];
-      if (!colorPolygons[c]) colorPolygons[c] = [];
-      colorPolygons[c].push(i);
+      const bi = bMap ? bMap[i] : i;
+      if (bi >= 0 && bi < bd.n) {
+        if (!colorPolygons[c]) colorPolygons[c] = [];
+        colorPolygons[c].push(bi);
+      } else {
+        // No boundary polygon for this cell — render as point
+        if (!colorPoints[c]) colorPoints[c] = [];
+        colorPoints[c].push(cx, cy);
+      }
       shown++;
     }
 
-    for (const [color, cellIndices] of Object.entries(colorPolygons)) {
+    // Draw filled boundary polygons
+    for (const [color, boundaryIndices] of Object.entries(colorPolygons)) {
       ctx.fillStyle = color;
       ctx.strokeStyle = color;
       ctx.lineWidth = 0.5;
 
-      for (const i of cellIndices) {
-        const base = i * vpc;
+      for (const bi of boundaryIndices) {
+        const base = bi * vpc;
         ctx.beginPath();
         const sx0 = bd.bx[base] * viewScale + viewX;
         const sy0 = bd.by[base] * viewScale + viewY;
@@ -831,6 +896,12 @@ function render() {
         ctx.stroke();
       }
     }
+
+    // Draw fallback points for cells without boundaries
+    for (const [color, pts] of Object.entries(colorPoints)) {
+      ctx.fillStyle = color;
+      for (let j = 0; j < pts.length; j += 2) ctx.fillRect(pts[j]-r/2, pts[j+1]-r/2, r, r);
+    }
     ctx.globalAlpha = 1;
 
     // ── Render nucleus outlines (stroke only, no fill) ──
@@ -840,11 +911,11 @@ function render() {
       ctx.globalAlpha = pointOpacity * 0.8;
       ctx.lineWidth = 1.0;
 
-      for (const [color, cellIndices] of Object.entries(colorPolygons)) {
+      for (const [color, boundaryIndices] of Object.entries(colorPolygons)) {
         ctx.strokeStyle = color;
-        for (const i of cellIndices) {
-          if (i >= nd.n) continue;
-          const base = i * nvpc;
+        for (const bi of boundaryIndices) {
+          if (bi >= nd.n) continue;
+          const base = bi * nvpc;
           ctx.beginPath();
           ctx.moveTo(nd.bx[base] * viewScale + viewX, nd.by[base] * viewScale + viewY);
           for (let v = 1; v < nvpc; v++) {
@@ -865,6 +936,7 @@ function render() {
     ctx.lineWidth = 1.0;
 
     const colorPolygons = {};
+    const colorPoints = {};
     for (let i = 0; i < n; i++) {
       if (!activeSet.has(filterIndices[i])) continue;
       if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
@@ -872,27 +944,36 @@ function render() {
       const cy = y[i] * viewScale + viewY;
       if (cx < -50 || cx > w + 50 || cy < -50 || cy > h + 50) continue;
       const c = colors[i];
-      if (!colorPolygons[c]) colorPolygons[c] = [];
-      colorPolygons[c].push(i);
+      const bi = bMap ? bMap[i] : i;
+      if (bi >= 0 && bi < nd.n) {
+        if (!colorPolygons[c]) colorPolygons[c] = [];
+        colorPolygons[c].push({ci: i, bi: bi});
+      } else {
+        if (!colorPoints[c]) colorPoints[c] = [];
+        colorPoints[c].push(cx, cy);
+      }
       shown++;
     }
 
-    // Draw point centroids first
-    for (const [color, cellIndices] of Object.entries(colorPolygons)) {
+    // Draw point centroids first (for all visible cells)
+    for (const [color, items] of Object.entries(colorPolygons)) {
       ctx.fillStyle = color;
-      for (const i of cellIndices) {
-        const sx = x[i] * viewScale + viewX;
-        const sy = y[i] * viewScale + viewY;
-        ctx.fillRect(sx - ps/2, sy - ps/2, ps, ps);
+      for (const {ci} of items) {
+        const sx = x[ci] * viewScale + viewX;
+        const sy = y[ci] * viewScale + viewY;
+        ctx.fillRect(sx - r/2, sy - r/2, r, r);
       }
+    }
+    for (const [color, pts] of Object.entries(colorPoints)) {
+      ctx.fillStyle = color;
+      for (let j = 0; j < pts.length; j += 2) ctx.fillRect(pts[j]-r/2, pts[j+1]-r/2, r, r);
     }
 
     // Draw nucleus outlines on top
-    for (const [color, cellIndices] of Object.entries(colorPolygons)) {
+    for (const [color, items] of Object.entries(colorPolygons)) {
       ctx.strokeStyle = color;
-      for (const i of cellIndices) {
-        if (i >= nd.n) continue;
-        const base = i * nvpc;
+      for (const {bi} of items) {
+        const base = bi * nvpc;
         ctx.beginPath();
         ctx.moveTo(nd.bx[base] * viewScale + viewX, nd.by[base] * viewScale + viewY);
         for (let v = 1; v < nvpc; v++) {
@@ -1029,7 +1110,7 @@ function drawScaleBar() {
   if (!sampleData) return;
   const padding = 20;
   const statusBarH = 30;
-  const barY = canvas.height - statusBarH - 20;  // above the status bar
+  const barY = logicalHeight - statusBarH - 20;  // above the status bar
   const barX = padding;
 
   // viewScale = pixels per µm
@@ -1230,9 +1311,9 @@ function handleHover(e) {
       const myData = (my - viewY) / viewScale;
       // Visible data range for frustum culling
       const dataXMin = -viewX / viewScale - 20/viewScale;
-      const dataXMax = (canvas.width - viewX) / viewScale + 20/viewScale;
+      const dataXMax = (logicalWidth - viewX) / viewScale + 20/viewScale;
       const dataYMin = -viewY / viewScale - 20/viewScale;
-      const dataYMax = (canvas.height - viewY) / viewScale + 20/viewScale;
+      const dataYMax = (logicalHeight - viewY) / viewScale + 20/viewScale;
 
       for (const gene of activeGenes) {
         const gd = transcriptGenes[gene]; if (!gd) continue;
@@ -1278,13 +1359,16 @@ function handleHover(e) {
       const searchRadius = 50;
       const sr2 = searchRadius * searchRadius;
 
+      const bMapH = cellToBoundaryIdx;
       for (let i = 0; i < n; i++) {
         if (!activeSet.has(filterIndices[i])) continue;
+        const bi = bMapH ? bMapH[i] : i;
+        if (bi < 0 || bi >= bd.n) continue; // no boundary for this cell
         // Quick centroid distance check
         const cdx = mxD - x[i], cdy = myD - y[i];
         if (cdx*cdx + cdy*cdy > sr2) continue;
         // Ray-casting point-in-polygon test
-        const base = i * vpc;
+        const base = bi * vpc;
         let inside = false;
         for (let v = 0, w = vpc - 1; v < vpc; w = v++) {
           const vx = bd.bx[base+v], vy = bd.by[base+v];

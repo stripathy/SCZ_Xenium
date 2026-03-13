@@ -28,7 +28,7 @@ from matplotlib.patches import Patch
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
     H5AD_DIR, PRESENTATION_DIR, EXCLUDE_SAMPLES,
-    CORTICAL_LAYERS, SUBCLASS_TO_CLASS, load_merfish_cortical,
+    CORTICAL_LAYERS, SUBCLASS_TO_CLASS, load_merfish_cortical, load_cells,
 )
 
 DEPTH_MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -70,7 +70,7 @@ LAYER_NAMES = ["L1", "L2/3", "L4", "L5", "L6", "WM"]
 
 
 def load_xenium_cortical():
-    """Load all Xenium cortical cells with corr labels + depth."""
+    """Load all Xenium cortical cells with corr labels + depth via standard load_cells()."""
     print("Loading Xenium cortical cells...")
     h5ad_files = sorted(
         f for f in os.listdir(H5AD_DIR) if f.endswith("_annotated.h5ad")
@@ -80,32 +80,13 @@ def load_xenium_cortical():
         sample_id = fname.replace("_annotated.h5ad", "")
         if sample_id in EXCLUDE_SAMPLES:
             continue
-        path = os.path.join(H5AD_DIR, fname)
-        adata = ad.read_h5ad(path, backed="r")
-        obs = adata.obs
-
-        # QC filter
-        if "corr_qc_pass" in obs.columns:
-            qc = obs["corr_qc_pass"].values.astype(bool)
-        elif "qc_pass" in obs.columns:
-            qc = obs["qc_pass"].values.astype(bool)
-        else:
-            qc = np.ones(len(obs), dtype=bool)
-
-        # Cortical layer filter
-        if "layer" in obs.columns:
-            cortical = obs["layer"].isin(CORTICAL_LAYERS).values
-        else:
-            cortical = np.ones(len(obs), dtype=bool)
-
-        mask = qc & cortical
-
-        cols = ["corr_subclass", "corr_supertype", "predicted_norm_depth"]
-        cols = [c for c in cols if c in obs.columns]
-        sub_df = obs.loc[mask, cols].copy()
-        sub_df["sample_id"] = sample_id
-        rows.append(sub_df)
-        print(f"  {sample_id}: {mask.sum():,} cortical cells")
+        obs = load_cells(sample_id, cortical_only=True,
+                         extra_obs_columns=["predicted_norm_depth"])
+        # Rename back to corr_* for downstream compatibility within this script
+        obs = obs.rename(columns={"subclass_label": "corr_subclass",
+                                  "supertype_label": "corr_supertype"})
+        rows.append(obs)
+        print(f"  {sample_id}: {len(obs):,} cortical cells")
 
     df = pd.concat(rows, ignore_index=True)
     df["predicted_norm_depth"] = pd.to_numeric(df["predicted_norm_depth"],

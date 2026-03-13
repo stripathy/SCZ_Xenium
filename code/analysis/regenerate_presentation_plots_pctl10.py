@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Regenerate the three key presentation plots using the 10th-percentile
-margin threshold variant.
+Regenerate the three key presentation plots using the standard pipeline QC
+filters (corr_qc_pass: 5th-percentile margin + L6b threshold + doublet exclusion).
 
 Plots:
   1. snRNAseq meta-analysis beta vs Xenium logFC (supertype level)
   2. MERFISH vs Xenium subclass proportions (controls only)
   3. MERFISH vs Xenium median depth by cell type (subclass + supertype)
 
-Output: output/presentation/slide_*_pctl10.png
+Output: output/presentation/slide_*.png
 """
 
 import os
@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, "code", "analysis"))
 from config import (
     BG_COLOR, H5AD_DIR, MERFISH_PATH, PRESENTATION_DIR, CRUMBLR_DIR,
     SUBCLASS_TO_CLASS, CLASS_COLORS, EXCLUDE_SAMPLES, infer_class,
+    load_cells,
     load_merfish_cortical as _load_merfish_cortical,
 )
 
@@ -36,60 +37,22 @@ OUT_DIR = PRESENTATION_DIR
 BG = BG_COLOR
 SCATTER_COLORS = {'Glut': '#00ADF8', 'GABA': '#F05A28', 'NN': '#808080', 'Other': '#999999'}
 
-# Parse from command line: python script.py [percentile]
-_default_pctl = 10
-if len(sys.argv) > 1:
-    _default_pctl = int(sys.argv[1])
-PCTL = _default_pctl
-SUFFIX = f'_pctl{PCTL:02d}'
-
 
 # ══════════════════════════════════════════════════════════════════════
 # Helpers
 # ══════════════════════════════════════════════════════════════════════
 
-def load_xenium_pctl10(cortical_only=True, extra_cols=None):
-    """Load all Xenium cells passing the 10th-percentile margin filter."""
+def load_xenium_cortical(extra_cols=None):
+    """Load all Xenium cortical cells using standard pipeline QC (corr_qc_pass)."""
     h5ad_files = sorted(glob.glob(os.path.join(H5AD_DIR, "*_annotated.h5ad")))
     all_obs = []
     for fpath in h5ad_files:
         sid = os.path.basename(fpath).replace("_annotated.h5ad", "")
         if sid in EXCLUDE_SAMPLES:
             continue
-        adata = ad.read_h5ad(fpath, backed='r')
-        obs = adata.obs
-
-        # Base columns
-        cols_need = ['sample_id', 'corr_subclass', 'corr_supertype',
-                     'corr_subclass_margin', 'qc_pass', 'doublet_suspect',
-                     'spatial_domain', 'layer']
-        if extra_cols:
-            cols_need.extend([c for c in extra_cols if c in obs.columns])
-        cols_need = [c for c in cols_need if c in obs.columns]
-        sub = obs[cols_need].copy()
-
-        # Compute 10th percentile threshold for this sample
-        qc_mask = sub['qc_pass'].astype(bool)
-        margins = sub['corr_subclass_margin'].astype(float)
-        thresh = np.nanpercentile(margins[qc_mask], PCTL)
-
-        # Filter
-        mask = (
-            qc_mask &
-            (~sub['doublet_suspect'].astype(bool)) &
-            (margins >= thresh)
-        )
-        if cortical_only:
-            mask = mask & (sub['spatial_domain'] == 'Cortical') & (sub['layer'].astype(str) != 'WM')
-
-        sub = sub[mask].copy()
-        sub = sub.rename(columns={'corr_subclass': 'subclass_label',
-                                  'corr_supertype': 'supertype_label'})
-        sub['subclass_label'] = sub['subclass_label'].astype(str)
-        sub['supertype_label'] = sub['supertype_label'].astype(str)
-        all_obs.append(sub)
-        adata.file.close()
-        print(f"  {sid}: {len(sub):,} cells (thresh={thresh:.4f})")
+        obs = load_cells(sid, cortical_only=True, extra_obs_columns=extra_cols)
+        all_obs.append(obs)
+        print(f"  {sid}: {len(obs):,} cells")
 
     combined = pd.concat(all_obs, ignore_index=True)
     print(f"  Total: {len(combined):,} cells")
@@ -103,7 +66,7 @@ def load_xenium_pctl10(cortical_only=True, extra_cols=None):
 def plot_snrnaseq_scatter():
     """Dark-background scatter: snRNAseq beta vs Xenium logFC at supertype level."""
     print("\n=== Plot 1: snRNAseq vs Xenium logFC ===")
-    csv_path = os.path.join(CRUMBLR_DIR, f"snrnaseq_vs_xenium_comparison{SUFFIX}.csv")
+    csv_path = os.path.join(CRUMBLR_DIR, "snrnaseq_vs_xenium_comparison.csv")
     df = pd.read_csv(csv_path)
     df['class'] = df['celltype'].apply(infer_class)
     print(f"  {len(df)} shared supertypes")
@@ -181,7 +144,7 @@ def plot_snrnaseq_scatter():
 
     ax.set_xlabel('snRNAseq meta-analysis beta (SCZ effect)', fontsize=18, color='white')
     ax.set_ylabel('Xenium spatial logFC (SCZ vs Control)', fontsize=18, color='white')
-    ax.set_title(f'SCZ compositional effects: snRNAseq vs Xenium spatial ({PCTL}th pctl)',
+    ax.set_title('SCZ compositional effects: snRNAseq vs Xenium spatial',
                  fontsize=22, fontweight='bold', color='white', pad=12)
     ax.tick_params(colors='white', labelsize=14)
     for spine in ax.spines.values():
@@ -200,7 +163,7 @@ def plot_snrnaseq_scatter():
               facecolor='#1a1a1a', edgecolor='#555555', labelcolor='white')
 
     plt.tight_layout()
-    outpath = os.path.join(OUT_DIR, f'slide_snrnaseq_vs_xenium{SUFFIX}.png')
+    outpath = os.path.join(OUT_DIR, 'slide_snrnaseq_vs_xenium.png')
     plt.savefig(outpath, dpi=150, facecolor=BG)
     plt.close()
     print(f"  Saved: {outpath}")
@@ -228,8 +191,8 @@ def plot_proportion_scatter():
     m_counts['prop'] = m_counts['count'] / m_counts['total']
     merfish_props = m_counts.groupby('celltype')['prop'].median().reset_index(name='merfish_prop')
 
-    # Xenium proportions from crumblr input
-    xen_path = os.path.join(CRUMBLR_DIR, f'crumblr_input_subclass{SUFFIX}.csv')
+    # Xenium proportions from crumblr input (default = standard pipeline QC)
+    xen_path = os.path.join(CRUMBLR_DIR, 'crumblr_input_subclass.csv')
     xen = pd.read_csv(xen_path)
     xen['prop'] = xen['count'] / xen['total']
     xenium_props = xen.groupby('celltype')['prop'].median().reset_index(name='xenium_prop')
@@ -275,8 +238,8 @@ def plot_proportion_scatter():
                       edgecolor='#444444', alpha=0.85))
 
     ax.set_xlabel('MERFISH median proportion', fontsize=18, color='white')
-    ax.set_ylabel(f'Xenium median proportion ({PCTL}th pctl)', fontsize=18, color='white')
-    ax.set_title(f'Subclass proportions: MERFISH vs Xenium ({PCTL}th pctl)',
+    ax.set_ylabel('Xenium median proportion', fontsize=18, color='white')
+    ax.set_title('Subclass proportions: MERFISH vs Xenium',
                  fontsize=20, fontweight='bold', color='white', pad=12)
     ax.tick_params(colors='white', labelsize=14)
     for spine in ax.spines.values():
@@ -285,7 +248,7 @@ def plot_proportion_scatter():
               edgecolor='#555555', labelcolor='white')
 
     plt.tight_layout()
-    outpath = os.path.join(OUT_DIR, f'slide_proportion_scatter{SUFFIX}.png')
+    outpath = os.path.join(OUT_DIR, 'slide_proportion_scatter.png')
     plt.savefig(outpath, dpi=150, facecolor=BG)
     plt.close()
     print(f"  Saved: {outpath}")
@@ -316,9 +279,9 @@ def plot_depth_scatter():
     merfish_sup.columns = ['celltype', 'median_depth', 'n_cells']
     merfish_sup = merfish_sup[merfish_sup['n_cells'] >= 20]
 
-    # Xenium (10th pctl filtered)
-    print(f"  Loading Xenium ({PCTL}th pctl)...")
-    xen_df = load_xenium_pctl10(cortical_only=True, extra_cols=['predicted_norm_depth'])
+    # Xenium (standard pipeline QC)
+    print("  Loading Xenium cortical cells...")
+    xen_df = load_xenium_cortical(extra_cols=['predicted_norm_depth'])
     xen_df['depth'] = xen_df['predicted_norm_depth'].astype(float)
 
     xen_sub = xen_df.groupby('subclass_label')['depth'].agg(['median', 'count']).reset_index()
@@ -415,10 +378,10 @@ def plot_depth_scatter():
     axes[1].legend(handles=legend_elements, fontsize=12, loc='lower right',
                    facecolor='#1a1a1a', edgecolor='#555555', labelcolor='white')
 
-    fig.suptitle(f'Median depth: MERFISH vs Xenium ({PCTL}th pctl)',
+    fig.suptitle('Median depth: MERFISH vs Xenium',
                  fontsize=22, fontweight='bold', color='white', y=1.02)
     plt.tight_layout()
-    outpath = os.path.join(OUT_DIR, f'slide_median_depth_by_celltype{SUFFIX}.png')
+    outpath = os.path.join(OUT_DIR, 'slide_median_depth_by_celltype.png')
     plt.savefig(outpath, dpi=150, facecolor=BG, bbox_inches='tight')
     plt.close()
     print(f"  Saved: {outpath}")
@@ -432,4 +395,4 @@ if __name__ == '__main__':
     plot_snrnaseq_scatter()
     plot_proportion_scatter()
     plot_depth_scatter()
-    print("\nAll three plots regenerated for 10th percentile variant.")
+    print("\nAll three presentation plots regenerated.")
