@@ -41,7 +41,7 @@ SNRNASEQ_REF_PATH = os.path.join(BASE_DIR, "data", "reference",
 # MERFISH spatial reference — used ONLY for depth model (has spatial coords + depth)
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                              "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
-METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
+METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
 CRUMBLR_DIR = os.path.join(BASE_DIR, "output", "crumblr")
 PRESENTATION_DIR = os.path.join(BASE_DIR, "output", "presentation")
 MARKER_ANALYSIS_DIR = os.path.join(BASE_DIR, "output", "marker_analysis")

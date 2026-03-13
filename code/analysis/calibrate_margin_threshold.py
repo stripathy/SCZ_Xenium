@@ -407,7 +407,7 @@ def step5_build_crumblr_inputs(candidate_thresholds):
     sys.path.insert(0, os.path.join(BASE_DIR, "code"))
     from modules.metadata import get_subject_info
 
-    METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
+    METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
     CRUMBLR_DIR = os.path.join(BASE_DIR, "output", "crumblr")
     EXCLUDE_SAMPLES = set()  # No samples excluded
 

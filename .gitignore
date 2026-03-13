@@ -79,8 +79,17 @@ plots/
 output/**/*.png
 output/*.png
 !output/presentation/*.png
+!output/crumblr/*.png
 output/**/*.pptx
 output/**/*.pdf
+
+# Archived presentation files (stale exploration outputs)
+output/presentation/_archived/
+
+# Empty/unused output dirs
+output/nsforest/
+output/sccoda/
+output/figures/
 
 # ──────────────────────────────────────────────────────────────────────
 # System / IDE / temporary files

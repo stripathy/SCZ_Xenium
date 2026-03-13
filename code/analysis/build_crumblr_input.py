@@ -26,7 +26,7 @@ from config import BASE_DIR, H5AD_DIR, CRUMBLR_DIR, EXCLUDE_SAMPLES, load_cells
 sys.path.insert(0, os.path.join(BASE_DIR, "code"))
 from modules.metadata import get_subject_info
 
-METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
+METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
 
 
 def build_counts(obs_df, level_col):

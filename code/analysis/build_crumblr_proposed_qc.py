@@ -29,7 +29,7 @@ from config import (
 sys.path.insert(0, os.path.join(BASE_DIR, "code"))
 from modules.metadata import get_subject_info
 
-METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
+METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
 MARGIN_PCTL = 5  # 5th percentile
 
 

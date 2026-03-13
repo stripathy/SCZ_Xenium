@@ -108,7 +108,7 @@ matplotlib, pandas, statsmodels, h5py, cell_type_mapper
 - Xenium data: `GSM*-cell_feature_matrix.h5` + `GSM*-cell_boundaries.csv.gz`
 - SEA-AD MERFISH: `SEAAD_MTG_MERFISH.2024-12-11.h5ad` (depth model training)
 - MapMyCells precomputed stats: `precomputed_stats.20231120.sea_ad.MTG.h5`
-- Subject metadata: `sample_metadata.xlsx`
+- Subject metadata: `data/sample_metadata.xlsx`
 
 ## Nuclear Resolution (`code/nuclear_resolution/`)
 

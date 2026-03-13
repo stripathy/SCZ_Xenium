@@ -18,7 +18,7 @@ BASE_DIR = os.path.expanduser("~/Github/SCZ_Xenium")
 
 # Input data
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
-METADATA_PATH = os.path.join(BASE_DIR, "sample_metadata.xlsx")
+METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
 
 # Reference data (SEA-AD)
 # MERFISH spatial reference — used ONLY for depth model training (has spatial coords)

@@ -1,0 +1,3299 @@
+sample_id,level,cell_type,count,method
+Br1113,class_label,Non-neuronal and Non-neural,30374,old_correlation
+Br1113,class_label,Neuronal: Glutamatergic,17667,old_correlation
+Br1113,class_label,Neuronal: GABAergic,8250,old_correlation
+Br1113,class_label,Unassigned,0,old_correlation
+Br1113,subclass_label,L2/3 IT,10860,old_correlation
+Br1113,subclass_label,Oligodendrocyte,10442,old_correlation
+Br1113,subclass_label,Endothelial,8230,old_correlation
+Br1113,subclass_label,Astrocyte,5653,old_correlation
+Br1113,subclass_label,VLMC,3093,old_correlation
+Br1113,subclass_label,L4 IT,3086,old_correlation
+Br1113,subclass_label,Vip,2685,old_correlation
+Br1113,subclass_label,Microglia-PVM,2560,old_correlation
+Br1113,subclass_label,Pvalb,1997,old_correlation
+Br1113,subclass_label,L6b,1309,old_correlation
+Br1113,subclass_label,Sst,1147,old_correlation
+Br1113,subclass_label,L5 IT,979,old_correlation
+Br1113,subclass_label,L6 IT,910,old_correlation
+Br1113,subclass_label,Lamp5,709,old_correlation
+Br1113,subclass_label,Chandelier,679,old_correlation
+Br1113,subclass_label,OPC,396,old_correlation
+Br1113,subclass_label,Sncg,337,old_correlation
+Br1113,subclass_label,Pax6,309,old_correlation
+Br1113,subclass_label,Sst Chodl,249,old_correlation
+Br1113,subclass_label,L5/6 NP,210,old_correlation
+Br1113,subclass_label,L6 CT,171,old_correlation
+Br1113,subclass_label,Lamp5 Lhx6,138,old_correlation
+Br1113,subclass_label,L5 ET,119,old_correlation
+Br1113,subclass_label,L6 IT Car3,23,old_correlation
+Br1113,subclass_label,Unassigned,0,old_correlation
+Br1113,supertype_label,Oligo_4,9655,old_correlation
+Br1113,supertype_label,Endo_1,5744,old_correlation
+Br1113,supertype_label,Astro_4,3370,old_correlation
+Br1113,supertype_label,L2/3 IT_13,3162,old_correlation
+Br1113,supertype_label,L2/3 IT_7,2806,old_correlation
+Br1113,supertype_label,Endo_2,2485,old_correlation
+Br1113,supertype_label,L2/3 IT_12,2451,old_correlation
+Br1113,supertype_label,Micro-PVM_2,2425,old_correlation
+Br1113,supertype_label,VLMC_2,2174,old_correlation
+Br1113,supertype_label,Vip_21,2078,old_correlation
+Br1113,supertype_label,L4 IT_1,1743,old_correlation
+Br1113,supertype_label,Astro_2,1433,old_correlation
+Br1113,supertype_label,L2/3 IT_8,1416,old_correlation
+Br1113,supertype_label,L4 IT_2,1181,old_correlation
+Br1113,supertype_label,Pvalb_8,1090,old_correlation
+Br1113,supertype_label,VLMC_1,919,old_correlation
+Br1113,supertype_label,L6 IT_2,901,old_correlation
+Br1113,supertype_label,L5 IT_6,678,old_correlation
+Br1113,supertype_label,Chandelier_2,673,old_correlation
+Br1113,supertype_label,Astro_5,630,old_correlation
+Br1113,supertype_label,Oligo_1,614,old_correlation
+Br1113,supertype_label,L6b_1,597,old_correlation
+Br1113,supertype_label,L2/3 IT_2,579,old_correlation
+Br1113,supertype_label,Lamp5_5,393,old_correlation
+Br1113,supertype_label,L6b_6,389,old_correlation
+Br1113,supertype_label,Sst_11,380,old_correlation
+Br1113,supertype_label,Sst_10,330,old_correlation
+Br1113,supertype_label,L2/3 IT_3,328,old_correlation
+Br1113,supertype_label,Pvalb_6,283,old_correlation
+Br1113,supertype_label,Vip_1,269,old_correlation
+Br1113,supertype_label,L5 IT_2,263,old_correlation
+Br1113,supertype_label,Pvalb_5,247,old_correlation
+Br1113,supertype_label,Lamp5_2,244,old_correlation
+Br1113,supertype_label,Pax6_1,242,old_correlation
+Br1113,supertype_label,L6b_2,239,old_correlation
+Br1113,supertype_label,Sst Chodl_2,232,old_correlation
+Br1113,supertype_label,Astro_3,218,old_correlation
+Br1113,supertype_label,OPC_1,207,old_correlation
+Br1113,supertype_label,Pvalb_2,201,old_correlation
+Br1113,supertype_label,OPC_2,189,old_correlation
+Br1113,supertype_label,L5/6 NP_3,177,old_correlation
+Br1113,supertype_label,L6 CT_3,158,old_correlation
+Br1113,supertype_label,Oligo_2,147,old_correlation
+Br1113,supertype_label,Lamp5_Lhx6_1,138,old_correlation
+Br1113,supertype_label,L4 IT_4,136,old_correlation
+Br1113,supertype_label,Micro-PVM_1,135,old_correlation
+Br1113,supertype_label,Vip_9,120,old_correlation
+Br1113,supertype_label,L5 ET_2,116,old_correlation
+Br1113,supertype_label,Sst_20,108,old_correlation
+Br1113,supertype_label,L2/3 IT_5,107,old_correlation
+Br1113,supertype_label,Sncg_5,102,old_correlation
+Br1113,supertype_label,Pvalb_15,95,old_correlation
+Br1113,supertype_label,Vip_19,84,old_correlation
+Br1113,supertype_label,Sst_2,81,old_correlation
+Br1113,supertype_label,Sncg_2,79,old_correlation
+Br1113,supertype_label,Sncg_3,72,old_correlation
+Br1113,supertype_label,Sst_4,72,old_correlation
+Br1113,supertype_label,Lamp5_3,71,old_correlation
+Br1113,supertype_label,Sst_3,67,old_correlation
+Br1113,supertype_label,Pvalb_14,64,old_correlation
+Br1113,supertype_label,Sncg_6,55,old_correlation
+Br1113,supertype_label,L6b_3,42,old_correlation
+Br1113,supertype_label,Vip_12,37,old_correlation
+Br1113,supertype_label,Vip_16,35,old_correlation
+Br1113,supertype_label,L5 IT_7,31,old_correlation
+Br1113,supertype_label,Pax6_2,31,old_correlation
+Br1113,supertype_label,Pax6_4,31,old_correlation
+Br1113,supertype_label,Sncg_4,29,old_correlation
+Br1113,supertype_label,Sst_25,29,old_correlation
+Br1113,supertype_label,Sst_5,26,old_correlation
+Br1113,supertype_label,L4 IT_3,26,old_correlation
+Br1113,supertype_label,Oligo_3,26,old_correlation
+Br1113,supertype_label,Sst_1,25,old_correlation
+Br1113,supertype_label,Vip_14,24,old_correlation
+Br1113,supertype_label,L6 IT Car3_3,23,old_correlation
+Br1113,supertype_label,L6b_5,23,old_correlation
+Br1113,supertype_label,Sst_19,19,old_correlation
+Br1113,supertype_label,L6b_4,19,old_correlation
+Br1113,supertype_label,Vip_4,18,old_correlation
+Br1113,supertype_label,Sst Chodl_1,17,old_correlation
+Br1113,supertype_label,L5/6 NP_1,12,old_correlation
+Br1113,supertype_label,L2/3 IT_1,11,old_correlation
+Br1113,supertype_label,L5/6 NP_6,11,old_correlation
+Br1113,supertype_label,Vip_13,9,old_correlation
+Br1113,supertype_label,L6 IT_1,9,old_correlation
+Br1113,supertype_label,L5/6 NP_4,8,old_correlation
+Br1113,supertype_label,Pvalb_3,8,old_correlation
+Br1113,supertype_label,Sst_7,8,old_correlation
+Br1113,supertype_label,L5 IT_3,7,old_correlation
+Br1113,supertype_label,L6 CT_4,6,old_correlation
+Br1113,supertype_label,Chandelier_1,6,old_correlation
+Br1113,supertype_label,L6 CT_1,6,old_correlation
+Br1113,supertype_label,Pax6_3,5,old_correlation
+Br1113,supertype_label,Pvalb_13,5,old_correlation
+Br1113,supertype_label,Vip_6,5,old_correlation
+Br1113,supertype_label,Pvalb_7,4,old_correlation
+Br1113,supertype_label,Vip_15,4,old_correlation
+Br1113,supertype_label,L5 ET_1,3,old_correlation
+Br1113,supertype_label,Sst_9,2,old_correlation
+Br1113,supertype_label,L5/6 NP_2,2,old_correlation
+Br1113,supertype_label,Vip_5,2,old_correlation
+Br1113,supertype_label,Astro_1,2,old_correlation
+Br1113,supertype_label,Lamp5_6,1,old_correlation
+Br1113,supertype_label,Endo_3,1,old_correlation
+Br1113,supertype_label,L6 CT_2,1,old_correlation
+Br1113,supertype_label,Unassigned,0,old_correlation
+Br1139,class_label,Non-neuronal and Non-neural,35292,old_correlation
+Br1139,class_label,Neuronal: Glutamatergic,16302,old_correlation
+Br1139,class_label,Neuronal: GABAergic,6833,old_correlation
+Br1139,class_label,Unassigned,0,old_correlation
+Br1139,subclass_label,Endothelial,11046,old_correlation
+Br1139,subclass_label,L2/3 IT,9928,old_correlation
+Br1139,subclass_label,Oligodendrocyte,8245,old_correlation
+Br1139,subclass_label,VLMC,7387,old_correlation
+Br1139,subclass_label,Astrocyte,5952,old_correlation
+Br1139,subclass_label,L6b,2665,old_correlation
+Br1139,subclass_label,Vip,2475,old_correlation
+Br1139,subclass_label,Pvalb,1823,old_correlation
+Br1139,subclass_label,L4 IT,1419,old_correlation
+Br1139,subclass_label,OPC,1361,old_correlation
+Br1139,subclass_label,Microglia-PVM,1301,old_correlation
+Br1139,subclass_label,L5 IT,985,old_correlation
+Br1139,subclass_label,Sst,936,old_correlation
+Br1139,subclass_label,L6 IT,934,old_correlation
+Br1139,subclass_label,Lamp5,508,old_correlation
+Br1139,subclass_label,Chandelier,278,old_correlation
+Br1139,subclass_label,Pax6,273,old_correlation
+Br1139,subclass_label,Sncg,262,old_correlation
+Br1139,subclass_label,L5/6 NP,200,old_correlation
+Br1139,subclass_label,Sst Chodl,167,old_correlation
+Br1139,subclass_label,Lamp5 Lhx6,111,old_correlation
+Br1139,subclass_label,L6 CT,91,old_correlation
+Br1139,subclass_label,L5 ET,78,old_correlation
+Br1139,subclass_label,L6 IT Car3,2,old_correlation
+Br1139,subclass_label,Unassigned,0,old_correlation
+Br1139,supertype_label,Endo_1,9341,old_correlation
+Br1139,supertype_label,Oligo_4,4857,old_correlation
+Br1139,supertype_label,Astro_4,4405,old_correlation
+Br1139,supertype_label,VLMC_2,3763,old_correlation
+Br1139,supertype_label,VLMC_1,3624,old_correlation
+Br1139,supertype_label,L2/3 IT_7,3481,old_correlation
+Br1139,supertype_label,L2/3 IT_13,2631,old_correlation
+Br1139,supertype_label,L2/3 IT_12,2331,old_correlation
+Br1139,supertype_label,Vip_21,2097,old_correlation
+Br1139,supertype_label,Oligo_2,1898,old_correlation
+Br1139,supertype_label,L6b_1,1723,old_correlation
+Br1139,supertype_label,Endo_2,1703,old_correlation
+Br1139,supertype_label,Pvalb_8,1248,old_correlation
+Br1139,supertype_label,Micro-PVM_2,1196,old_correlation
+Br1139,supertype_label,OPC_1,1123,old_correlation
+Br1139,supertype_label,L4 IT_1,1063,old_correlation
+Br1139,supertype_label,L6 IT_2,921,old_correlation
+Br1139,supertype_label,L2/3 IT_8,854,old_correlation
+Br1139,supertype_label,L5 IT_6,796,old_correlation
+Br1139,supertype_label,Oligo_1,795,old_correlation
+Br1139,supertype_label,Astro_2,780,old_correlation
+Br1139,supertype_label,Oligo_3,695,old_correlation
+Br1139,supertype_label,L6b_2,582,old_correlation
+Br1139,supertype_label,Sst_11,420,old_correlation
+Br1139,supertype_label,Astro_5,411,old_correlation
+Br1139,supertype_label,Astro_3,354,old_correlation
+Br1139,supertype_label,L2/3 IT_2,292,old_correlation
+Br1139,supertype_label,L6b_6,275,old_correlation
+Br1139,supertype_label,Chandelier_2,272,old_correlation
+Br1139,supertype_label,Lamp5_5,263,old_correlation
+Br1139,supertype_label,L4 IT_2,238,old_correlation
+Br1139,supertype_label,OPC_2,238,old_correlation
+Br1139,supertype_label,L2/3 IT_3,238,old_correlation
+Br1139,supertype_label,Sst_10,228,old_correlation
+Br1139,supertype_label,Pax6_1,221,old_correlation
+Br1139,supertype_label,Vip_1,188,old_correlation
+Br1139,supertype_label,Pvalb_6,182,old_correlation
+Br1139,supertype_label,L5/6 NP_3,159,old_correlation
+Br1139,supertype_label,Lamp5_2,152,old_correlation
+Br1139,supertype_label,Pvalb_5,151,old_correlation
+Br1139,supertype_label,Sst Chodl_2,141,old_correlation
+Br1139,supertype_label,L5 IT_2,123,old_correlation
+Br1139,supertype_label,Lamp5_Lhx6_1,111,old_correlation
+Br1139,supertype_label,Micro-PVM_1,105,old_correlation
+Br1139,supertype_label,L2/3 IT_5,101,old_correlation
+Br1139,supertype_label,L4 IT_4,99,old_correlation
+Br1139,supertype_label,Pvalb_2,98,old_correlation
+Br1139,supertype_label,Sncg_3,93,old_correlation
+Br1139,supertype_label,Lamp5_3,92,old_correlation
+Br1139,supertype_label,Vip_9,85,old_correlation
+Br1139,supertype_label,Sncg_5,83,old_correlation
+Br1139,supertype_label,L6 CT_3,82,old_correlation
+Br1139,supertype_label,Sst_20,71,old_correlation
+Br1139,supertype_label,L5 ET_2,71,old_correlation
+Br1139,supertype_label,Sst_4,68,old_correlation
+Br1139,supertype_label,L5 IT_7,66,old_correlation
+Br1139,supertype_label,Pvalb_15,61,old_correlation
+Br1139,supertype_label,Pvalb_14,59,old_correlation
+Br1139,supertype_label,Vip_19,45,old_correlation
+Br1139,supertype_label,Sst_3,43,old_correlation
+Br1139,supertype_label,Sncg_6,40,old_correlation
+Br1139,supertype_label,Sncg_2,39,old_correlation
+Br1139,supertype_label,L6b_3,37,old_correlation
+Br1139,supertype_label,Pax6_4,28,old_correlation
+Br1139,supertype_label,L6b_4,28,old_correlation
+Br1139,supertype_label,Vip_16,27,old_correlation
+Br1139,supertype_label,Sst Chodl_1,26,old_correlation
+Br1139,supertype_label,L5/6 NP_6,26,old_correlation
+Br1139,supertype_label,Sst_1,24,old_correlation
+Br1139,supertype_label,Sst_5,24,old_correlation
+Br1139,supertype_label,L6b_5,20,old_correlation
+Br1139,supertype_label,L4 IT_3,19,old_correlation
+Br1139,supertype_label,Pvalb_3,19,old_correlation
+Br1139,supertype_label,Sst_7,18,old_correlation
+Br1139,supertype_label,Pax6_2,17,old_correlation
+Br1139,supertype_label,Vip_12,15,old_correlation
+Br1139,supertype_label,Sst_2,14,old_correlation
+Br1139,supertype_label,L6 IT_1,13,old_correlation
+Br1139,supertype_label,L5/6 NP_1,11,old_correlation
+Br1139,supertype_label,Sst_19,11,old_correlation
+Br1139,supertype_label,Vip_14,10,old_correlation
+Br1139,supertype_label,Sst_25,9,old_correlation
+Br1139,supertype_label,Pax6_3,7,old_correlation
+Br1139,supertype_label,L5 ET_1,7,old_correlation
+Br1139,supertype_label,Sncg_4,7,old_correlation
+Br1139,supertype_label,Chandelier_1,6,old_correlation
+Br1139,supertype_label,L6 CT_1,6,old_correlation
+Br1139,supertype_label,L5/6 NP_4,4,old_correlation
+Br1139,supertype_label,Vip_13,4,old_correlation
+Br1139,supertype_label,Sst_9,3,old_correlation
+Br1139,supertype_label,L6 CT_4,3,old_correlation
+Br1139,supertype_label,Sst_23,3,old_correlation
+Br1139,supertype_label,Pvalb_13,3,old_correlation
+Br1139,supertype_label,Astro_1,2,old_correlation
+Br1139,supertype_label,Vip_4,2,old_correlation
+Br1139,supertype_label,Pvalb_7,2,old_correlation
+Br1139,supertype_label,L6 IT Car3_3,2,old_correlation
+Br1139,supertype_label,Endo_3,2,old_correlation
+Br1139,supertype_label,Vip_6,1,old_correlation
+Br1139,supertype_label,Vip_5,1,old_correlation
+Br1139,supertype_label,Lamp5_6,1,old_correlation
+Br1139,supertype_label,Unassigned,0,old_correlation
+Br2039,class_label,Non-neuronal and Non-neural,33166,old_correlation
+Br2039,class_label,Neuronal: Glutamatergic,6597,old_correlation
+Br2039,class_label,Neuronal: GABAergic,2990,old_correlation
+Br2039,class_label,Unassigned,0,old_correlation
+Br2039,subclass_label,Oligodendrocyte,18021,old_correlation
+Br2039,subclass_label,Endothelial,4916,old_correlation
+Br2039,subclass_label,Astrocyte,3801,old_correlation
+Br2039,subclass_label,L2/3 IT,2889,old_correlation
+Br2039,subclass_label,VLMC,2869,old_correlation
+Br2039,subclass_label,Microglia-PVM,2321,old_correlation
+Br2039,subclass_label,L6b,1615,old_correlation
+Br2039,subclass_label,OPC,1238,old_correlation
+Br2039,subclass_label,Vip,1083,old_correlation
+Br2039,subclass_label,L4 IT,955,old_correlation
+Br2039,subclass_label,Pvalb,906,old_correlation
+Br2039,subclass_label,L6 IT,687,old_correlation
+Br2039,subclass_label,Sst,420,old_correlation
+Br2039,subclass_label,L5 IT,266,old_correlation
+Br2039,subclass_label,Chandelier,157,old_correlation
+Br2039,subclass_label,Lamp5,112,old_correlation
+Br2039,subclass_label,Sncg,101,old_correlation
+Br2039,subclass_label,Pax6,97,old_correlation
+Br2039,subclass_label,L5/6 NP,83,old_correlation
+Br2039,subclass_label,Lamp5 Lhx6,69,old_correlation
+Br2039,subclass_label,L6 CT,45,old_correlation
+Br2039,subclass_label,Sst Chodl,45,old_correlation
+Br2039,subclass_label,L5 ET,42,old_correlation
+Br2039,subclass_label,L6 IT Car3,15,old_correlation
+Br2039,subclass_label,Unassigned,0,old_correlation
+Br2039,supertype_label,Oligo_4,13695,old_correlation
+Br2039,supertype_label,Endo_1,3511,old_correlation
+Br2039,supertype_label,Oligo_1,2485,old_correlation
+Br2039,supertype_label,Micro-PVM_2,2275,old_correlation
+Br2039,supertype_label,Astro_4,1647,old_correlation
+Br2039,supertype_label,VLMC_2,1543,old_correlation
+Br2039,supertype_label,Oligo_2,1405,old_correlation
+Br2039,supertype_label,Endo_2,1400,old_correlation
+Br2039,supertype_label,VLMC_1,1326,old_correlation
+Br2039,supertype_label,Vip_21,961,old_correlation
+Br2039,supertype_label,L6b_1,944,old_correlation
+Br2039,supertype_label,L2/3 IT_12,922,old_correlation
+Br2039,supertype_label,OPC_1,918,old_correlation
+Br2039,supertype_label,L2/3 IT_7,828,old_correlation
+Br2039,supertype_label,Astro_5,801,old_correlation
+Br2039,supertype_label,Astro_2,712,old_correlation
+Br2039,supertype_label,L4 IT_1,686,old_correlation
+Br2039,supertype_label,Pvalb_8,685,old_correlation
+Br2039,supertype_label,L6 IT_2,678,old_correlation
+Br2039,supertype_label,L2/3 IT_13,658,old_correlation
+Br2039,supertype_label,Astro_3,621,old_correlation
+Br2039,supertype_label,Oligo_3,436,old_correlation
+Br2039,supertype_label,OPC_2,320,old_correlation
+Br2039,supertype_label,L6b_2,320,old_correlation
+Br2039,supertype_label,L4 IT_2,226,old_correlation
+Br2039,supertype_label,L5 IT_6,211,old_correlation
+Br2039,supertype_label,L2/3 IT_8,200,old_correlation
+Br2039,supertype_label,Sst_11,173,old_correlation
+Br2039,supertype_label,L6b_6,173,old_correlation
+Br2039,supertype_label,L2/3 IT_2,165,old_correlation
+Br2039,supertype_label,Chandelier_2,154,old_correlation
+Br2039,supertype_label,Sst_10,128,old_correlation
+Br2039,supertype_label,L6b_3,97,old_correlation
+Br2039,supertype_label,L2/3 IT_3,83,old_correlation
+Br2039,supertype_label,Pax6_1,78,old_correlation
+Br2039,supertype_label,Pvalb_6,75,old_correlation
+Br2039,supertype_label,Pvalb_5,70,old_correlation
+Br2039,supertype_label,Lamp5_Lhx6_1,69,old_correlation
+Br2039,supertype_label,L6b_5,66,old_correlation
+Br2039,supertype_label,L5/6 NP_3,60,old_correlation
+Br2039,supertype_label,Lamp5_5,55,old_correlation
+Br2039,supertype_label,Vip_1,53,old_correlation
+Br2039,supertype_label,L5 IT_2,52,old_correlation
+Br2039,supertype_label,Lamp5_2,47,old_correlation
+Br2039,supertype_label,Micro-PVM_1,46,old_correlation
+Br2039,supertype_label,L5 ET_2,42,old_correlation
+Br2039,supertype_label,Pvalb_2,39,old_correlation
+Br2039,supertype_label,Sst_4,38,old_correlation
+Br2039,supertype_label,L2/3 IT_5,32,old_correlation
+Br2039,supertype_label,Vip_9,31,old_correlation
+Br2039,supertype_label,Sncg_3,31,old_correlation
+Br2039,supertype_label,Sncg_5,27,old_correlation
+Br2039,supertype_label,L4 IT_4,26,old_correlation
+Br2039,supertype_label,Sst Chodl_1,24,old_correlation
+Br2039,supertype_label,L6 CT_3,23,old_correlation
+Br2039,supertype_label,Sst Chodl_2,21,old_correlation
+Br2039,supertype_label,Pvalb_14,20,old_correlation
+Br2039,supertype_label,Astro_1,20,old_correlation
+Br2039,supertype_label,Sst_5,17,old_correlation
+Br2039,supertype_label,L4 IT_3,17,old_correlation
+Br2039,supertype_label,L6 CT_1,17,old_correlation
+Br2039,supertype_label,Sncg_2,17,old_correlation
+Br2039,supertype_label,Pvalb_15,16,old_correlation
+Br2039,supertype_label,Sst_20,16,old_correlation
+Br2039,supertype_label,Vip_19,16,old_correlation
+Br2039,supertype_label,L6b_4,15,old_correlation
+Br2039,supertype_label,L5/6 NP_6,15,old_correlation
+Br2039,supertype_label,L6 IT Car3_3,15,old_correlation
+Br2039,supertype_label,Sncg_6,14,old_correlation
+Br2039,supertype_label,Sst_2,13,old_correlation
+Br2039,supertype_label,Vip_16,11,old_correlation
+Br2039,supertype_label,Sncg_4,11,old_correlation
+Br2039,supertype_label,L6 IT_1,9,old_correlation
+Br2039,supertype_label,Lamp5_3,8,old_correlation
+Br2039,supertype_label,Sst_7,8,old_correlation
+Br2039,supertype_label,Pax6_4,8,old_correlation
+Br2039,supertype_label,Sst_25,7,old_correlation
+Br2039,supertype_label,Pax6_3,7,old_correlation
+Br2039,supertype_label,Sst_3,6,old_correlation
+Br2039,supertype_label,Sst_1,6,old_correlation
+Br2039,supertype_label,L5/6 NP_1,6,old_correlation
+Br2039,supertype_label,Vip_14,6,old_correlation
+Br2039,supertype_label,Endo_3,5,old_correlation
+Br2039,supertype_label,Pax6_2,4,old_correlation
+Br2039,supertype_label,Sst_23,4,old_correlation
+Br2039,supertype_label,L6 CT_4,4,old_correlation
+Br2039,supertype_label,Chandelier_1,3,old_correlation
+Br2039,supertype_label,Vip_12,3,old_correlation
+Br2039,supertype_label,L5 IT_7,3,old_correlation
+Br2039,supertype_label,Sst_19,3,old_correlation
+Br2039,supertype_label,Lamp5_6,2,old_correlation
+Br2039,supertype_label,L5/6 NP_4,2,old_correlation
+Br2039,supertype_label,Pvalb_7,1,old_correlation
+Br2039,supertype_label,L2/3 IT_6,1,old_correlation
+Br2039,supertype_label,Vip_4,1,old_correlation
+Br2039,supertype_label,Sncg_8,1,old_correlation
+Br2039,supertype_label,Sst_12,1,old_correlation
+Br2039,supertype_label,L6 CT_2,1,old_correlation
+Br2039,supertype_label,Vip_23,1,old_correlation
+Br2039,supertype_label,Unassigned,0,old_correlation
+Br2421,class_label,Non-neuronal and Non-neural,40144,old_correlation
+Br2421,class_label,Neuronal: Glutamatergic,16565,old_correlation
+Br2421,class_label,Neuronal: GABAergic,7598,old_correlation
+Br2421,class_label,Unassigned,0,old_correlation
+Br2421,subclass_label,Oligodendrocyte,14382,old_correlation
+Br2421,subclass_label,Endothelial,11295,old_correlation
+Br2421,subclass_label,L2/3 IT,10054,old_correlation
+Br2421,subclass_label,Astrocyte,6776,old_correlation
+Br2421,subclass_label,VLMC,6006,old_correlation
+Br2421,subclass_label,Vip,2678,old_correlation
+Br2421,subclass_label,L4 IT,2264,old_correlation
+Br2421,subclass_label,L6b,2178,old_correlation
+Br2421,subclass_label,Pvalb,1900,old_correlation
+Br2421,subclass_label,Microglia-PVM,1098,old_correlation
+Br2421,subclass_label,Sst,1087,old_correlation
+Br2421,subclass_label,L6 IT,893,old_correlation
+Br2421,subclass_label,L5 IT,764,old_correlation
+Br2421,subclass_label,OPC,587,old_correlation
+Br2421,subclass_label,Lamp5,521,old_correlation
+Br2421,subclass_label,Chandelier,410,old_correlation
+Br2421,subclass_label,Sncg,392,old_correlation
+Br2421,subclass_label,Pax6,360,old_correlation
+Br2421,subclass_label,L5/6 NP,180,old_correlation
+Br2421,subclass_label,Sst Chodl,132,old_correlation
+Br2421,subclass_label,L6 CT,126,old_correlation
+Br2421,subclass_label,Lamp5 Lhx6,118,old_correlation
+Br2421,subclass_label,L5 ET,56,old_correlation
+Br2421,subclass_label,L6 IT Car3,50,old_correlation
+Br2421,subclass_label,Unassigned,0,old_correlation
+Br2421,supertype_label,Oligo_4,11666,old_correlation
+Br2421,supertype_label,Endo_1,8809,old_correlation
+Br2421,supertype_label,Astro_4,5277,old_correlation
+Br2421,supertype_label,L2/3 IT_7,4178,old_correlation
+Br2421,supertype_label,VLMC_2,3623,old_correlation
+Br2421,supertype_label,Endo_2,2482,old_correlation
+Br2421,supertype_label,VLMC_1,2383,old_correlation
+Br2421,supertype_label,L2/3 IT_12,2360,old_correlation
+Br2421,supertype_label,L2/3 IT_13,2149,old_correlation
+Br2421,supertype_label,Vip_21,2115,old_correlation
+Br2421,supertype_label,Oligo_1,2050,old_correlation
+Br2421,supertype_label,L4 IT_1,1400,old_correlation
+Br2421,supertype_label,Pvalb_8,1376,old_correlation
+Br2421,supertype_label,L6b_1,1013,old_correlation
+Br2421,supertype_label,Astro_5,1000,old_correlation
+Br2421,supertype_label,Micro-PVM_2,921,old_correlation
+Br2421,supertype_label,L6 IT_2,885,old_correlation
+Br2421,supertype_label,L4 IT_2,738,old_correlation
+Br2421,supertype_label,L2/3 IT_8,729,old_correlation
+Br2421,supertype_label,L6b_2,647,old_correlation
+Br2421,supertype_label,Oligo_2,600,old_correlation
+Br2421,supertype_label,L5 IT_6,548,old_correlation
+Br2421,supertype_label,Sst_11,441,old_correlation
+Br2421,supertype_label,Chandelier_2,407,old_correlation
+Br2421,supertype_label,L6b_6,396,old_correlation
+Br2421,supertype_label,L2/3 IT_2,387,old_correlation
+Br2421,supertype_label,Astro_2,326,old_correlation
+Br2421,supertype_label,Lamp5_5,307,old_correlation
+Br2421,supertype_label,OPC_2,306,old_correlation
+Br2421,supertype_label,Sst_10,293,old_correlation
+Br2421,supertype_label,Pax6_1,289,old_correlation
+Br2421,supertype_label,OPC_1,281,old_correlation
+Br2421,supertype_label,Vip_1,251,old_correlation
+Br2421,supertype_label,L5 IT_2,190,old_correlation
+Br2421,supertype_label,Micro-PVM_1,177,old_correlation
+Br2421,supertype_label,Astro_3,173,old_correlation
+Br2421,supertype_label,Pvalb_6,167,old_correlation
+Br2421,supertype_label,Vip_9,150,old_correlation
+Br2421,supertype_label,L2/3 IT_3,144,old_correlation
+Br2421,supertype_label,L5/6 NP_3,143,old_correlation
+Br2421,supertype_label,Pvalb_5,132,old_correlation
+Br2421,supertype_label,Lamp5_2,130,old_correlation
+Br2421,supertype_label,Sncg_5,120,old_correlation
+Br2421,supertype_label,Lamp5_Lhx6_1,118,old_correlation
+Br2421,supertype_label,Sncg_3,114,old_correlation
+Br2421,supertype_label,Sst Chodl_2,108,old_correlation
+Br2421,supertype_label,L2/3 IT_5,106,old_correlation
+Br2421,supertype_label,Pvalb_2,98,old_correlation
+Br2421,supertype_label,L4 IT_4,98,old_correlation
+Br2421,supertype_label,L6 CT_3,93,old_correlation
+Br2421,supertype_label,Sst_4,89,old_correlation
+Br2421,supertype_label,Lamp5_3,83,old_correlation
+Br2421,supertype_label,Sncg_2,76,old_correlation
+Br2421,supertype_label,Sst_20,75,old_correlation
+Br2421,supertype_label,Pvalb_14,72,old_correlation
+Br2421,supertype_label,Oligo_3,66,old_correlation
+Br2421,supertype_label,Sncg_6,58,old_correlation
+Br2421,supertype_label,L5 ET_2,54,old_correlation
+Br2421,supertype_label,Vip_19,52,old_correlation
+Br2421,supertype_label,L6 IT Car3_3,50,old_correlation
+Br2421,supertype_label,L6b_3,47,old_correlation
+Br2421,supertype_label,Vip_16,46,old_correlation
+Br2421,supertype_label,Pvalb_15,44,old_correlation
+Br2421,supertype_label,Sst_25,43,old_correlation
+Br2421,supertype_label,L6b_4,40,old_correlation
+Br2421,supertype_label,Sst_3,39,old_correlation
+Br2421,supertype_label,Pax6_4,39,old_correlation
+Br2421,supertype_label,L6b_5,35,old_correlation
+Br2421,supertype_label,L4 IT_3,28,old_correlation
+Br2421,supertype_label,Sst_1,26,old_correlation
+Br2421,supertype_label,Sst_5,25,old_correlation
+Br2421,supertype_label,Sst Chodl_1,24,old_correlation
+Br2421,supertype_label,Sst_2,23,old_correlation
+Br2421,supertype_label,Sncg_4,21,old_correlation
+Br2421,supertype_label,L5 IT_7,21,old_correlation
+Br2421,supertype_label,L5/6 NP_6,20,old_correlation
+Br2421,supertype_label,Sst_19,19,old_correlation
+Br2421,supertype_label,L6 CT_1,18,old_correlation
+Br2421,supertype_label,Pax6_2,17,old_correlation
+Br2421,supertype_label,Vip_14,16,old_correlation
+Br2421,supertype_label,Pax6_3,15,old_correlation
+Br2421,supertype_label,Vip_4,14,old_correlation
+Br2421,supertype_label,L5/6 NP_1,12,old_correlation
+Br2421,supertype_label,Sst_7,11,old_correlation
+Br2421,supertype_label,Vip_12,10,old_correlation
+Br2421,supertype_label,Vip_5,9,old_correlation
+Br2421,supertype_label,L6 IT_1,8,old_correlation
+Br2421,supertype_label,Vip_13,8,old_correlation
+Br2421,supertype_label,L6 CT_2,8,old_correlation
+Br2421,supertype_label,L6 CT_4,7,old_correlation
+Br2421,supertype_label,L5 IT_3,5,old_correlation
+Br2421,supertype_label,Vip_15,5,old_correlation
+Br2421,supertype_label,Pvalb_7,5,old_correlation
+Br2421,supertype_label,Pvalb_3,5,old_correlation
+Br2421,supertype_label,L5/6 NP_4,4,old_correlation
+Br2421,supertype_label,Endo_3,4,old_correlation
+Br2421,supertype_label,Chandelier_1,3,old_correlation
+Br2421,supertype_label,Sncg_8,3,old_correlation
+Br2421,supertype_label,Vip_6,2,old_correlation
+Br2421,supertype_label,Sst_23,2,old_correlation
+Br2421,supertype_label,L5 ET_1,2,old_correlation
+Br2421,supertype_label,L5/6 NP_2,1,old_correlation
+Br2421,supertype_label,L2/3 IT_1,1,old_correlation
+Br2421,supertype_label,Pvalb_10,1,old_correlation
+Br2421,supertype_label,Lamp5_6,1,old_correlation
+Br2421,supertype_label,Sst_9,1,old_correlation
+Br2421,supertype_label,Unassigned,0,old_correlation
+Br2719,class_label,Non-neuronal and Non-neural,36013,old_correlation
+Br2719,class_label,Neuronal: Glutamatergic,15722,old_correlation
+Br2719,class_label,Neuronal: GABAergic,7684,old_correlation
+Br2719,class_label,Unassigned,0,old_correlation
+Br2719,subclass_label,Oligodendrocyte,15190,old_correlation
+Br2719,subclass_label,L2/3 IT,9393,old_correlation
+Br2719,subclass_label,Endothelial,8841,old_correlation
+Br2719,subclass_label,Astrocyte,5317,old_correlation
+Br2719,subclass_label,VLMC,3946,old_correlation
+Br2719,subclass_label,Vip,2501,old_correlation
+Br2719,subclass_label,Microglia-PVM,2178,old_correlation
+Br2719,subclass_label,Pvalb,2066,old_correlation
+Br2719,subclass_label,L6b,1919,old_correlation
+Br2719,subclass_label,L4 IT,1688,old_correlation
+Br2719,subclass_label,L6 IT,1148,old_correlation
+Br2719,subclass_label,Sst,989,old_correlation
+Br2719,subclass_label,L5 IT,884,old_correlation
+Br2719,subclass_label,Chandelier,769,old_correlation
+Br2719,subclass_label,OPC,541,old_correlation
+Br2719,subclass_label,Lamp5,480,old_correlation
+Br2719,subclass_label,Pax6,305,old_correlation
+Br2719,subclass_label,Sncg,277,old_correlation
+Br2719,subclass_label,L5/6 NP,238,old_correlation
+Br2719,subclass_label,L6 CT,218,old_correlation
+Br2719,subclass_label,Lamp5 Lhx6,149,old_correlation
+Br2719,subclass_label,Sst Chodl,148,old_correlation
+Br2719,subclass_label,L5 ET,139,old_correlation
+Br2719,subclass_label,L6 IT Car3,95,old_correlation
+Br2719,subclass_label,Unassigned,0,old_correlation
+Br2719,supertype_label,Oligo_4,14266,old_correlation
+Br2719,supertype_label,Endo_1,4968,old_correlation
+Br2719,supertype_label,Endo_2,3870,old_correlation
+Br2719,supertype_label,L2/3 IT_13,2992,old_correlation
+Br2719,supertype_label,VLMC_2,2676,old_correlation
+Br2719,supertype_label,Astro_4,2482,old_correlation
+Br2719,supertype_label,Vip_21,2051,old_correlation
+Br2719,supertype_label,Micro-PVM_2,2036,old_correlation
+Br2719,supertype_label,L2/3 IT_7,1900,old_correlation
+Br2719,supertype_label,Astro_2,1898,old_correlation
+Br2719,supertype_label,L2/3 IT_12,1825,old_correlation
+Br2719,supertype_label,L2/3 IT_8,1500,old_correlation
+Br2719,supertype_label,VLMC_1,1270,old_correlation
+Br2719,supertype_label,Pvalb_8,1195,old_correlation
+Br2719,supertype_label,L6 IT_2,1141,old_correlation
+Br2719,supertype_label,L4 IT_1,1115,old_correlation
+Br2719,supertype_label,L6b_1,1036,old_correlation
+Br2719,supertype_label,Oligo_1,817,old_correlation
+Br2719,supertype_label,Chandelier_2,758,old_correlation
+Br2719,supertype_label,L2/3 IT_2,710,old_correlation
+Br2719,supertype_label,L5 IT_6,643,old_correlation
+Br2719,supertype_label,Astro_5,643,old_correlation
+Br2719,supertype_label,L4 IT_2,453,old_correlation
+Br2719,supertype_label,L6b_6,409,old_correlation
+Br2719,supertype_label,L6b_2,342,old_correlation
+Br2719,supertype_label,L2/3 IT_3,329,old_correlation
+Br2719,supertype_label,Pvalb_6,314,old_correlation
+Br2719,supertype_label,Sst_10,291,old_correlation
+Br2719,supertype_label,Sst_11,284,old_correlation
+Br2719,supertype_label,OPC_2,281,old_correlation
+Br2719,supertype_label,Astro_3,276,old_correlation
+Br2719,supertype_label,OPC_1,260,old_correlation
+Br2719,supertype_label,Pax6_1,241,old_correlation
+Br2719,supertype_label,Lamp5_5,218,old_correlation
+Br2719,supertype_label,L5/6 NP_3,214,old_correlation
+Br2719,supertype_label,L5 IT_2,207,old_correlation
+Br2719,supertype_label,Lamp5_2,189,old_correlation
+Br2719,supertype_label,Vip_1,189,old_correlation
+Br2719,supertype_label,L6 CT_3,168,old_correlation
+Br2719,supertype_label,Pvalb_5,155,old_correlation
+Br2719,supertype_label,Pvalb_2,154,old_correlation
+Br2719,supertype_label,Lamp5_Lhx6_1,149,old_correlation
+Br2719,supertype_label,Micro-PVM_1,142,old_correlation
+Br2719,supertype_label,L5 ET_2,135,old_correlation
+Br2719,supertype_label,L2/3 IT_5,133,old_correlation
+Br2719,supertype_label,Pvalb_15,132,old_correlation
+Br2719,supertype_label,Sst Chodl_2,129,old_correlation
+Br2719,supertype_label,Vip_9,115,old_correlation
+Br2719,supertype_label,Sst_4,108,old_correlation
+Br2719,supertype_label,L4 IT_4,105,old_correlation
+Br2719,supertype_label,L6 IT Car3_3,95,old_correlation
+Br2719,supertype_label,Sst_20,86,old_correlation
+Br2719,supertype_label,Sncg_5,82,old_correlation
+Br2719,supertype_label,Sncg_2,76,old_correlation
+Br2719,supertype_label,Pvalb_14,76,old_correlation
+Br2719,supertype_label,Oligo_2,76,old_correlation
+Br2719,supertype_label,Lamp5_3,73,old_correlation
+Br2719,supertype_label,L6b_3,67,old_correlation
+Br2719,supertype_label,Sncg_3,63,old_correlation
+Br2719,supertype_label,Vip_19,44,old_correlation
+Br2719,supertype_label,L6b_5,44,old_correlation
+Br2719,supertype_label,Sst_2,43,old_correlation
+Br2719,supertype_label,Sst_7,35,old_correlation
+Br2719,supertype_label,Vip_16,34,old_correlation
+Br2719,supertype_label,Sst_5,34,old_correlation
+Br2719,supertype_label,Sst_3,33,old_correlation
+Br2719,supertype_label,L5 IT_7,33,old_correlation
+Br2719,supertype_label,Sst_1,33,old_correlation
+Br2719,supertype_label,Oligo_3,31,old_correlation
+Br2719,supertype_label,Sncg_4,28,old_correlation
+Br2719,supertype_label,Sncg_6,28,old_correlation
+Br2719,supertype_label,Sst_25,26,old_correlation
+Br2719,supertype_label,Pax6_2,25,old_correlation
+Br2719,supertype_label,Pax6_4,23,old_correlation
+Br2719,supertype_label,L6b_4,21,old_correlation
+Br2719,supertype_label,L6 CT_4,20,old_correlation
+Br2719,supertype_label,Vip_14,20,old_correlation
+Br2719,supertype_label,Vip_12,19,old_correlation
+Br2719,supertype_label,Sst Chodl_1,19,old_correlation
+Br2719,supertype_label,Pvalb_3,19,old_correlation
+Br2719,supertype_label,Astro_1,18,old_correlation
+Br2719,supertype_label,L6 CT_2,17,old_correlation
+Br2719,supertype_label,Pax6_3,16,old_correlation
+Br2719,supertype_label,L4 IT_3,15,old_correlation
+Br2719,supertype_label,Sst_19,13,old_correlation
+Br2719,supertype_label,L6 CT_1,13,old_correlation
+Br2719,supertype_label,Pvalb_7,11,old_correlation
+Br2719,supertype_label,L5/6 NP_1,11,old_correlation
+Br2719,supertype_label,Vip_4,11,old_correlation
+Br2719,supertype_label,Chandelier_1,11,old_correlation
+Br2719,supertype_label,Pvalb_13,10,old_correlation
+Br2719,supertype_label,L5/6 NP_6,9,old_correlation
+Br2719,supertype_label,L6 IT_1,7,old_correlation
+Br2719,supertype_label,Vip_6,6,old_correlation
+Br2719,supertype_label,Vip_13,6,old_correlation
+Br2719,supertype_label,L5/6 NP_4,4,old_correlation
+Br2719,supertype_label,L5 ET_1,4,old_correlation
+Br2719,supertype_label,L2/3 IT_1,3,old_correlation
+Br2719,supertype_label,Vip_5,3,old_correlation
+Br2719,supertype_label,Endo_3,3,old_correlation
+Br2719,supertype_label,Sst_23,2,old_correlation
+Br2719,supertype_label,Vip_2,1,old_correlation
+Br2719,supertype_label,L5 IT_3,1,old_correlation
+Br2719,supertype_label,Vip_15,1,old_correlation
+Br2719,supertype_label,Vip_18,1,old_correlation
+Br2719,supertype_label,Sst_9,1,old_correlation
+Br2719,supertype_label,L2/3 IT_6,1,old_correlation
+Br2719,supertype_label,Unassigned,0,old_correlation
+Br5314,class_label,Non-neuronal and Non-neural,32845,old_correlation
+Br5314,class_label,Neuronal: Glutamatergic,9207,old_correlation
+Br5314,class_label,Neuronal: GABAergic,5028,old_correlation
+Br5314,class_label,Unassigned,0,old_correlation
+Br5314,subclass_label,Oligodendrocyte,14446,old_correlation
+Br5314,subclass_label,Endothelial,7807,old_correlation
+Br5314,subclass_label,Astrocyte,5214,old_correlation
+Br5314,subclass_label,L2/3 IT,4766,old_correlation
+Br5314,subclass_label,VLMC,3575,old_correlation
+Br5314,subclass_label,L6b,1481,old_correlation
+Br5314,subclass_label,Vip,1393,old_correlation
+Br5314,subclass_label,L4 IT,1353,old_correlation
+Br5314,subclass_label,Pvalb,1250,old_correlation
+Br5314,subclass_label,Microglia-PVM,1229,old_correlation
+Br5314,subclass_label,L6 IT,755,old_correlation
+Br5314,subclass_label,Sst,715,old_correlation
+Br5314,subclass_label,OPC,574,old_correlation
+Br5314,subclass_label,Lamp5,508,old_correlation
+Br5314,subclass_label,L5 IT,488,old_correlation
+Br5314,subclass_label,Chandelier,379,old_correlation
+Br5314,subclass_label,Sncg,299,old_correlation
+Br5314,subclass_label,Pax6,238,old_correlation
+Br5314,subclass_label,Sst Chodl,149,old_correlation
+Br5314,subclass_label,L5/6 NP,149,old_correlation
+Br5314,subclass_label,L6 CT,125,old_correlation
+Br5314,subclass_label,Lamp5 Lhx6,97,old_correlation
+Br5314,subclass_label,L5 ET,72,old_correlation
+Br5314,subclass_label,L6 IT Car3,18,old_correlation
+Br5314,subclass_label,Unassigned,0,old_correlation
+Br5314,supertype_label,Oligo_4,12801,old_correlation
+Br5314,supertype_label,Endo_1,5213,old_correlation
+Br5314,supertype_label,Endo_2,2592,old_correlation
+Br5314,supertype_label,Astro_4,2505,old_correlation
+Br5314,supertype_label,VLMC_2,2091,old_correlation
+Br5314,supertype_label,L2/3 IT_7,1621,old_correlation
+Br5314,supertype_label,Oligo_1,1536,old_correlation
+Br5314,supertype_label,VLMC_1,1484,old_correlation
+Br5314,supertype_label,Astro_2,1353,old_correlation
+Br5314,supertype_label,L2/3 IT_13,1212,old_correlation
+Br5314,supertype_label,Micro-PVM_2,1193,old_correlation
+Br5314,supertype_label,Vip_21,1116,old_correlation
+Br5314,supertype_label,Astro_5,1026,old_correlation
+Br5314,supertype_label,L2/3 IT_12,900,old_correlation
+Br5314,supertype_label,L4 IT_1,811,old_correlation
+Br5314,supertype_label,L6 IT_2,735,old_correlation
+Br5314,supertype_label,Pvalb_8,729,old_correlation
+Br5314,supertype_label,L6b_1,713,old_correlation
+Br5314,supertype_label,L2/3 IT_8,566,old_correlation
+Br5314,supertype_label,L4 IT_2,465,old_correlation
+Br5314,supertype_label,L6b_2,369,old_correlation
+Br5314,supertype_label,Chandelier_2,364,old_correlation
+Br5314,supertype_label,Astro_3,325,old_correlation
+Br5314,supertype_label,Lamp5_5,296,old_correlation
+Br5314,supertype_label,OPC_2,293,old_correlation
+Br5314,supertype_label,L2/3 IT_2,291,old_correlation
+Br5314,supertype_label,L5 IT_6,285,old_correlation
+Br5314,supertype_label,OPC_1,281,old_correlation
+Br5314,supertype_label,L6b_6,278,old_correlation
+Br5314,supertype_label,Sst_10,218,old_correlation
+Br5314,supertype_label,Sst_11,208,old_correlation
+Br5314,supertype_label,Pax6_1,200,old_correlation
+Br5314,supertype_label,Pvalb_6,179,old_correlation
+Br5314,supertype_label,Lamp5_2,154,old_correlation
+Br5314,supertype_label,Pvalb_5,148,old_correlation
+Br5314,supertype_label,Sst Chodl_2,131,old_correlation
+Br5314,supertype_label,L5 IT_2,131,old_correlation
+Br5314,supertype_label,L5/6 NP_3,124,old_correlation
+Br5314,supertype_label,Vip_1,121,old_correlation
+Br5314,supertype_label,Sncg_5,120,old_correlation
+Br5314,supertype_label,L2/3 IT_3,117,old_correlation
+Br5314,supertype_label,L6 CT_3,106,old_correlation
+Br5314,supertype_label,Lamp5_Lhx6_1,97,old_correlation
+Br5314,supertype_label,Pvalb_2,97,old_correlation
+Br5314,supertype_label,Oligo_2,92,old_correlation
+Br5314,supertype_label,L5 ET_2,72,old_correlation
+Br5314,supertype_label,Sncg_2,72,old_correlation
+Br5314,supertype_label,Sncg_3,71,old_correlation
+Br5314,supertype_label,Sst_4,71,old_correlation
+Br5314,supertype_label,L5 IT_7,70,old_correlation
+Br5314,supertype_label,L4 IT_4,62,old_correlation
+Br5314,supertype_label,L2/3 IT_5,56,old_correlation
+Br5314,supertype_label,Lamp5_3,55,old_correlation
+Br5314,supertype_label,L6b_5,54,old_correlation
+Br5314,supertype_label,Vip_9,49,old_correlation
+Br5314,supertype_label,Sst_3,44,old_correlation
+Br5314,supertype_label,Pvalb_15,44,old_correlation
+Br5314,supertype_label,Sst_20,43,old_correlation
+Br5314,supertype_label,L6b_3,36,old_correlation
+Br5314,supertype_label,Vip_19,36,old_correlation
+Br5314,supertype_label,Micro-PVM_1,36,old_correlation
+Br5314,supertype_label,L6b_4,31,old_correlation
+Br5314,supertype_label,Pvalb_14,29,old_correlation
+Br5314,supertype_label,Vip_16,27,old_correlation
+Br5314,supertype_label,Sst_2,27,old_correlation
+Br5314,supertype_label,Sncg_6,26,old_correlation
+Br5314,supertype_label,Sst_19,25,old_correlation
+Br5314,supertype_label,Sst_1,24,old_correlation
+Br5314,supertype_label,Sst_7,24,old_correlation
+Br5314,supertype_label,L6 IT_1,20,old_correlation
+Br5314,supertype_label,Sst Chodl_1,18,old_correlation
+Br5314,supertype_label,L6 IT Car3_3,18,old_correlation
+Br5314,supertype_label,Oligo_3,17,old_correlation
+Br5314,supertype_label,Pax6_2,16,old_correlation
+Br5314,supertype_label,Sst_25,16,old_correlation
+Br5314,supertype_label,L4 IT_3,15,old_correlation
+Br5314,supertype_label,Chandelier_1,15,old_correlation
+Br5314,supertype_label,Pax6_4,13,old_correlation
+Br5314,supertype_label,Sst_5,11,old_correlation
+Br5314,supertype_label,L5/6 NP_1,10,old_correlation
+Br5314,supertype_label,Pvalb_3,10,old_correlation
+Br5314,supertype_label,Vip_4,10,old_correlation
+Br5314,supertype_label,Sncg_4,9,old_correlation
+Br5314,supertype_label,L5/6 NP_6,9,old_correlation
+Br5314,supertype_label,L6 CT_4,9,old_correlation
+Br5314,supertype_label,Pax6_3,9,old_correlation
+Br5314,supertype_label,Vip_14,9,old_correlation
+Br5314,supertype_label,Vip_12,9,old_correlation
+Br5314,supertype_label,Vip_13,8,old_correlation
+Br5314,supertype_label,Pvalb_13,7,old_correlation
+Br5314,supertype_label,Pvalb_7,7,old_correlation
+Br5314,supertype_label,L6 CT_1,7,old_correlation
+Br5314,supertype_label,Astro_1,5,old_correlation
+Br5314,supertype_label,L5/6 NP_4,5,old_correlation
+Br5314,supertype_label,Vip_15,4,old_correlation
+Br5314,supertype_label,Sst_9,3,old_correlation
+Br5314,supertype_label,L6 CT_2,3,old_correlation
+Br5314,supertype_label,L2/3 IT_1,3,old_correlation
+Br5314,supertype_label,Lamp5_6,2,old_correlation
+Br5314,supertype_label,Vip_5,2,old_correlation
+Br5314,supertype_label,L5 IT_3,2,old_correlation
+Br5314,supertype_label,Endo_3,2,old_correlation
+Br5314,supertype_label,Sst_23,1,old_correlation
+Br5314,supertype_label,Sncg_8,1,old_correlation
+Br5314,supertype_label,Vip_6,1,old_correlation
+Br5314,supertype_label,Lamp5_1,1,old_correlation
+Br5314,supertype_label,L5/6 NP_2,1,old_correlation
+Br5314,supertype_label,Vip_23,1,old_correlation
+Br5314,supertype_label,Unassigned,0,old_correlation
+Br5373,class_label,Non-neuronal and Non-neural,41897,old_correlation
+Br5373,class_label,Neuronal: Glutamatergic,15837,old_correlation
+Br5373,class_label,Neuronal: GABAergic,7429,old_correlation
+Br5373,class_label,Unassigned,0,old_correlation
+Br5373,subclass_label,Oligodendrocyte,12878,old_correlation
+Br5373,subclass_label,Endothelial,10844,old_correlation
+Br5373,subclass_label,L2/3 IT,9721,old_correlation
+Br5373,subclass_label,Astrocyte,8861,old_correlation
+Br5373,subclass_label,VLMC,6762,old_correlation
+Br5373,subclass_label,Vip,2402,old_correlation
+Br5373,subclass_label,L4 IT,2251,old_correlation
+Br5373,subclass_label,Microglia-PVM,1890,old_correlation
+Br5373,subclass_label,Pvalb,1820,old_correlation
+Br5373,subclass_label,L6b,1462,old_correlation
+Br5373,subclass_label,L6 IT,966,old_correlation
+Br5373,subclass_label,Sst,923,old_correlation
+Br5373,subclass_label,L5 IT,893,old_correlation
+Br5373,subclass_label,OPC,662,old_correlation
+Br5373,subclass_label,Lamp5,614,old_correlation
+Br5373,subclass_label,Chandelier,586,old_correlation
+Br5373,subclass_label,Sncg,390,old_correlation
+Br5373,subclass_label,Pax6,373,old_correlation
+Br5373,subclass_label,L5/6 NP,230,old_correlation
+Br5373,subclass_label,L6 CT,180,old_correlation
+Br5373,subclass_label,Lamp5 Lhx6,173,old_correlation
+Br5373,subclass_label,Sst Chodl,148,old_correlation
+Br5373,subclass_label,L5 ET,72,old_correlation
+Br5373,subclass_label,L6 IT Car3,62,old_correlation
+Br5373,subclass_label,Unassigned,0,old_correlation
+Br5373,supertype_label,Oligo_4,10718,old_correlation
+Br5373,supertype_label,Endo_1,7739,old_correlation
+Br5373,supertype_label,L2/3 IT_7,4063,old_correlation
+Br5373,supertype_label,VLMC_2,3960,old_correlation
+Br5373,supertype_label,Astro_4,3886,old_correlation
+Br5373,supertype_label,Endo_2,3051,old_correlation
+Br5373,supertype_label,VLMC_1,2802,old_correlation
+Br5373,supertype_label,Astro_2,2710,old_correlation
+Br5373,supertype_label,L2/3 IT_13,2509,old_correlation
+Br5373,supertype_label,Vip_21,1739,old_correlation
+Br5373,supertype_label,Micro-PVM_2,1689,old_correlation
+Br5373,supertype_label,Astro_5,1489,old_correlation
+Br5373,supertype_label,Oligo_1,1473,old_correlation
+Br5373,supertype_label,L4 IT_1,1244,old_correlation
+Br5373,supertype_label,L2/3 IT_12,1149,old_correlation
+Br5373,supertype_label,L2/3 IT_8,1131,old_correlation
+Br5373,supertype_label,Pvalb_8,1090,old_correlation
+Br5373,supertype_label,L6 IT_2,956,old_correlation
+Br5373,supertype_label,L4 IT_2,901,old_correlation
+Br5373,supertype_label,L6b_1,616,old_correlation
+Br5373,supertype_label,Chandelier_2,578,old_correlation
+Br5373,supertype_label,L5 IT_6,526,old_correlation
+Br5373,supertype_label,L2/3 IT_2,467,old_correlation
+Br5373,supertype_label,Astro_3,461,old_correlation
+Br5373,supertype_label,L6b_6,452,old_correlation
+Br5373,supertype_label,Sst_11,374,old_correlation
+Br5373,supertype_label,Oligo_2,356,old_correlation
+Br5373,supertype_label,L5 IT_2,352,old_correlation
+Br5373,supertype_label,OPC_2,343,old_correlation
+Br5373,supertype_label,Oligo_3,331,old_correlation
+Br5373,supertype_label,Vip_1,326,old_correlation
+Br5373,supertype_label,OPC_1,319,old_correlation
+Br5373,supertype_label,L6b_2,315,old_correlation
+Br5373,supertype_label,Astro_1,315,old_correlation
+Br5373,supertype_label,Pax6_1,299,old_correlation
+Br5373,supertype_label,L2/3 IT_3,284,old_correlation
+Br5373,supertype_label,Lamp5_5,284,old_correlation
+Br5373,supertype_label,Lamp5_2,262,old_correlation
+Br5373,supertype_label,Pvalb_6,226,old_correlation
+Br5373,supertype_label,Sst_10,226,old_correlation
+Br5373,supertype_label,L5/6 NP_3,216,old_correlation
+Br5373,supertype_label,Micro-PVM_1,201,old_correlation
+Br5373,supertype_label,Vip_9,181,old_correlation
+Br5373,supertype_label,Pvalb_2,177,old_correlation
+Br5373,supertype_label,Lamp5_Lhx6_1,173,old_correlation
+Br5373,supertype_label,L6 CT_3,127,old_correlation
+Br5373,supertype_label,Pvalb_14,127,old_correlation
+Br5373,supertype_label,Sst Chodl_2,114,old_correlation
+Br5373,supertype_label,Sncg_2,112,old_correlation
+Br5373,supertype_label,L2/3 IT_5,109,old_correlation
+Br5373,supertype_label,Sncg_5,108,old_correlation
+Br5373,supertype_label,Sst_4,97,old_correlation
+Br5373,supertype_label,Pvalb_5,92,old_correlation
+Br5373,supertype_label,Pvalb_15,91,old_correlation
+Br5373,supertype_label,Sncg_3,85,old_correlation
+Br5373,supertype_label,L4 IT_4,83,old_correlation
+Br5373,supertype_label,Sst_20,79,old_correlation
+Br5373,supertype_label,L5 ET_2,70,old_correlation
+Br5373,supertype_label,Lamp5_3,60,old_correlation
+Br5373,supertype_label,L6 IT Car3_3,58,old_correlation
+Br5373,supertype_label,Vip_16,57,old_correlation
+Br5373,supertype_label,Endo_3,54,old_correlation
+Br5373,supertype_label,Sncg_6,48,old_correlation
+Br5373,supertype_label,Vip_19,44,old_correlation
+Br5373,supertype_label,L6b_5,40,old_correlation
+Br5373,supertype_label,Sst_2,38,old_correlation
+Br5373,supertype_label,Pax6_4,36,old_correlation
+Br5373,supertype_label,Sncg_4,35,old_correlation
+Br5373,supertype_label,Sst Chodl_1,34,old_correlation
+Br5373,supertype_label,Sst_25,33,old_correlation
+Br5373,supertype_label,Pax6_2,29,old_correlation
+Br5373,supertype_label,Sst_5,28,old_correlation
+Br5373,supertype_label,L6 CT_2,24,old_correlation
+Br5373,supertype_label,L6 CT_1,24,old_correlation
+Br5373,supertype_label,L6b_3,23,old_correlation
+Br5373,supertype_label,L4 IT_3,23,old_correlation
+Br5373,supertype_label,Vip_14,21,old_correlation
+Br5373,supertype_label,L6b_4,16,old_correlation
+Br5373,supertype_label,Sst_3,12,old_correlation
+Br5373,supertype_label,Vip_4,12,old_correlation
+Br5373,supertype_label,Sst_7,12,old_correlation
+Br5373,supertype_label,Sst_19,10,old_correlation
+Br5373,supertype_label,L6 IT_1,10,old_correlation
+Br5373,supertype_label,Pax6_3,9,old_correlation
+Br5373,supertype_label,Vip_6,9,old_correlation
+Br5373,supertype_label,Pvalb_7,8,old_correlation
+Br5373,supertype_label,Chandelier_1,8,old_correlation
+Br5373,supertype_label,L5 IT_7,8,old_correlation
+Br5373,supertype_label,L5/6 NP_6,7,old_correlation
+Br5373,supertype_label,L2/3 IT_1,7,old_correlation
+Br5373,supertype_label,Sst_1,7,old_correlation
+Br5373,supertype_label,L5 IT_3,7,old_correlation
+Br5373,supertype_label,L6 CT_4,5,old_correlation
+Br5373,supertype_label,Vip_13,5,old_correlation
+Br5373,supertype_label,L5/6 NP_1,4,old_correlation
+Br5373,supertype_label,L5/6 NP_4,3,old_correlation
+Br5373,supertype_label,Vip_12,3,old_correlation
+Br5373,supertype_label,Lamp5_1,3,old_correlation
+Br5373,supertype_label,Lamp5_4,3,old_correlation
+Br5373,supertype_label,Pvalb_1,3,old_correlation
+Br5373,supertype_label,Sst_22,3,old_correlation
+Br5373,supertype_label,L6 IT Car3_1,3,old_correlation
+Br5373,supertype_label,Vip_2,2,old_correlation
+Br5373,supertype_label,Pvalb_13,2,old_correlation
+Br5373,supertype_label,Sst_12,2,old_correlation
+Br5373,supertype_label,Sncg_8,2,old_correlation
+Br5373,supertype_label,Pvalb_10,2,old_correlation
+Br5373,supertype_label,L2/3 IT_6,2,old_correlation
+Br5373,supertype_label,L5 ET_1,2,old_correlation
+Br5373,supertype_label,Lamp5_6,2,old_correlation
+Br5373,supertype_label,Sst_23,1,old_correlation
+Br5373,supertype_label,Sst_9,1,old_correlation
+Br5373,supertype_label,Vip_5,1,old_correlation
+Br5373,supertype_label,Pvalb_12,1,old_correlation
+Br5373,supertype_label,Pvalb_3,1,old_correlation
+Br5373,supertype_label,Vip_18,1,old_correlation
+Br5373,supertype_label,L6 IT Car3_2,1,old_correlation
+Br5373,supertype_label,Vip_23,1,old_correlation
+Br5373,supertype_label,Unassigned,0,old_correlation
+Br5400,class_label,Non-neuronal and Non-neural,23947,old_correlation
+Br5400,class_label,Neuronal: Glutamatergic,15328,old_correlation
+Br5400,class_label,Neuronal: GABAergic,6443,old_correlation
+Br5400,class_label,Unassigned,0,old_correlation
+Br5400,subclass_label,L2/3 IT,8935,old_correlation
+Br5400,subclass_label,Oligodendrocyte,7647,old_correlation
+Br5400,subclass_label,Endothelial,6937,old_correlation
+Br5400,subclass_label,Astrocyte,3993,old_correlation
+Br5400,subclass_label,Microglia-PVM,2590,old_correlation
+Br5400,subclass_label,VLMC,2560,old_correlation
+Br5400,subclass_label,L4 IT,2046,old_correlation
+Br5400,subclass_label,Vip,1912,old_correlation
+Br5400,subclass_label,Pvalb,1681,old_correlation
+Br5400,subclass_label,L6b,1450,old_correlation
+Br5400,subclass_label,L5 IT,1087,old_correlation
+Br5400,subclass_label,Sst,1051,old_correlation
+Br5400,subclass_label,L6 IT,1029,old_correlation
+Br5400,subclass_label,Chandelier,582,old_correlation
+Br5400,subclass_label,Lamp5,443,old_correlation
+Br5400,subclass_label,L5/6 NP,356,old_correlation
+Br5400,subclass_label,Sncg,248,old_correlation
+Br5400,subclass_label,OPC,220,old_correlation
+Br5400,subclass_label,Pax6,218,old_correlation
+Br5400,subclass_label,L5 ET,195,old_correlation
+Br5400,subclass_label,Sst Chodl,179,old_correlation
+Br5400,subclass_label,L6 CT,173,old_correlation
+Br5400,subclass_label,Lamp5 Lhx6,129,old_correlation
+Br5400,subclass_label,L6 IT Car3,57,old_correlation
+Br5400,subclass_label,Unassigned,0,old_correlation
+Br5400,supertype_label,Oligo_4,7551,old_correlation
+Br5400,supertype_label,Endo_1,4338,old_correlation
+Br5400,supertype_label,Endo_2,2598,old_correlation
+Br5400,supertype_label,L2/3 IT_7,2591,old_correlation
+Br5400,supertype_label,Micro-PVM_2,2507,old_correlation
+Br5400,supertype_label,L2/3 IT_13,2491,old_correlation
+Br5400,supertype_label,Astro_4,2054,old_correlation
+Br5400,supertype_label,VLMC_2,1949,old_correlation
+Br5400,supertype_label,L2/3 IT_12,1719,old_correlation
+Br5400,supertype_label,Vip_21,1468,old_correlation
+Br5400,supertype_label,L4 IT_1,1287,old_correlation
+Br5400,supertype_label,L2/3 IT_8,1221,old_correlation
+Br5400,supertype_label,Astro_2,1145,old_correlation
+Br5400,supertype_label,L6 IT_2,1025,old_correlation
+Br5400,supertype_label,Pvalb_8,917,old_correlation
+Br5400,supertype_label,Astro_5,789,old_correlation
+Br5400,supertype_label,L5 IT_6,723,old_correlation
+Br5400,supertype_label,L4 IT_2,638,old_correlation
+Br5400,supertype_label,L6b_1,621,old_correlation
+Br5400,supertype_label,VLMC_1,611,old_correlation
+Br5400,supertype_label,Chandelier_2,575,old_correlation
+Br5400,supertype_label,L2/3 IT_2,500,old_correlation
+Br5400,supertype_label,L6b_2,377,old_correlation
+Br5400,supertype_label,L6b_6,363,old_correlation
+Br5400,supertype_label,Sst_10,356,old_correlation
+Br5400,supertype_label,L2/3 IT_3,315,old_correlation
+Br5400,supertype_label,L5/6 NP_3,311,old_correlation
+Br5400,supertype_label,Sst_11,292,old_correlation
+Br5400,supertype_label,Pvalb_6,260,old_correlation
+Br5400,supertype_label,L5 IT_2,223,old_correlation
+Br5400,supertype_label,Lamp5_5,220,old_correlation
+Br5400,supertype_label,Vip_1,207,old_correlation
+Br5400,supertype_label,L5 ET_2,192,old_correlation
+Br5400,supertype_label,Pvalb_5,173,old_correlation
+Br5400,supertype_label,Lamp5_2,171,old_correlation
+Br5400,supertype_label,Sst Chodl_2,169,old_correlation
+Br5400,supertype_label,Pax6_1,164,old_correlation
+Br5400,supertype_label,L6 CT_3,160,old_correlation
+Br5400,supertype_label,L5 IT_7,136,old_correlation
+Br5400,supertype_label,Pvalb_2,135,old_correlation
+Br5400,supertype_label,Lamp5_Lhx6_1,129,old_correlation
+Br5400,supertype_label,OPC_2,126,old_correlation
+Br5400,supertype_label,L4 IT_4,104,old_correlation
+Br5400,supertype_label,Pvalb_14,102,old_correlation
+Br5400,supertype_label,Sst_4,100,old_correlation
+Br5400,supertype_label,Vip_9,98,old_correlation
+Br5400,supertype_label,Sncg_5,97,old_correlation
+Br5400,supertype_label,OPC_1,94,old_correlation
+Br5400,supertype_label,L2/3 IT_5,88,old_correlation
+Br5400,supertype_label,Oligo_1,88,old_correlation
+Br5400,supertype_label,Micro-PVM_1,83,old_correlation
+Br5400,supertype_label,Sst_20,73,old_correlation
+Br5400,supertype_label,Sncg_3,73,old_correlation
+Br5400,supertype_label,Pvalb_15,64,old_correlation
+Br5400,supertype_label,L6 IT Car3_3,57,old_correlation
+Br5400,supertype_label,Vip_19,57,old_correlation
+Br5400,supertype_label,Sst_3,54,old_correlation
+Br5400,supertype_label,Lamp5_3,51,old_correlation
+Br5400,supertype_label,L6b_3,49,old_correlation
+Br5400,supertype_label,Sncg_2,43,old_correlation
+Br5400,supertype_label,Sst_5,38,old_correlation
+Br5400,supertype_label,Vip_16,36,old_correlation
+Br5400,supertype_label,Sst_1,34,old_correlation
+Br5400,supertype_label,L6b_5,31,old_correlation
+Br5400,supertype_label,Sst_2,29,old_correlation
+Br5400,supertype_label,Sncg_6,27,old_correlation
+Br5400,supertype_label,Sst_25,25,old_correlation
+Br5400,supertype_label,Pax6_4,23,old_correlation
+Br5400,supertype_label,Sst_7,23,old_correlation
+Br5400,supertype_label,Pax6_2,19,old_correlation
+Br5400,supertype_label,Pvalb_3,18,old_correlation
+Br5400,supertype_label,L5/6 NP_6,18,old_correlation
+Br5400,supertype_label,Vip_4,18,old_correlation
+Br5400,supertype_label,L4 IT_3,17,old_correlation
+Br5400,supertype_label,Sst_19,16,old_correlation
+Br5400,supertype_label,L5/6 NP_1,14,old_correlation
+Br5400,supertype_label,Pax6_3,12,old_correlation
+Br5400,supertype_label,L5/6 NP_4,12,old_correlation
+Br5400,supertype_label,Vip_12,11,old_correlation
+Br5400,supertype_label,Sst Chodl_1,10,old_correlation
+Br5400,supertype_label,L6b_4,9,old_correlation
+Br5400,supertype_label,Sncg_4,8,old_correlation
+Br5400,supertype_label,Pvalb_13,8,old_correlation
+Br5400,supertype_label,Oligo_2,8,old_correlation
+Br5400,supertype_label,Sst_9,8,old_correlation
+Br5400,supertype_label,Vip_14,8,old_correlation
+Br5400,supertype_label,Chandelier_1,7,old_correlation
+Br5400,supertype_label,L2/3 IT_1,6,old_correlation
+Br5400,supertype_label,L6 CT_4,6,old_correlation
+Br5400,supertype_label,L5 IT_3,5,old_correlation
+Br5400,supertype_label,Pvalb_7,4,old_correlation
+Br5400,supertype_label,L6 IT_1,4,old_correlation
+Br5400,supertype_label,L2/3 IT_6,4,old_correlation
+Br5400,supertype_label,Astro_3,4,old_correlation
+Br5400,supertype_label,L6 CT_2,4,old_correlation
+Br5400,supertype_label,L5 ET_1,3,old_correlation
+Br5400,supertype_label,Sst_23,3,old_correlation
+Br5400,supertype_label,L6 CT_1,3,old_correlation
+Br5400,supertype_label,Vip_15,3,old_correlation
+Br5400,supertype_label,Vip_13,3,old_correlation
+Br5400,supertype_label,Vip_6,2,old_correlation
+Br5400,supertype_label,Endo_3,1,old_correlation
+Br5400,supertype_label,Vip_5,1,old_correlation
+Br5400,supertype_label,L5/6 NP_2,1,old_correlation
+Br5400,supertype_label,Lamp5_6,1,old_correlation
+Br5400,supertype_label,Astro_1,1,old_correlation
+Br5400,supertype_label,Unassigned,0,old_correlation
+Br5436,class_label,Non-neuronal and Non-neural,26558,old_correlation
+Br5436,class_label,Neuronal: Glutamatergic,13094,old_correlation
+Br5436,class_label,Neuronal: GABAergic,5781,old_correlation
+Br5436,class_label,Unassigned,0,old_correlation
+Br5436,subclass_label,L2/3 IT,8957,old_correlation
+Br5436,subclass_label,Endothelial,7939,old_correlation
+Br5436,subclass_label,Oligodendrocyte,7351,old_correlation
+Br5436,subclass_label,Astrocyte,5922,old_correlation
+Br5436,subclass_label,VLMC,3309,old_correlation
+Br5436,subclass_label,Vip,1893,old_correlation
+Br5436,subclass_label,Microglia-PVM,1714,old_correlation
+Br5436,subclass_label,L4 IT,1467,old_correlation
+Br5436,subclass_label,Pvalb,1300,old_correlation
+Br5436,subclass_label,L6b,1085,old_correlation
+Br5436,subclass_label,L6 IT,719,old_correlation
+Br5436,subclass_label,Chandelier,675,old_correlation
+Br5436,subclass_label,Sst,667,old_correlation
+Br5436,subclass_label,L5 IT,527,old_correlation
+Br5436,subclass_label,Lamp5,520,old_correlation
+Br5436,subclass_label,OPC,323,old_correlation
+Br5436,subclass_label,Sncg,272,old_correlation
+Br5436,subclass_label,Pax6,225,old_correlation
+Br5436,subclass_label,L5/6 NP,141,old_correlation
+Br5436,subclass_label,Lamp5 Lhx6,123,old_correlation
+Br5436,subclass_label,Sst Chodl,106,old_correlation
+Br5436,subclass_label,L6 CT,106,old_correlation
+Br5436,subclass_label,L5 ET,67,old_correlation
+Br5436,subclass_label,L6 IT Car3,25,old_correlation
+Br5436,subclass_label,Unassigned,0,old_correlation
+Br5436,supertype_label,Oligo_4,6929,old_correlation
+Br5436,supertype_label,Endo_1,5128,old_correlation
+Br5436,supertype_label,L2/3 IT_13,2816,old_correlation
+Br5436,supertype_label,Endo_2,2810,old_correlation
+Br5436,supertype_label,Astro_2,2514,old_correlation
+Br5436,supertype_label,L2/3 IT_7,2358,old_correlation
+Br5436,supertype_label,Astro_4,2339,old_correlation
+Br5436,supertype_label,VLMC_2,2279,old_correlation
+Br5436,supertype_label,L2/3 IT_12,1754,old_correlation
+Br5436,supertype_label,Micro-PVM_2,1583,old_correlation
+Br5436,supertype_label,Vip_21,1435,old_correlation
+Br5436,supertype_label,L2/3 IT_8,1269,old_correlation
+Br5436,supertype_label,VLMC_1,1030,old_correlation
+Br5436,supertype_label,Astro_5,942,old_correlation
+Br5436,supertype_label,L4 IT_1,923,old_correlation
+Br5436,supertype_label,Pvalb_8,782,old_correlation
+Br5436,supertype_label,L6 IT_2,712,old_correlation
+Br5436,supertype_label,Chandelier_2,671,old_correlation
+Br5436,supertype_label,L4 IT_2,483,old_correlation
+Br5436,supertype_label,L6b_1,455,old_correlation
+Br5436,supertype_label,L2/3 IT_2,429,old_correlation
+Br5436,supertype_label,L6b_6,408,old_correlation
+Br5436,supertype_label,L5 IT_6,369,old_correlation
+Br5436,supertype_label,Oligo_1,366,old_correlation
+Br5436,supertype_label,Vip_1,282,old_correlation
+Br5436,supertype_label,L2/3 IT_3,261,old_correlation
+Br5436,supertype_label,Sst_11,250,old_correlation
+Br5436,supertype_label,Lamp5_5,232,old_correlation
+Br5436,supertype_label,Lamp5_2,214,old_correlation
+Br5436,supertype_label,L6b_2,192,old_correlation
+Br5436,supertype_label,Sst_10,189,old_correlation
+Br5436,supertype_label,OPC_2,184,old_correlation
+Br5436,supertype_label,Pvalb_6,165,old_correlation
+Br5436,supertype_label,Pax6_1,151,old_correlation
+Br5436,supertype_label,OPC_1,139,old_correlation
+Br5436,supertype_label,Pvalb_2,136,old_correlation
+Br5436,supertype_label,Micro-PVM_1,131,old_correlation
+Br5436,supertype_label,L5/6 NP_3,130,old_correlation
+Br5436,supertype_label,Lamp5_Lhx6_1,123,old_correlation
+Br5436,supertype_label,L5 IT_2,122,old_correlation
+Br5436,supertype_label,Astro_3,120,old_correlation
+Br5436,supertype_label,Pvalb_5,108,old_correlation
+Br5436,supertype_label,Sncg_5,105,old_correlation
+Br5436,supertype_label,Sst Chodl_2,99,old_correlation
+Br5436,supertype_label,L6 CT_3,96,old_correlation
+Br5436,supertype_label,Vip_9,79,old_correlation
+Br5436,supertype_label,Sncg_2,78,old_correlation
+Br5436,supertype_label,Lamp5_3,74,old_correlation
+Br5436,supertype_label,L2/3 IT_5,70,old_correlation
+Br5436,supertype_label,Sst_20,66,old_correlation
+Br5436,supertype_label,L5 ET_2,66,old_correlation
+Br5436,supertype_label,L4 IT_4,50,old_correlation
+Br5436,supertype_label,Sncg_3,49,old_correlation
+Br5436,supertype_label,Oligo_2,49,old_correlation
+Br5436,supertype_label,Pvalb_15,48,old_correlation
+Br5436,supertype_label,Pvalb_14,48,old_correlation
+Br5436,supertype_label,Sst_4,33,old_correlation
+Br5436,supertype_label,Vip_19,33,old_correlation
+Br5436,supertype_label,Pax6_4,33,old_correlation
+Br5436,supertype_label,L5 IT_7,33,old_correlation
+Br5436,supertype_label,Vip_16,31,old_correlation
+Br5436,supertype_label,Sst_3,28,old_correlation
+Br5436,supertype_label,L6 IT Car3_3,25,old_correlation
+Br5436,supertype_label,Sst_5,23,old_correlation
+Br5436,supertype_label,Pax6_3,23,old_correlation
+Br5436,supertype_label,Sst_25,22,old_correlation
+Br5436,supertype_label,Sncg_6,22,old_correlation
+Br5436,supertype_label,Pax6_2,18,old_correlation
+Br5436,supertype_label,Sncg_4,18,old_correlation
+Br5436,supertype_label,Sst_2,18,old_correlation
+Br5436,supertype_label,Vip_12,15,old_correlation
+Br5436,supertype_label,Sst_7,13,old_correlation
+Br5436,supertype_label,L4 IT_3,11,old_correlation
+Br5436,supertype_label,Sst_19,11,old_correlation
+Br5436,supertype_label,Sst_1,11,old_correlation
+Br5436,supertype_label,L6b_4,10,old_correlation
+Br5436,supertype_label,L6b_3,10,old_correlation
+Br5436,supertype_label,L6b_5,10,old_correlation
+Br5436,supertype_label,Sst Chodl_1,7,old_correlation
+Br5436,supertype_label,L6 IT_1,7,old_correlation
+Br5436,supertype_label,Astro_1,7,old_correlation
+Br5436,supertype_label,Pvalb_3,7,old_correlation
+Br5436,supertype_label,Oligo_3,7,old_correlation
+Br5436,supertype_label,Vip_14,6,old_correlation
+Br5436,supertype_label,Vip_4,6,old_correlation
+Br5436,supertype_label,L6 CT_2,5,old_correlation
+Br5436,supertype_label,Chandelier_1,4,old_correlation
+Br5436,supertype_label,L6 CT_1,4,old_correlation
+Br5436,supertype_label,L5/6 NP_6,4,old_correlation
+Br5436,supertype_label,Sst_9,3,old_correlation
+Br5436,supertype_label,L5 IT_3,3,old_correlation
+Br5436,supertype_label,L5/6 NP_4,3,old_correlation
+Br5436,supertype_label,L5/6 NP_1,3,old_correlation
+Br5436,supertype_label,Pvalb_13,3,old_correlation
+Br5436,supertype_label,Pvalb_7,2,old_correlation
+Br5436,supertype_label,Vip_6,2,old_correlation
+Br5436,supertype_label,Vip_13,2,old_correlation
+Br5436,supertype_label,L5 ET_1,1,old_correlation
+Br5436,supertype_label,Pvalb_10,1,old_correlation
+Br5436,supertype_label,Vip_11,1,old_correlation
+Br5436,supertype_label,L5/6 NP_2,1,old_correlation
+Br5436,supertype_label,Endo_3,1,old_correlation
+Br5436,supertype_label,Vip_15,1,old_correlation
+Br5436,supertype_label,L6 CT_4,1,old_correlation
+Br5436,supertype_label,Unassigned,0,old_correlation
+Br5588,class_label,Non-neuronal and Non-neural,36782,old_correlation
+Br5588,class_label,Neuronal: Glutamatergic,16848,old_correlation
+Br5588,class_label,Neuronal: GABAergic,7352,old_correlation
+Br5588,class_label,Unassigned,0,old_correlation
+Br5588,subclass_label,Endothelial,11044,old_correlation
+Br5588,subclass_label,L2/3 IT,9296,old_correlation
+Br5588,subclass_label,Oligodendrocyte,8974,old_correlation
+Br5588,subclass_label,Astrocyte,7884,old_correlation
+Br5588,subclass_label,VLMC,5625,old_correlation
+Br5588,subclass_label,Microglia-PVM,2844,old_correlation
+Br5588,subclass_label,L6b,2626,old_correlation
+Br5588,subclass_label,L4 IT,2318,old_correlation
+Br5588,subclass_label,Vip,2295,old_correlation
+Br5588,subclass_label,Pvalb,2055,old_correlation
+Br5588,subclass_label,L6 IT,1230,old_correlation
+Br5588,subclass_label,Sst,1061,old_correlation
+Br5588,subclass_label,L5 IT,871,old_correlation
+Br5588,subclass_label,Lamp5,512,old_correlation
+Br5588,subclass_label,Chandelier,474,old_correlation
+Br5588,subclass_label,OPC,411,old_correlation
+Br5588,subclass_label,Sncg,406,old_correlation
+Br5588,subclass_label,L5/6 NP,289,old_correlation
+Br5588,subclass_label,Pax6,244,old_correlation
+Br5588,subclass_label,Sst Chodl,170,old_correlation
+Br5588,subclass_label,Lamp5 Lhx6,135,old_correlation
+Br5588,subclass_label,L6 CT,96,old_correlation
+Br5588,subclass_label,L5 ET,93,old_correlation
+Br5588,subclass_label,L6 IT Car3,29,old_correlation
+Br5588,subclass_label,Unassigned,0,old_correlation
+Br5588,supertype_label,Endo_1,8534,old_correlation
+Br5588,supertype_label,Oligo_4,7728,old_correlation
+Br5588,supertype_label,Astro_4,5089,old_correlation
+Br5588,supertype_label,L2/3 IT_7,3998,old_correlation
+Br5588,supertype_label,VLMC_2,3758,old_correlation
+Br5588,supertype_label,L2/3 IT_12,2665,old_correlation
+Br5588,supertype_label,Micro-PVM_2,2615,old_correlation
+Br5588,supertype_label,Endo_2,2506,old_correlation
+Br5588,supertype_label,Astro_5,1926,old_correlation
+Br5588,supertype_label,VLMC_1,1867,old_correlation
+Br5588,supertype_label,Vip_21,1828,old_correlation
+Br5588,supertype_label,L2/3 IT_13,1498,old_correlation
+Br5588,supertype_label,L4 IT_1,1446,old_correlation
+Br5588,supertype_label,L6b_1,1330,old_correlation
+Br5588,supertype_label,Pvalb_8,1278,old_correlation
+Br5588,supertype_label,L6 IT_2,1220,old_correlation
+Br5588,supertype_label,Oligo_1,928,old_correlation
+Br5588,supertype_label,L6b_2,767,old_correlation
+Br5588,supertype_label,L4 IT_2,722,old_correlation
+Br5588,supertype_label,Astro_3,699,old_correlation
+Br5588,supertype_label,L5 IT_6,660,old_correlation
+Br5588,supertype_label,Sst_11,481,old_correlation
+Br5588,supertype_label,L2/3 IT_8,478,old_correlation
+Br5588,supertype_label,Chandelier_2,456,old_correlation
+Br5588,supertype_label,L2/3 IT_2,430,old_correlation
+Br5588,supertype_label,L6b_6,333,old_correlation
+Br5588,supertype_label,OPC_1,298,old_correlation
+Br5588,supertype_label,Lamp5_5,296,old_correlation
+Br5588,supertype_label,Pvalb_6,271,old_correlation
+Br5588,supertype_label,Oligo_2,267,old_correlation
+Br5588,supertype_label,Sst_10,249,old_correlation
+Br5588,supertype_label,Micro-PVM_1,229,old_correlation
+Br5588,supertype_label,Vip_1,222,old_correlation
+Br5588,supertype_label,L5/6 NP_3,205,old_correlation
+Br5588,supertype_label,Pvalb_2,204,old_correlation
+Br5588,supertype_label,L5 IT_2,189,old_correlation
+Br5588,supertype_label,Pax6_1,177,old_correlation
+Br5588,supertype_label,Astro_2,162,old_correlation
+Br5588,supertype_label,Lamp5_2,161,old_correlation
+Br5588,supertype_label,Sncg_5,149,old_correlation
+Br5588,supertype_label,Sst Chodl_2,139,old_correlation
+Br5588,supertype_label,L2/3 IT_3,138,old_correlation
+Br5588,supertype_label,Lamp5_Lhx6_1,135,old_correlation
+Br5588,supertype_label,Pvalb_5,122,old_correlation
+Br5588,supertype_label,Vip_9,122,old_correlation
+Br5588,supertype_label,Sncg_3,114,old_correlation
+Br5588,supertype_label,OPC_2,113,old_correlation
+Br5588,supertype_label,L4 IT_4,106,old_correlation
+Br5588,supertype_label,Pvalb_14,92,old_correlation
+Br5588,supertype_label,L5 ET_2,91,old_correlation
+Br5588,supertype_label,L6b_3,87,old_correlation
+Br5588,supertype_label,L6 CT_3,83,old_correlation
+Br5588,supertype_label,L2/3 IT_5,82,old_correlation
+Br5588,supertype_label,L6b_5,82,old_correlation
+Br5588,supertype_label,Sst_20,79,old_correlation
+Br5588,supertype_label,Sst_4,77,old_correlation
+Br5588,supertype_label,Pvalb_15,76,old_correlation
+Br5588,supertype_label,Sncg_2,73,old_correlation
+Br5588,supertype_label,L5/6 NP_6,64,old_correlation
+Br5588,supertype_label,Lamp5_3,54,old_correlation
+Br5588,supertype_label,Sst_3,53,old_correlation
+Br5588,supertype_label,Oligo_3,51,old_correlation
+Br5588,supertype_label,L4 IT_3,44,old_correlation
+Br5588,supertype_label,Vip_16,39,old_correlation
+Br5588,supertype_label,Sncg_6,36,old_correlation
+Br5588,supertype_label,Vip_19,34,old_correlation
+Br5588,supertype_label,Sncg_4,34,old_correlation
+Br5588,supertype_label,Sst Chodl_1,31,old_correlation
+Br5588,supertype_label,L6 IT Car3_3,29,old_correlation
+Br5588,supertype_label,Pax6_2,28,old_correlation
+Br5588,supertype_label,Sst_2,27,old_correlation
+Br5588,supertype_label,Pax6_4,27,old_correlation
+Br5588,supertype_label,L6b_4,27,old_correlation
+Br5588,supertype_label,Sst_25,24,old_correlation
+Br5588,supertype_label,Sst_5,23,old_correlation
+Br5588,supertype_label,Sst_1,22,old_correlation
+Br5588,supertype_label,Chandelier_1,18,old_correlation
+Br5588,supertype_label,L5 IT_7,18,old_correlation
+Br5588,supertype_label,L5/6 NP_1,13,old_correlation
+Br5588,supertype_label,Pax6_3,12,old_correlation
+Br5588,supertype_label,L6 CT_1,12,old_correlation
+Br5588,supertype_label,Sst_7,12,old_correlation
+Br5588,supertype_label,Vip_14,11,old_correlation
+Br5588,supertype_label,Sst_19,11,old_correlation
+Br5588,supertype_label,L6 IT_1,10,old_correlation
+Br5588,supertype_label,Vip_12,8,old_correlation
+Br5588,supertype_label,Vip_13,8,old_correlation
+Br5588,supertype_label,Astro_1,8,old_correlation
+Br5588,supertype_label,Vip_6,7,old_correlation
+Br5588,supertype_label,L5/6 NP_4,7,old_correlation
+Br5588,supertype_label,Pvalb_7,7,old_correlation
+Br5588,supertype_label,Vip_15,5,old_correlation
+Br5588,supertype_label,L2/3 IT_1,5,old_correlation
+Br5588,supertype_label,Vip_4,5,old_correlation
+Br5588,supertype_label,Vip_5,5,old_correlation
+Br5588,supertype_label,L5 IT_3,4,old_correlation
+Br5588,supertype_label,Endo_3,4,old_correlation
+Br5588,supertype_label,Pvalb_3,3,old_correlation
+Br5588,supertype_label,L2/3 IT_6,2,old_correlation
+Br5588,supertype_label,L5 ET_1,2,old_correlation
+Br5588,supertype_label,Sst_9,2,old_correlation
+Br5588,supertype_label,Vip_11,1,old_correlation
+Br5588,supertype_label,Pvalb_10,1,old_correlation
+Br5588,supertype_label,Pvalb_13,1,old_correlation
+Br5588,supertype_label,Lamp5_6,1,old_correlation
+Br5588,supertype_label,Sst_23,1,old_correlation
+Br5588,supertype_label,L6 CT_4,1,old_correlation
+Br5588,supertype_label,Unassigned,0,old_correlation
+Br5590,class_label,Non-neuronal and Non-neural,34084,old_correlation
+Br5590,class_label,Neuronal: Glutamatergic,13119,old_correlation
+Br5590,class_label,Neuronal: GABAergic,7924,old_correlation
+Br5590,class_label,Unassigned,0,old_correlation
+Br5590,subclass_label,Endothelial,10236,old_correlation
+Br5590,subclass_label,Oligodendrocyte,9332,old_correlation
+Br5590,subclass_label,L2/3 IT,7917,old_correlation
+Br5590,subclass_label,VLMC,7034,old_correlation
+Br5590,subclass_label,Astrocyte,4833,old_correlation
+Br5590,subclass_label,Vip,3047,old_correlation
+Br5590,subclass_label,Pvalb,2223,old_correlation
+Br5590,subclass_label,L4 IT,1639,old_correlation
+Br5590,subclass_label,L6b,1634,old_correlation
+Br5590,subclass_label,OPC,1390,old_correlation
+Br5590,subclass_label,Microglia-PVM,1259,old_correlation
+Br5590,subclass_label,L6 IT,775,old_correlation
+Br5590,subclass_label,Sst,755,old_correlation
+Br5590,subclass_label,L5 IT,700,old_correlation
+Br5590,subclass_label,Lamp5,563,old_correlation
+Br5590,subclass_label,Pax6,417,old_correlation
+Br5590,subclass_label,Chandelier,362,old_correlation
+Br5590,subclass_label,Sncg,331,old_correlation
+Br5590,subclass_label,L5/6 NP,206,old_correlation
+Br5590,subclass_label,Sst Chodl,143,old_correlation
+Br5590,subclass_label,L5 ET,135,old_correlation
+Br5590,subclass_label,L6 CT,85,old_correlation
+Br5590,subclass_label,Lamp5 Lhx6,83,old_correlation
+Br5590,subclass_label,L6 IT Car3,28,old_correlation
+Br5590,subclass_label,Unassigned,0,old_correlation
+Br5590,supertype_label,Endo_1,8439,old_correlation
+Br5590,supertype_label,Oligo_4,7495,old_correlation
+Br5590,supertype_label,VLMC_2,3846,old_correlation
+Br5590,supertype_label,VLMC_1,3188,old_correlation
+Br5590,supertype_label,Vip_21,2624,old_correlation
+Br5590,supertype_label,L2/3 IT_7,2518,old_correlation
+Br5590,supertype_label,L2/3 IT_13,2444,old_correlation
+Br5590,supertype_label,Astro_4,2022,old_correlation
+Br5590,supertype_label,Astro_2,1845,old_correlation
+Br5590,supertype_label,Endo_2,1795,old_correlation
+Br5590,supertype_label,Pvalb_8,1617,old_correlation
+Br5590,supertype_label,L2/3 IT_12,1573,old_correlation
+Br5590,supertype_label,Micro-PVM_2,1200,old_correlation
+Br5590,supertype_label,L4 IT_1,1148,old_correlation
+Br5590,supertype_label,OPC_1,1052,old_correlation
+Br5590,supertype_label,L6b_1,931,old_correlation
+Br5590,supertype_label,Oligo_1,856,old_correlation
+Br5590,supertype_label,L2/3 IT_8,789,old_correlation
+Br5590,supertype_label,L6 IT_2,755,old_correlation
+Br5590,supertype_label,Oligo_2,742,old_correlation
+Br5590,supertype_label,Astro_5,734,old_correlation
+Br5590,supertype_label,L5 IT_6,480,old_correlation
+Br5590,supertype_label,L4 IT_2,438,old_correlation
+Br5590,supertype_label,L2/3 IT_2,436,old_correlation
+Br5590,supertype_label,Sst_11,400,old_correlation
+Br5590,supertype_label,Pax6_1,369,old_correlation
+Br5590,supertype_label,Chandelier_2,353,old_correlation
+Br5590,supertype_label,OPC_2,338,old_correlation
+Br5590,supertype_label,L6b_2,312,old_correlation
+Br5590,supertype_label,Lamp5_5,307,old_correlation
+Br5590,supertype_label,L6b_6,288,old_correlation
+Br5590,supertype_label,Vip_1,256,old_correlation
+Br5590,supertype_label,Oligo_3,239,old_correlation
+Br5590,supertype_label,Astro_3,215,old_correlation
+Br5590,supertype_label,Pvalb_6,201,old_correlation
+Br5590,supertype_label,Sst_10,190,old_correlation
+Br5590,supertype_label,L5/6 NP_3,178,old_correlation
+Br5590,supertype_label,Lamp5_2,178,old_correlation
+Br5590,supertype_label,L5 IT_2,177,old_correlation
+Br5590,supertype_label,Pvalb_2,153,old_correlation
+Br5590,supertype_label,Pvalb_5,143,old_correlation
+Br5590,supertype_label,L5 ET_2,130,old_correlation
+Br5590,supertype_label,L2/3 IT_3,119,old_correlation
+Br5590,supertype_label,Sst Chodl_2,119,old_correlation
+Br5590,supertype_label,Sncg_5,100,old_correlation
+Br5590,supertype_label,Sncg_3,99,old_correlation
+Br5590,supertype_label,Lamp5_Lhx6_1,83,old_correlation
+Br5590,supertype_label,Sncg_2,79,old_correlation
+Br5590,supertype_label,Lamp5_3,77,old_correlation
+Br5590,supertype_label,L6 CT_3,75,old_correlation
+Br5590,supertype_label,Vip_9,74,old_correlation
+Br5590,supertype_label,Micro-PVM_1,59,old_correlation
+Br5590,supertype_label,Pvalb_14,57,old_correlation
+Br5590,supertype_label,L6b_3,56,old_correlation
+Br5590,supertype_label,Pvalb_15,45,old_correlation
+Br5590,supertype_label,Sst_4,44,old_correlation
+Br5590,supertype_label,L4 IT_4,43,old_correlation
+Br5590,supertype_label,L5 IT_7,43,old_correlation
+Br5590,supertype_label,Sncg_6,36,old_correlation
+Br5590,supertype_label,L2/3 IT_5,32,old_correlation
+Br5590,supertype_label,Vip_16,31,old_correlation
+Br5590,supertype_label,Sst_20,31,old_correlation
+Br5590,supertype_label,L6b_5,31,old_correlation
+Br5590,supertype_label,L6 IT Car3_3,28,old_correlation
+Br5590,supertype_label,Vip_19,27,old_correlation
+Br5590,supertype_label,Sst Chodl_1,24,old_correlation
+Br5590,supertype_label,L6 IT_1,20,old_correlation
+Br5590,supertype_label,Pax6_4,19,old_correlation
+Br5590,supertype_label,Pax6_2,18,old_correlation
+Br5590,supertype_label,Sncg_4,17,old_correlation
+Br5590,supertype_label,Astro_1,17,old_correlation
+Br5590,supertype_label,L5/6 NP_6,17,old_correlation
+Br5590,supertype_label,Sst_2,17,old_correlation
+Br5590,supertype_label,Sst_5,16,old_correlation
+Br5590,supertype_label,L6b_4,16,old_correlation
+Br5590,supertype_label,Sst_1,14,old_correlation
+Br5590,supertype_label,Sst_3,13,old_correlation
+Br5590,supertype_label,Vip_14,13,old_correlation
+Br5590,supertype_label,Sst_7,12,old_correlation
+Br5590,supertype_label,Pax6_3,11,old_correlation
+Br5590,supertype_label,L5/6 NP_1,10,old_correlation
+Br5590,supertype_label,L4 IT_3,10,old_correlation
+Br5590,supertype_label,Sst_25,9,old_correlation
+Br5590,supertype_label,Chandelier_1,9,old_correlation
+Br5590,supertype_label,Vip_6,8,old_correlation
+Br5590,supertype_label,Vip_12,7,old_correlation
+Br5590,supertype_label,L6 CT_1,6,old_correlation
+Br5590,supertype_label,Sst_19,6,old_correlation
+Br5590,supertype_label,L5 ET_1,5,old_correlation
+Br5590,supertype_label,L2/3 IT_1,5,old_correlation
+Br5590,supertype_label,Vip_13,4,old_correlation
+Br5590,supertype_label,Pvalb_3,4,old_correlation
+Br5590,supertype_label,Sst_23,2,old_correlation
+Br5590,supertype_label,Endo_3,2,old_correlation
+Br5590,supertype_label,L6 CT_4,2,old_correlation
+Br5590,supertype_label,L6 CT_2,2,old_correlation
+Br5590,supertype_label,Pvalb_13,2,old_correlation
+Br5590,supertype_label,Pvalb_7,1,old_correlation
+Br5590,supertype_label,Lamp5_6,1,old_correlation
+Br5590,supertype_label,Vip_4,1,old_correlation
+Br5590,supertype_label,L2/3 IT_6,1,old_correlation
+Br5590,supertype_label,Vip_11,1,old_correlation
+Br5590,supertype_label,Sst_9,1,old_correlation
+Br5590,supertype_label,Vip_15,1,old_correlation
+Br5590,supertype_label,L5/6 NP_4,1,old_correlation
+Br5590,supertype_label,Unassigned,0,old_correlation
+Br5622,class_label,Non-neuronal and Non-neural,35352,old_correlation
+Br5622,class_label,Neuronal: Glutamatergic,22816,old_correlation
+Br5622,class_label,Neuronal: GABAergic,11604,old_correlation
+Br5622,class_label,Unassigned,0,old_correlation
+Br5622,subclass_label,L2/3 IT,15445,old_correlation
+Br5622,subclass_label,Endothelial,11006,old_correlation
+Br5622,subclass_label,Oligodendrocyte,10790,old_correlation
+Br5622,subclass_label,Astrocyte,5097,old_correlation
+Br5622,subclass_label,Vip,4325,old_correlation
+Br5622,subclass_label,Microglia-PVM,4245,old_correlation
+Br5622,subclass_label,VLMC,3767,old_correlation
+Br5622,subclass_label,L4 IT,3622,old_correlation
+Br5622,subclass_label,Pvalb,2517,old_correlation
+Br5622,subclass_label,Sst,1435,old_correlation
+Br5622,subclass_label,L6b,1311,old_correlation
+Br5622,subclass_label,Chandelier,1100,old_correlation
+Br5622,subclass_label,L6 IT,1009,old_correlation
+Br5622,subclass_label,L5 IT,832,old_correlation
+Br5622,subclass_label,Sst Chodl,630,old_correlation
+Br5622,subclass_label,Lamp5,620,old_correlation
+Br5622,subclass_label,OPC,447,old_correlation
+Br5622,subclass_label,Sncg,443,old_correlation
+Br5622,subclass_label,Pax6,341,old_correlation
+Br5622,subclass_label,L5/6 NP,281,old_correlation
+Br5622,subclass_label,Lamp5 Lhx6,193,old_correlation
+Br5622,subclass_label,L5 ET,145,old_correlation
+Br5622,subclass_label,L6 CT,135,old_correlation
+Br5622,subclass_label,L6 IT Car3,36,old_correlation
+Br5622,subclass_label,Unassigned,0,old_correlation
+Br5622,supertype_label,Oligo_4,9603,old_correlation
+Br5622,supertype_label,Endo_1,7074,old_correlation
+Br5622,supertype_label,L2/3 IT_7,5927,old_correlation
+Br5622,supertype_label,Micro-PVM_2,4098,old_correlation
+Br5622,supertype_label,Endo_2,3930,old_correlation
+Br5622,supertype_label,L2/3 IT_12,3235,old_correlation
+Br5622,supertype_label,Vip_21,3225,old_correlation
+Br5622,supertype_label,L2/3 IT_13,3201,old_correlation
+Br5622,supertype_label,Astro_2,2846,old_correlation
+Br5622,supertype_label,VLMC_2,2782,old_correlation
+Br5622,supertype_label,L4 IT_1,1897,old_correlation
+Br5622,supertype_label,L2/3 IT_8,1814,old_correlation
+Br5622,supertype_label,L4 IT_2,1604,old_correlation
+Br5622,supertype_label,Pvalb_8,1350,old_correlation
+Br5622,supertype_label,Astro_4,1349,old_correlation
+Br5622,supertype_label,Chandelier_2,1071,old_correlation
+Br5622,supertype_label,L6 IT_2,1004,old_correlation
+Br5622,supertype_label,VLMC_1,985,old_correlation
+Br5622,supertype_label,L2/3 IT_2,836,old_correlation
+Br5622,supertype_label,Oligo_1,834,old_correlation
+Br5622,supertype_label,Astro_5,810,old_correlation
+Br5622,supertype_label,L6b_1,673,old_correlation
+Br5622,supertype_label,Sst Chodl_2,606,old_correlation
+Br5622,supertype_label,L5 IT_6,595,old_correlation
+Br5622,supertype_label,Vip_1,511,old_correlation
+Br5622,supertype_label,Sst_11,433,old_correlation
+Br5622,supertype_label,Pvalb_5,432,old_correlation
+Br5622,supertype_label,Sst_10,373,old_correlation
+Br5622,supertype_label,Pvalb_6,335,old_correlation
+Br5622,supertype_label,OPC_1,315,old_correlation
+Br5622,supertype_label,Vip_9,308,old_correlation
+Br5622,supertype_label,L2/3 IT_3,308,old_correlation
+Br5622,supertype_label,Oligo_2,276,old_correlation
+Br5622,supertype_label,Lamp5_5,275,old_correlation
+Br5622,supertype_label,L6b_2,269,old_correlation
+Br5622,supertype_label,L6b_6,267,old_correlation
+Br5622,supertype_label,Lamp5_2,237,old_correlation
+Br5622,supertype_label,Pax6_1,237,old_correlation
+Br5622,supertype_label,Pvalb_2,215,old_correlation
+Br5622,supertype_label,L5/6 NP_3,212,old_correlation
+Br5622,supertype_label,L5 IT_2,201,old_correlation
+Br5622,supertype_label,Lamp5_Lhx6_1,193,old_correlation
+Br5622,supertype_label,Sst_25,164,old_correlation
+Br5622,supertype_label,Micro-PVM_1,147,old_correlation
+Br5622,supertype_label,L5 ET_2,140,old_correlation
+Br5622,supertype_label,Sncg_5,139,old_correlation
+Br5622,supertype_label,OPC_2,132,old_correlation
+Br5622,supertype_label,Sncg_3,131,old_correlation
+Br5622,supertype_label,Sst_20,120,old_correlation
+Br5622,supertype_label,L6 CT_3,118,old_correlation
+Br5622,supertype_label,L2/3 IT_5,110,old_correlation
+Br5622,supertype_label,Pvalb_15,109,old_correlation
+Br5622,supertype_label,Sst_3,108,old_correlation
+Br5622,supertype_label,Lamp5_3,108,old_correlation
+Br5622,supertype_label,L4 IT_4,97,old_correlation
+Br5622,supertype_label,Sncg_2,90,old_correlation
+Br5622,supertype_label,Astro_3,82,old_correlation
+Br5622,supertype_label,Oligo_3,77,old_correlation
+Br5622,supertype_label,Sst_2,72,old_correlation
+Br5622,supertype_label,L6b_3,72,old_correlation
+Br5622,supertype_label,Sst_4,72,old_correlation
+Br5622,supertype_label,Vip_16,69,old_correlation
+Br5622,supertype_label,Vip_19,54,old_correlation
+Br5622,supertype_label,Pvalb_14,53,old_correlation
+Br5622,supertype_label,Pax6_2,46,old_correlation
+Br5622,supertype_label,Sncg_6,45,old_correlation
+Br5622,supertype_label,Vip_14,41,old_correlation
+Br5622,supertype_label,Pax6_4,39,old_correlation
+Br5622,supertype_label,Sncg_4,38,old_correlation
+Br5622,supertype_label,L6 IT Car3_3,36,old_correlation
+Br5622,supertype_label,L5/6 NP_6,36,old_correlation
+Br5622,supertype_label,L5 IT_7,35,old_correlation
+Br5622,supertype_label,Vip_13,35,old_correlation
+Br5622,supertype_label,Vip_4,30,old_correlation
+Br5622,supertype_label,L5/6 NP_1,29,old_correlation
+Br5622,supertype_label,Chandelier_1,29,old_correlation
+Br5622,supertype_label,Vip_12,28,old_correlation
+Br5622,supertype_label,Sst_19,26,old_correlation
+Br5622,supertype_label,Sst Chodl_1,24,old_correlation
+Br5622,supertype_label,L4 IT_3,24,old_correlation
+Br5622,supertype_label,L6b_5,24,old_correlation
+Br5622,supertype_label,Sst_5,22,old_correlation
+Br5622,supertype_label,Sst_1,20,old_correlation
+Br5622,supertype_label,Pvalb_3,20,old_correlation
+Br5622,supertype_label,Pax6_3,19,old_correlation
+Br5622,supertype_label,Vip_6,16,old_correlation
+Br5622,supertype_label,Sst_7,15,old_correlation
+Br5622,supertype_label,L2/3 IT_1,13,old_correlation
+Br5622,supertype_label,Sst_9,10,old_correlation
+Br5622,supertype_label,Astro_1,10,old_correlation
+Br5622,supertype_label,L6 CT_1,7,old_correlation
+Br5622,supertype_label,L6b_4,6,old_correlation
+Br5622,supertype_label,L6 CT_4,6,old_correlation
+Br5622,supertype_label,Vip_5,6,old_correlation
+Br5622,supertype_label,L5 ET_1,5,old_correlation
+Br5622,supertype_label,L6 IT_1,5,old_correlation
+Br5622,supertype_label,L6 CT_2,4,old_correlation
+Br5622,supertype_label,Vip_15,2,old_correlation
+Br5622,supertype_label,L5/6 NP_2,2,old_correlation
+Br5622,supertype_label,Endo_3,2,old_correlation
+Br5622,supertype_label,Pvalb_13,2,old_correlation
+Br5622,supertype_label,L5/6 NP_4,2,old_correlation
+Br5622,supertype_label,Pvalb_7,1,old_correlation
+Br5622,supertype_label,L5 IT_3,1,old_correlation
+Br5622,supertype_label,L2/3 IT_6,1,old_correlation
+Br5622,supertype_label,Unassigned,0,old_correlation
+Br5639,class_label,Non-neuronal and Non-neural,38332,old_correlation
+Br5639,class_label,Neuronal: Glutamatergic,14550,old_correlation
+Br5639,class_label,Neuronal: GABAergic,7540,old_correlation
+Br5639,class_label,Unassigned,0,old_correlation
+Br5639,subclass_label,Oligodendrocyte,11075,old_correlation
+Br5639,subclass_label,Endothelial,10893,old_correlation
+Br5639,subclass_label,L2/3 IT,8437,old_correlation
+Br5639,subclass_label,Astrocyte,7719,old_correlation
+Br5639,subclass_label,VLMC,6923,old_correlation
+Br5639,subclass_label,Vip,2540,old_correlation
+Br5639,subclass_label,Pvalb,2230,old_correlation
+Br5639,subclass_label,L4 IT,2023,old_correlation
+Br5639,subclass_label,L6b,1805,old_correlation
+Br5639,subclass_label,L6 IT,1194,old_correlation
+Br5639,subclass_label,OPC,1155,old_correlation
+Br5639,subclass_label,Sst,767,old_correlation
+Br5639,subclass_label,Lamp5,647,old_correlation
+Br5639,subclass_label,L5 IT,598,old_correlation
+Br5639,subclass_label,Microglia-PVM,567,old_correlation
+Br5639,subclass_label,Sncg,461,old_correlation
+Br5639,subclass_label,Chandelier,353,old_correlation
+Br5639,subclass_label,Pax6,291,old_correlation
+Br5639,subclass_label,L5/6 NP,240,old_correlation
+Br5639,subclass_label,Sst Chodl,149,old_correlation
+Br5639,subclass_label,L6 CT,134,old_correlation
+Br5639,subclass_label,L5 ET,116,old_correlation
+Br5639,subclass_label,Lamp5 Lhx6,102,old_correlation
+Br5639,subclass_label,L6 IT Car3,3,old_correlation
+Br5639,subclass_label,Unassigned,0,old_correlation
+Br5639,supertype_label,Oligo_4,9818,old_correlation
+Br5639,supertype_label,Endo_1,7706,old_correlation
+Br5639,supertype_label,Astro_4,4774,old_correlation
+Br5639,supertype_label,VLMC_2,3971,old_correlation
+Br5639,supertype_label,L2/3 IT_7,3532,old_correlation
+Br5639,supertype_label,Endo_2,3182,old_correlation
+Br5639,supertype_label,VLMC_1,2952,old_correlation
+Br5639,supertype_label,L2/3 IT_13,2252,old_correlation
+Br5639,supertype_label,Vip_21,2106,old_correlation
+Br5639,supertype_label,Pvalb_8,1717,old_correlation
+Br5639,supertype_label,L2/3 IT_12,1536,old_correlation
+Br5639,supertype_label,Astro_2,1382,old_correlation
+Br5639,supertype_label,L6 IT_2,1180,old_correlation
+Br5639,supertype_label,Astro_5,1147,old_correlation
+Br5639,supertype_label,L4 IT_1,1114,old_correlation
+Br5639,supertype_label,L6b_1,1068,old_correlation
+Br5639,supertype_label,L4 IT_2,804,old_correlation
+Br5639,supertype_label,OPC_1,716,old_correlation
+Br5639,supertype_label,Oligo_1,713,old_correlation
+Br5639,supertype_label,L2/3 IT_8,588,old_correlation
+Br5639,supertype_label,Micro-PVM_2,503,old_correlation
+Br5639,supertype_label,OPC_2,439,old_correlation
+Br5639,supertype_label,Sst_11,432,old_correlation
+Br5639,supertype_label,Oligo_2,417,old_correlation
+Br5639,supertype_label,Astro_3,411,old_correlation
+Br5639,supertype_label,L5 IT_6,366,old_correlation
+Br5639,supertype_label,L6b_2,348,old_correlation
+Br5639,supertype_label,Chandelier_2,347,old_correlation
+Br5639,supertype_label,Lamp5_5,338,old_correlation
+Br5639,supertype_label,L2/3 IT_2,337,old_correlation
+Br5639,supertype_label,L6b_6,294,old_correlation
+Br5639,supertype_label,Pax6_1,248,old_correlation
+Br5639,supertype_label,Vip_1,231,old_correlation
+Br5639,supertype_label,Lamp5_2,224,old_correlation
+Br5639,supertype_label,L5 IT_2,206,old_correlation
+Br5639,supertype_label,Pvalb_2,176,old_correlation
+Br5639,supertype_label,L2/3 IT_3,166,old_correlation
+Br5639,supertype_label,L5/6 NP_3,152,old_correlation
+Br5639,supertype_label,Sncg_5,144,old_correlation
+Br5639,supertype_label,Pvalb_5,143,old_correlation
+Br5639,supertype_label,Sst_10,140,old_correlation
+Br5639,supertype_label,Sst Chodl_2,136,old_correlation
+Br5639,supertype_label,Oligo_3,127,old_correlation
+Br5639,supertype_label,L6 CT_3,124,old_correlation
+Br5639,supertype_label,Pvalb_6,122,old_correlation
+Br5639,supertype_label,L5 ET_2,115,old_correlation
+Br5639,supertype_label,Sncg_3,108,old_correlation
+Br5639,supertype_label,Vip_9,104,old_correlation
+Br5639,supertype_label,Lamp5_Lhx6_1,102,old_correlation
+Br5639,supertype_label,Sncg_2,97,old_correlation
+Br5639,supertype_label,L4 IT_4,91,old_correlation
+Br5639,supertype_label,Lamp5_3,80,old_correlation
+Br5639,supertype_label,Sncg_6,71,old_correlation
+Br5639,supertype_label,Micro-PVM_1,64,old_correlation
+Br5639,supertype_label,Sst_4,50,old_correlation
+Br5639,supertype_label,L5/6 NP_6,49,old_correlation
+Br5639,supertype_label,L6b_3,48,old_correlation
+Br5639,supertype_label,Sncg_4,41,old_correlation
+Br5639,supertype_label,Pvalb_14,36,old_correlation
+Br5639,supertype_label,Sst_20,35,old_correlation
+Br5639,supertype_label,L6b_5,34,old_correlation
+Br5639,supertype_label,Vip_19,34,old_correlation
+Br5639,supertype_label,Pvalb_15,30,old_correlation
+Br5639,supertype_label,L5/6 NP_1,29,old_correlation
+Br5639,supertype_label,L5 IT_7,26,old_correlation
+Br5639,supertype_label,L2/3 IT_5,25,old_correlation
+Br5639,supertype_label,Vip_16,24,old_correlation
+Br5639,supertype_label,Sst_1,22,old_correlation
+Br5639,supertype_label,Sst_25,21,old_correlation
+Br5639,supertype_label,Sst_3,20,old_correlation
+Br5639,supertype_label,Pax6_4,19,old_correlation
+Br5639,supertype_label,Pax6_2,16,old_correlation
+Br5639,supertype_label,Sst_2,15,old_correlation
+Br5639,supertype_label,Vip_12,15,old_correlation
+Br5639,supertype_label,L6 IT_1,14,old_correlation
+Br5639,supertype_label,L4 IT_3,14,old_correlation
+Br5639,supertype_label,Sst Chodl_1,13,old_correlation
+Br5639,supertype_label,Sst_5,13,old_correlation
+Br5639,supertype_label,L6b_4,13,old_correlation
+Br5639,supertype_label,Vip_13,10,old_correlation
+Br5639,supertype_label,Sst_19,10,old_correlation
+Br5639,supertype_label,L5/6 NP_4,9,old_correlation
+Br5639,supertype_label,Pax6_3,8,old_correlation
+Br5639,supertype_label,Sst_7,8,old_correlation
+Br5639,supertype_label,Vip_14,7,old_correlation
+Br5639,supertype_label,L6 CT_1,7,old_correlation
+Br5639,supertype_label,Chandelier_1,6,old_correlation
+Br5639,supertype_label,Astro_1,5,old_correlation
+Br5639,supertype_label,Endo_3,5,old_correlation
+Br5639,supertype_label,Vip_4,4,old_correlation
+Br5639,supertype_label,Vip_6,4,old_correlation
+Br5639,supertype_label,Pvalb_7,4,old_correlation
+Br5639,supertype_label,L6 IT Car3_3,3,old_correlation
+Br5639,supertype_label,Lamp5_6,3,old_correlation
+Br5639,supertype_label,Pvalb_3,2,old_correlation
+Br5639,supertype_label,L6 CT_2,2,old_correlation
+Br5639,supertype_label,Lamp5_4,2,old_correlation
+Br5639,supertype_label,Sst_23,1,old_correlation
+Br5639,supertype_label,L6 CT_4,1,old_correlation
+Br5639,supertype_label,L2/3 IT_1,1,old_correlation
+Br5639,supertype_label,Vip_15,1,old_correlation
+Br5639,supertype_label,L5 ET_1,1,old_correlation
+Br5639,supertype_label,L5/6 NP_2,1,old_correlation
+Br5639,supertype_label,Unassigned,0,old_correlation
+Br5746,class_label,Non-neuronal and Non-neural,27424,old_correlation
+Br5746,class_label,Neuronal: Glutamatergic,11853,old_correlation
+Br5746,class_label,Neuronal: GABAergic,5023,old_correlation
+Br5746,class_label,Unassigned,0,old_correlation
+Br5746,subclass_label,Oligodendrocyte,11704,old_correlation
+Br5746,subclass_label,Endothelial,6067,old_correlation
+Br5746,subclass_label,L2/3 IT,4942,old_correlation
+Br5746,subclass_label,Astrocyte,4711,old_correlation
+Br5746,subclass_label,VLMC,3345,old_correlation
+Br5746,subclass_label,L6b,2476,old_correlation
+Br5746,subclass_label,L4 IT,2131,old_correlation
+Br5746,subclass_label,Vip,1809,old_correlation
+Br5746,subclass_label,Pvalb,1283,old_correlation
+Br5746,subclass_label,L6 IT,1109,old_correlation
+Br5746,subclass_label,Sst,820,old_correlation
+Br5746,subclass_label,Microglia-PVM,813,old_correlation
+Br5746,subclass_label,OPC,784,old_correlation
+Br5746,subclass_label,L5 IT,695,old_correlation
+Br5746,subclass_label,Chandelier,313,old_correlation
+Br5746,subclass_label,Lamp5,266,old_correlation
+Br5746,subclass_label,L5/6 NP,212,old_correlation
+Br5746,subclass_label,Sncg,185,old_correlation
+Br5746,subclass_label,L6 CT,171,old_correlation
+Br5746,subclass_label,Pax6,162,old_correlation
+Br5746,subclass_label,Lamp5 Lhx6,98,old_correlation
+Br5746,subclass_label,Sst Chodl,87,old_correlation
+Br5746,subclass_label,L5 ET,80,old_correlation
+Br5746,subclass_label,L6 IT Car3,37,old_correlation
+Br5746,subclass_label,Unassigned,0,old_correlation
+Br5746,supertype_label,Oligo_4,9826,old_correlation
+Br5746,supertype_label,Endo_1,4214,old_correlation
+Br5746,supertype_label,Astro_4,3330,old_correlation
+Br5746,supertype_label,Endo_2,1852,old_correlation
+Br5746,supertype_label,VLMC_2,1776,old_correlation
+Br5746,supertype_label,Vip_21,1571,old_correlation
+Br5746,supertype_label,VLMC_1,1569,old_correlation
+Br5746,supertype_label,L4 IT_1,1536,old_correlation
+Br5746,supertype_label,L2/3 IT_7,1496,old_correlation
+Br5746,supertype_label,L2/3 IT_13,1470,old_correlation
+Br5746,supertype_label,Oligo_1,1402,old_correlation
+Br5746,supertype_label,L6b_1,1291,old_correlation
+Br5746,supertype_label,L2/3 IT_12,1120,old_correlation
+Br5746,supertype_label,L6 IT_2,1094,old_correlation
+Br5746,supertype_label,Pvalb_8,801,old_correlation
+Br5746,supertype_label,Micro-PVM_2,731,old_correlation
+Br5746,supertype_label,OPC_1,688,old_correlation
+Br5746,supertype_label,Astro_2,624,old_correlation
+Br5746,supertype_label,L4 IT_2,531,old_correlation
+Br5746,supertype_label,L6b_6,526,old_correlation
+Br5746,supertype_label,L6b_2,468,old_correlation
+Br5746,supertype_label,L2/3 IT_8,459,old_correlation
+Br5746,supertype_label,L5 IT_6,412,old_correlation
+Br5746,supertype_label,Astro_3,409,old_correlation
+Br5746,supertype_label,Oligo_2,359,old_correlation
+Br5746,supertype_label,Astro_5,344,old_correlation
+Br5746,supertype_label,Chandelier_2,305,old_correlation
+Br5746,supertype_label,Sst_10,285,old_correlation
+Br5746,supertype_label,L5 IT_2,262,old_correlation
+Br5746,supertype_label,Sst_11,253,old_correlation
+Br5746,supertype_label,L2/3 IT_2,215,old_correlation
+Br5746,supertype_label,L5/6 NP_3,173,old_correlation
+Br5746,supertype_label,Pvalb_6,173,old_correlation
+Br5746,supertype_label,L6 CT_3,156,old_correlation
+Br5746,supertype_label,Lamp5_2,139,old_correlation
+Br5746,supertype_label,L2/3 IT_3,123,old_correlation
+Br5746,supertype_label,Oligo_3,117,old_correlation
+Br5746,supertype_label,Pax6_1,116,old_correlation
+Br5746,supertype_label,Pvalb_2,106,old_correlation
+Br5746,supertype_label,Sst_4,106,old_correlation
+Br5746,supertype_label,Vip_1,102,old_correlation
+Br5746,supertype_label,Lamp5_Lhx6_1,98,old_correlation
+Br5746,supertype_label,OPC_2,96,old_correlation
+Br5746,supertype_label,Lamp5_5,94,old_correlation
+Br5746,supertype_label,Micro-PVM_1,82,old_correlation
+Br5746,supertype_label,L6b_5,80,old_correlation
+Br5746,supertype_label,L5 ET_2,80,old_correlation
+Br5746,supertype_label,L6b_3,71,old_correlation
+Br5746,supertype_label,Pvalb_5,66,old_correlation
+Br5746,supertype_label,Pvalb_14,59,old_correlation
+Br5746,supertype_label,Pvalb_15,58,old_correlation
+Br5746,supertype_label,Vip_9,57,old_correlation
+Br5746,supertype_label,Sncg_3,56,old_correlation
+Br5746,supertype_label,L2/3 IT_5,56,old_correlation
+Br5746,supertype_label,L4 IT_4,54,old_correlation
+Br5746,supertype_label,Sncg_5,51,old_correlation
+Br5746,supertype_label,Sst Chodl_2,50,old_correlation
+Br5746,supertype_label,Vip_19,48,old_correlation
+Br5746,supertype_label,L6b_4,40,old_correlation
+Br5746,supertype_label,L6 IT Car3_3,37,old_correlation
+Br5746,supertype_label,Sst Chodl_1,37,old_correlation
+Br5746,supertype_label,Sncg_2,32,old_correlation
+Br5746,supertype_label,Sst_1,31,old_correlation
+Br5746,supertype_label,Sst_20,30,old_correlation
+Br5746,supertype_label,Sst_7,30,old_correlation
+Br5746,supertype_label,Sst_5,28,old_correlation
+Br5746,supertype_label,Sncg_6,28,old_correlation
+Br5746,supertype_label,Lamp5_3,27,old_correlation
+Br5746,supertype_label,Pax6_4,24,old_correlation
+Br5746,supertype_label,Sst_2,21,old_correlation
+Br5746,supertype_label,Sst_3,20,old_correlation
+Br5746,supertype_label,L5 IT_7,20,old_correlation
+Br5746,supertype_label,L5/6 NP_1,19,old_correlation
+Br5746,supertype_label,Sncg_4,18,old_correlation
+Br5746,supertype_label,Vip_16,15,old_correlation
+Br5746,supertype_label,L6 IT_1,15,old_correlation
+Br5746,supertype_label,L5/6 NP_6,13,old_correlation
+Br5746,supertype_label,Pax6_3,11,old_correlation
+Br5746,supertype_label,Pax6_2,11,old_correlation
+Br5746,supertype_label,Pvalb_7,10,old_correlation
+Br5746,supertype_label,L4 IT_3,10,old_correlation
+Br5746,supertype_label,Sst_25,9,old_correlation
+Br5746,supertype_label,Chandelier_1,8,old_correlation
+Br5746,supertype_label,L6 CT_1,7,old_correlation
+Br5746,supertype_label,L6 CT_2,7,old_correlation
+Br5746,supertype_label,Lamp5_6,5,old_correlation
+Br5746,supertype_label,Pvalb_13,5,old_correlation
+Br5746,supertype_label,L5/6 NP_4,4,old_correlation
+Br5746,supertype_label,Vip_4,4,old_correlation
+Br5746,supertype_label,Pvalb_3,4,old_correlation
+Br5746,supertype_label,Vip_12,4,old_correlation
+Br5746,supertype_label,Astro_1,4,old_correlation
+Br5746,supertype_label,L2/3 IT_1,3,old_correlation
+Br5746,supertype_label,Vip_6,3,old_correlation
+Br5746,supertype_label,L5/6 NP_2,3,old_correlation
+Br5746,supertype_label,Vip_13,3,old_correlation
+Br5746,supertype_label,Sst_19,3,old_correlation
+Br5746,supertype_label,Sst_9,3,old_correlation
+Br5746,supertype_label,Vip_14,2,old_correlation
+Br5746,supertype_label,Pvalb_10,1,old_correlation
+Br5746,supertype_label,Endo_3,1,old_correlation
+Br5746,supertype_label,Lamp5_1,1,old_correlation
+Br5746,supertype_label,Sst_23,1,old_correlation
+Br5746,supertype_label,L6 CT_4,1,old_correlation
+Br5746,supertype_label,L5 IT_3,1,old_correlation
+Br5746,supertype_label,Unassigned,0,old_correlation
+Br5931,class_label,Non-neuronal and Non-neural,25870,old_correlation
+Br5931,class_label,Neuronal: Glutamatergic,12593,old_correlation
+Br5931,class_label,Neuronal: GABAergic,6072,old_correlation
+Br5931,class_label,Unassigned,0,old_correlation
+Br5931,subclass_label,L2/3 IT,7834,old_correlation
+Br5931,subclass_label,Oligodendrocyte,7808,old_correlation
+Br5931,subclass_label,Endothelial,6992,old_correlation
+Br5931,subclass_label,Astrocyte,5885,old_correlation
+Br5931,subclass_label,VLMC,3180,old_correlation
+Br5931,subclass_label,Vip,1828,old_correlation
+Br5931,subclass_label,L4 IT,1662,old_correlation
+Br5931,subclass_label,Pvalb,1636,old_correlation
+Br5931,subclass_label,Microglia-PVM,1606,old_correlation
+Br5931,subclass_label,L6b,955,old_correlation
+Br5931,subclass_label,L6 IT,829,old_correlation
+Br5931,subclass_label,L5 IT,806,old_correlation
+Br5931,subclass_label,Sst,765,old_correlation
+Br5931,subclass_label,Chandelier,580,old_correlation
+Br5931,subclass_label,Lamp5,432,old_correlation
+Br5931,subclass_label,OPC,399,old_correlation
+Br5931,subclass_label,Sncg,298,old_correlation
+Br5931,subclass_label,Pax6,240,old_correlation
+Br5931,subclass_label,L5/6 NP,220,old_correlation
+Br5931,subclass_label,Sst Chodl,160,old_correlation
+Br5931,subclass_label,L6 CT,160,old_correlation
+Br5931,subclass_label,Lamp5 Lhx6,133,old_correlation
+Br5931,subclass_label,L5 ET,84,old_correlation
+Br5931,subclass_label,L6 IT Car3,43,old_correlation
+Br5931,subclass_label,Unassigned,0,old_correlation
+Br5931,supertype_label,Oligo_4,7135,old_correlation
+Br5931,supertype_label,Endo_1,5123,old_correlation
+Br5931,supertype_label,Astro_2,2891,old_correlation
+Br5931,supertype_label,VLMC_2,2295,old_correlation
+Br5931,supertype_label,L2/3 IT_13,2293,old_correlation
+Br5931,supertype_label,L2/3 IT_7,2101,old_correlation
+Br5931,supertype_label,Astro_4,1942,old_correlation
+Br5931,supertype_label,Endo_2,1868,old_correlation
+Br5931,supertype_label,Micro-PVM_2,1482,old_correlation
+Br5931,supertype_label,L2/3 IT_12,1456,old_correlation
+Br5931,supertype_label,Vip_21,1428,old_correlation
+Br5931,supertype_label,L2/3 IT_8,1255,old_correlation
+Br5931,supertype_label,Pvalb_8,966,old_correlation
+Br5931,supertype_label,L4 IT_1,946,old_correlation
+Br5931,supertype_label,Astro_5,935,old_correlation
+Br5931,supertype_label,VLMC_1,885,old_correlation
+Br5931,supertype_label,L6 IT_2,826,old_correlation
+Br5931,supertype_label,L4 IT_2,621,old_correlation
+Br5931,supertype_label,L5 IT_6,620,old_correlation
+Br5931,supertype_label,Chandelier_2,573,old_correlation
+Br5931,supertype_label,Oligo_1,524,old_correlation
+Br5931,supertype_label,L6b_1,458,old_correlation
+Br5931,supertype_label,L2/3 IT_2,408,old_correlation
+Br5931,supertype_label,Sst_10,260,old_correlation
+Br5931,supertype_label,L6b_6,254,old_correlation
+Br5931,supertype_label,Lamp5_5,250,old_correlation
+Br5931,supertype_label,Sst_11,246,old_correlation
+Br5931,supertype_label,OPC_2,242,old_correlation
+Br5931,supertype_label,Pvalb_6,237,old_correlation
+Br5931,supertype_label,L2/3 IT_3,228,old_correlation
+Br5931,supertype_label,L5/6 NP_3,191,old_correlation
+Br5931,supertype_label,Pax6_1,189,old_correlation
+Br5931,supertype_label,L6b_2,179,old_correlation
+Br5931,supertype_label,Vip_1,177,old_correlation
+Br5931,supertype_label,OPC_1,157,old_correlation
+Br5931,supertype_label,L5 IT_2,155,old_correlation
+Br5931,supertype_label,Pvalb_5,155,old_correlation
+Br5931,supertype_label,L6 CT_3,151,old_correlation
+Br5931,supertype_label,Sst Chodl_2,148,old_correlation
+Br5931,supertype_label,Lamp5_Lhx6_1,133,old_correlation
+Br5931,supertype_label,Oligo_2,131,old_correlation
+Br5931,supertype_label,Lamp5_2,126,old_correlation
+Br5931,supertype_label,Micro-PVM_1,124,old_correlation
+Br5931,supertype_label,Pvalb_2,118,old_correlation
+Br5931,supertype_label,Sncg_5,118,old_correlation
+Br5931,supertype_label,Astro_3,114,old_correlation
+Br5931,supertype_label,Vip_9,91,old_correlation
+Br5931,supertype_label,Sncg_3,89,old_correlation
+Br5931,supertype_label,L2/3 IT_5,88,old_correlation
+Br5931,supertype_label,L5 ET_2,84,old_correlation
+Br5931,supertype_label,L4 IT_4,81,old_correlation
+Br5931,supertype_label,Pvalb_15,76,old_correlation
+Br5931,supertype_label,Sst_20,66,old_correlation
+Br5931,supertype_label,Pvalb_14,58,old_correlation
+Br5931,supertype_label,Sncg_2,57,old_correlation
+Br5931,supertype_label,Lamp5_3,54,old_correlation
+Br5931,supertype_label,Vip_19,49,old_correlation
+Br5931,supertype_label,Sst_4,45,old_correlation
+Br5931,supertype_label,L6 IT Car3_3,43,old_correlation
+Br5931,supertype_label,Sst_3,39,old_correlation
+Br5931,supertype_label,L6b_3,31,old_correlation
+Br5931,supertype_label,L5 IT_7,31,old_correlation
+Br5931,supertype_label,Sst_2,30,old_correlation
+Br5931,supertype_label,Sncg_6,28,old_correlation
+Br5931,supertype_label,Vip_16,27,old_correlation
+Br5931,supertype_label,L6b_5,23,old_correlation
+Br5931,supertype_label,Sst_7,23,old_correlation
+Br5931,supertype_label,Pvalb_3,20,old_correlation
+Br5931,supertype_label,Sst_5,20,old_correlation
+Br5931,supertype_label,Pax6_4,19,old_correlation
+Br5931,supertype_label,Pax6_2,18,old_correlation
+Br5931,supertype_label,Oligo_3,18,old_correlation
+Br5931,supertype_label,Sst_1,17,old_correlation
+Br5931,supertype_label,Vip_4,15,old_correlation
+Br5931,supertype_label,L4 IT_3,14,old_correlation
+Br5931,supertype_label,Pax6_3,14,old_correlation
+Br5931,supertype_label,Vip_12,14,old_correlation
+Br5931,supertype_label,L5/6 NP_1,13,old_correlation
+Br5931,supertype_label,Sst Chodl_1,12,old_correlation
+Br5931,supertype_label,Sst_25,12,old_correlation
+Br5931,supertype_label,Vip_14,10,old_correlation
+Br5931,supertype_label,L6b_4,10,old_correlation
+Br5931,supertype_label,Vip_6,7,old_correlation
+Br5931,supertype_label,L5/6 NP_6,7,old_correlation
+Br5931,supertype_label,Chandelier_1,7,old_correlation
+Br5931,supertype_label,Sst_19,7,old_correlation
+Br5931,supertype_label,Vip_13,7,old_correlation
+Br5931,supertype_label,Sncg_4,6,old_correlation
+Br5931,supertype_label,L5/6 NP_4,6,old_correlation
+Br5931,supertype_label,L6 CT_4,4,old_correlation
+Br5931,supertype_label,Pvalb_13,4,old_correlation
+Br5931,supertype_label,L2/3 IT_1,3,old_correlation
+Br5931,supertype_label,L5/6 NP_2,3,old_correlation
+Br5931,supertype_label,L6 CT_1,3,old_correlation
+Br5931,supertype_label,L6 IT_1,3,old_correlation
+Br5931,supertype_label,Astro_1,3,old_correlation
+Br5931,supertype_label,L2/3 IT_6,2,old_correlation
+Br5931,supertype_label,Pvalb_7,2,old_correlation
+Br5931,supertype_label,Lamp5_6,2,old_correlation
+Br5931,supertype_label,L6 CT_2,2,old_correlation
+Br5931,supertype_label,Endo_3,1,old_correlation
+Br5931,supertype_label,Vip_5,1,old_correlation
+Br5931,supertype_label,Vip_11,1,old_correlation
+Br5931,supertype_label,Vip_15,1,old_correlation
+Br5931,supertype_label,Unassigned,0,old_correlation
+Br5973,class_label,Non-neuronal and Non-neural,28214,old_correlation
+Br5973,class_label,Neuronal: Glutamatergic,10392,old_correlation
+Br5973,class_label,Neuronal: GABAergic,4501,old_correlation
+Br5973,class_label,Unassigned,0,old_correlation
+Br5973,subclass_label,Oligodendrocyte,12545,old_correlation
+Br5973,subclass_label,Endothelial,6301,old_correlation
+Br5973,subclass_label,Astrocyte,5170,old_correlation
+Br5973,subclass_label,L2/3 IT,4959,old_correlation
+Br5973,subclass_label,VLMC,2729,old_correlation
+Br5973,subclass_label,L4 IT,1802,old_correlation
+Br5973,subclass_label,L6b,1592,old_correlation
+Br5973,subclass_label,Vip,1380,old_correlation
+Br5973,subclass_label,Pvalb,1217,old_correlation
+Br5973,subclass_label,Microglia-PVM,868,old_correlation
+Br5973,subclass_label,L6 IT,741,old_correlation
+Br5973,subclass_label,L5 IT,696,old_correlation
+Br5973,subclass_label,Sst,657,old_correlation
+Br5973,subclass_label,OPC,601,old_correlation
+Br5973,subclass_label,Chandelier,407,old_correlation
+Br5973,subclass_label,Lamp5,326,old_correlation
+Br5973,subclass_label,L5/6 NP,240,old_correlation
+Br5973,subclass_label,Sncg,179,old_correlation
+Br5973,subclass_label,Pax6,163,old_correlation
+Br5973,subclass_label,L6 CT,160,old_correlation
+Br5973,subclass_label,L5 ET,138,old_correlation
+Br5973,subclass_label,Lamp5 Lhx6,92,old_correlation
+Br5973,subclass_label,Sst Chodl,80,old_correlation
+Br5973,subclass_label,L6 IT Car3,64,old_correlation
+Br5973,subclass_label,Unassigned,0,old_correlation
+Br5973,supertype_label,Oligo_4,11478,old_correlation
+Br5973,supertype_label,Endo_1,4170,old_correlation
+Br5973,supertype_label,Astro_4,2181,old_correlation
+Br5973,supertype_label,Endo_2,2130,old_correlation
+Br5973,supertype_label,VLMC_2,1915,old_correlation
+Br5973,supertype_label,Astro_2,1885,old_correlation
+Br5973,supertype_label,L2/3 IT_7,1753,old_correlation
+Br5973,supertype_label,L2/3 IT_13,1438,old_correlation
+Br5973,supertype_label,L4 IT_1,1158,old_correlation
+Br5973,supertype_label,Vip_21,1047,old_correlation
+Br5973,supertype_label,Oligo_1,957,old_correlation
+Br5973,supertype_label,Astro_5,913,old_correlation
+Br5973,supertype_label,VLMC_1,814,old_correlation
+Br5973,supertype_label,L2/3 IT_12,812,old_correlation
+Br5973,supertype_label,Micro-PVM_2,799,old_correlation
+Br5973,supertype_label,L6 IT_2,733,old_correlation
+Br5973,supertype_label,Pvalb_8,709,old_correlation
+Br5973,supertype_label,L6b_1,631,old_correlation
+Br5973,supertype_label,L4 IT_2,505,old_correlation
+Br5973,supertype_label,L5 IT_6,449,old_correlation
+Br5973,supertype_label,L6b_6,447,old_correlation
+Br5973,supertype_label,L6b_2,417,old_correlation
+Br5973,supertype_label,Chandelier_2,394,old_correlation
+Br5973,supertype_label,L2/3 IT_8,359,old_correlation
+Br5973,supertype_label,L2/3 IT_2,331,old_correlation
+Br5973,supertype_label,OPC_1,309,old_correlation
+Br5973,supertype_label,OPC_2,292,old_correlation
+Br5973,supertype_label,Sst_10,259,old_correlation
+Br5973,supertype_label,L5/6 NP_3,200,old_correlation
+Br5973,supertype_label,L2/3 IT_3,200,old_correlation
+Br5973,supertype_label,Sst_11,195,old_correlation
+Br5973,supertype_label,L5 IT_2,194,old_correlation
+Br5973,supertype_label,Astro_3,184,old_correlation
+Br5973,supertype_label,Pvalb_6,173,old_correlation
+Br5973,supertype_label,Vip_1,147,old_correlation
+Br5973,supertype_label,Lamp5_5,141,old_correlation
+Br5973,supertype_label,Lamp5_2,136,old_correlation
+Br5973,supertype_label,L5 ET_2,134,old_correlation
+Br5973,supertype_label,L6 CT_3,133,old_correlation
+Br5973,supertype_label,Pax6_1,128,old_correlation
+Br5973,supertype_label,L4 IT_4,113,old_correlation
+Br5973,supertype_label,Pvalb_2,111,old_correlation
+Br5973,supertype_label,Pvalb_5,92,old_correlation
+Br5973,supertype_label,Lamp5_Lhx6_1,92,old_correlation
+Br5973,supertype_label,Vip_9,92,old_correlation
+Br5973,supertype_label,Oligo_2,91,old_correlation
+Br5973,supertype_label,Pvalb_15,71,old_correlation
+Br5973,supertype_label,Micro-PVM_1,69,old_correlation
+Br5973,supertype_label,Sncg_3,65,old_correlation
+Br5973,supertype_label,L6 IT Car3_3,64,old_correlation
+Br5973,supertype_label,Sst Chodl_2,64,old_correlation
+Br5973,supertype_label,L2/3 IT_5,63,old_correlation
+Br5973,supertype_label,L6b_5,54,old_correlation
+Br5973,supertype_label,Sst_4,52,old_correlation
+Br5973,supertype_label,L5 IT_7,49,old_correlation
+Br5973,supertype_label,Sncg_5,47,old_correlation
+Br5973,supertype_label,Lamp5_3,47,old_correlation
+Br5973,supertype_label,Pvalb_14,37,old_correlation
+Br5973,supertype_label,Vip_19,37,old_correlation
+Br5973,supertype_label,Sncg_2,36,old_correlation
+Br5973,supertype_label,Sst_5,32,old_correlation
+Br5973,supertype_label,Sst_3,26,old_correlation
+Br5973,supertype_label,L4 IT_3,26,old_correlation
+Br5973,supertype_label,L6b_3,25,old_correlation
+Br5973,supertype_label,Sncg_6,25,old_correlation
+Br5973,supertype_label,Sst_20,24,old_correlation
+Br5973,supertype_label,L5/6 NP_6,23,old_correlation
+Br5973,supertype_label,Vip_16,21,old_correlation
+Br5973,supertype_label,Sst_2,20,old_correlation
+Br5973,supertype_label,Sst_1,20,old_correlation
+Br5973,supertype_label,Pvalb_3,19,old_correlation
+Br5973,supertype_label,Oligo_3,19,old_correlation
+Br5973,supertype_label,L6b_4,18,old_correlation
+Br5973,supertype_label,L6 CT_1,16,old_correlation
+Br5973,supertype_label,Sst Chodl_1,16,old_correlation
+Br5973,supertype_label,L5/6 NP_1,14,old_correlation
+Br5973,supertype_label,Chandelier_1,13,old_correlation
+Br5973,supertype_label,Sst_7,12,old_correlation
+Br5973,supertype_label,Pax6_2,12,old_correlation
+Br5973,supertype_label,Pax6_4,12,old_correlation
+Br5973,supertype_label,Pax6_3,11,old_correlation
+Br5973,supertype_label,Sst_19,10,old_correlation
+Br5973,supertype_label,L6 IT_1,8,old_correlation
+Br5973,supertype_label,L6 CT_2,8,old_correlation
+Br5973,supertype_label,Vip_14,8,old_correlation
+Br5973,supertype_label,Vip_12,8,old_correlation
+Br5973,supertype_label,Astro_1,7,old_correlation
+Br5973,supertype_label,Vip_4,6,old_correlation
+Br5973,supertype_label,Vip_13,6,old_correlation
+Br5973,supertype_label,Sncg_4,6,old_correlation
+Br5973,supertype_label,Vip_5,5,old_correlation
+Br5973,supertype_label,Sst_25,5,old_correlation
+Br5973,supertype_label,L5 ET_1,4,old_correlation
+Br5973,supertype_label,L5 IT_3,4,old_correlation
+Br5973,supertype_label,Pvalb_13,4,old_correlation
+Br5973,supertype_label,L2/3 IT_1,3,old_correlation
+Br5973,supertype_label,L6 CT_4,3,old_correlation
+Br5973,supertype_label,L5/6 NP_4,3,old_correlation
+Br5973,supertype_label,Vip_6,2,old_correlation
+Br5973,supertype_label,Sst_9,2,old_correlation
+Br5973,supertype_label,Endo_3,1,old_correlation
+Br5973,supertype_label,Pvalb_10,1,old_correlation
+Br5973,supertype_label,Lamp5_6,1,old_correlation
+Br5973,supertype_label,Vip_11,1,old_correlation
+Br5973,supertype_label,Lamp5_1,1,old_correlation
+Br5973,supertype_label,Unassigned,0,old_correlation
+Br6032,class_label,Non-neuronal and Non-neural,22561,old_correlation
+Br6032,class_label,Neuronal: Glutamatergic,16743,old_correlation
+Br6032,class_label,Neuronal: GABAergic,6980,old_correlation
+Br6032,class_label,Unassigned,0,old_correlation
+Br6032,subclass_label,L2/3 IT,8961,old_correlation
+Br6032,subclass_label,Oligodendrocyte,7977,old_correlation
+Br6032,subclass_label,Endothelial,6035,old_correlation
+Br6032,subclass_label,Astrocyte,3859,old_correlation
+Br6032,subclass_label,L4 IT,2739,old_correlation
+Br6032,subclass_label,Vip,2326,old_correlation
+Br6032,subclass_label,VLMC,2233,old_correlation
+Br6032,subclass_label,Microglia-PVM,2180,old_correlation
+Br6032,subclass_label,Pvalb,1695,old_correlation
+Br6032,subclass_label,L6 IT,1515,old_correlation
+Br6032,subclass_label,L6b,1444,old_correlation
+Br6032,subclass_label,Sst,1259,old_correlation
+Br6032,subclass_label,L5 IT,1172,old_correlation
+Br6032,subclass_label,Chandelier,614,old_correlation
+Br6032,subclass_label,L5/6 NP,445,old_correlation
+Br6032,subclass_label,Lamp5,437,old_correlation
+Br6032,subclass_label,OPC,277,old_correlation
+Br6032,subclass_label,L6 CT,264,old_correlation
+Br6032,subclass_label,Sncg,218,old_correlation
+Br6032,subclass_label,L5 ET,174,old_correlation
+Br6032,subclass_label,Pax6,151,old_correlation
+Br6032,subclass_label,Sst Chodl,150,old_correlation
+Br6032,subclass_label,Lamp5 Lhx6,130,old_correlation
+Br6032,subclass_label,L6 IT Car3,29,old_correlation
+Br6032,subclass_label,Unassigned,0,old_correlation
+Br6032,supertype_label,Oligo_4,7593,old_correlation
+Br6032,supertype_label,Endo_1,3815,old_correlation
+Br6032,supertype_label,L2/3 IT_13,3200,old_correlation
+Br6032,supertype_label,L2/3 IT_7,2357,old_correlation
+Br6032,supertype_label,Endo_2,2220,old_correlation
+Br6032,supertype_label,Micro-PVM_2,2129,old_correlation
+Br6032,supertype_label,Astro_4,1898,old_correlation
+Br6032,supertype_label,Vip_21,1871,old_correlation
+Br6032,supertype_label,VLMC_2,1834,old_correlation
+Br6032,supertype_label,L4 IT_1,1714,old_correlation
+Br6032,supertype_label,L2/3 IT_12,1663,old_correlation
+Br6032,supertype_label,L6 IT_2,1508,old_correlation
+Br6032,supertype_label,Astro_2,1238,old_correlation
+Br6032,supertype_label,L2/3 IT_8,1057,old_correlation
+Br6032,supertype_label,Pvalb_8,968,old_correlation
+Br6032,supertype_label,L4 IT_2,967,old_correlation
+Br6032,supertype_label,Astro_5,721,old_correlation
+Br6032,supertype_label,L6b_1,648,old_correlation
+Br6032,supertype_label,Chandelier_2,610,old_correlation
+Br6032,supertype_label,L5 IT_6,600,old_correlation
+Br6032,supertype_label,Sst_10,468,old_correlation
+Br6032,supertype_label,L2/3 IT_2,444,old_correlation
+Br6032,supertype_label,L6b_2,430,old_correlation
+Br6032,supertype_label,VLMC_1,399,old_correlation
+Br6032,supertype_label,L5 IT_2,361,old_correlation
+Br6032,supertype_label,L5/6 NP_3,354,old_correlation
+Br6032,supertype_label,L6b_6,322,old_correlation
+Br6032,supertype_label,Oligo_1,303,old_correlation
+Br6032,supertype_label,Sst_11,302,old_correlation
+Br6032,supertype_label,Pvalb_6,282,old_correlation
+Br6032,supertype_label,L6 CT_3,236,old_correlation
+Br6032,supertype_label,Lamp5_2,208,old_correlation
+Br6032,supertype_label,L5 IT_7,204,old_correlation
+Br6032,supertype_label,Vip_1,193,old_correlation
+Br6032,supertype_label,L2/3 IT_3,183,old_correlation
+Br6032,supertype_label,Lamp5_5,178,old_correlation
+Br6032,supertype_label,OPC_2,174,old_correlation
+Br6032,supertype_label,L5 ET_2,172,old_correlation
+Br6032,supertype_label,Pvalb_2,159,old_correlation
+Br6032,supertype_label,Lamp5_Lhx6_1,130,old_correlation
+Br6032,supertype_label,Sst Chodl_2,126,old_correlation
+Br6032,supertype_label,Pax6_1,118,old_correlation
+Br6032,supertype_label,Sst_4,113,old_correlation
+Br6032,supertype_label,OPC_1,103,old_correlation
+Br6032,supertype_label,Vip_19,101,old_correlation
+Br6032,supertype_label,Pvalb_5,96,old_correlation
+Br6032,supertype_label,Pvalb_15,92,old_correlation
+Br6032,supertype_label,Sst_20,91,old_correlation
+Br6032,supertype_label,Oligo_2,81,old_correlation
+Br6032,supertype_label,Pvalb_14,79,old_correlation
+Br6032,supertype_label,Vip_9,74,old_correlation
+Br6032,supertype_label,Sncg_5,74,old_correlation
+Br6032,supertype_label,Sst_3,71,old_correlation
+Br6032,supertype_label,Sst_5,71,old_correlation
+Br6032,supertype_label,Sncg_2,59,old_correlation
+Br6032,supertype_label,Sncg_3,57,old_correlation
+Br6032,supertype_label,L4 IT_4,51,old_correlation
+Br6032,supertype_label,Micro-PVM_1,51,old_correlation
+Br6032,supertype_label,L2/3 IT_5,49,old_correlation
+Br6032,supertype_label,Lamp5_3,48,old_correlation
+Br6032,supertype_label,L5/6 NP_6,47,old_correlation
+Br6032,supertype_label,Sst_25,41,old_correlation
+Br6032,supertype_label,Vip_16,39,old_correlation
+Br6032,supertype_label,Sst_2,36,old_correlation
+Br6032,supertype_label,L6 IT Car3_3,29,old_correlation
+Br6032,supertype_label,Sst_1,26,old_correlation
+Br6032,supertype_label,Sst_7,25,old_correlation
+Br6032,supertype_label,L5/6 NP_1,24,old_correlation
+Br6032,supertype_label,Sst Chodl_1,24,old_correlation
+Br6032,supertype_label,L5/6 NP_4,20,old_correlation
+Br6032,supertype_label,Sncg_6,20,old_correlation
+Br6032,supertype_label,L6b_3,19,old_correlation
+Br6032,supertype_label,L6b_5,18,old_correlation
+Br6032,supertype_label,Pax6_2,16,old_correlation
+Br6032,supertype_label,Vip_12,16,old_correlation
+Br6032,supertype_label,L6 CT_2,15,old_correlation
+Br6032,supertype_label,Vip_4,13,old_correlation
+Br6032,supertype_label,Pax6_4,11,old_correlation
+Br6032,supertype_label,L6 CT_4,9,old_correlation
+Br6032,supertype_label,Sst_19,9,old_correlation
+Br6032,supertype_label,Vip_14,9,old_correlation
+Br6032,supertype_label,Pvalb_3,8,old_correlation
+Br6032,supertype_label,L6b_4,7,old_correlation
+Br6032,supertype_label,L6 IT_1,7,old_correlation
+Br6032,supertype_label,L4 IT_3,7,old_correlation
+Br6032,supertype_label,Sncg_4,7,old_correlation
+Br6032,supertype_label,L5 IT_3,6,old_correlation
+Br6032,supertype_label,Pax6_3,6,old_correlation
+Br6032,supertype_label,Sst_9,6,old_correlation
+Br6032,supertype_label,Pvalb_7,5,old_correlation
+Br6032,supertype_label,L2/3 IT_1,4,old_correlation
+Br6032,supertype_label,L2/3 IT_6,4,old_correlation
+Br6032,supertype_label,L6 CT_1,4,old_correlation
+Br6032,supertype_label,Chandelier_1,4,old_correlation
+Br6032,supertype_label,Vip_5,3,old_correlation
+Br6032,supertype_label,Vip_15,3,old_correlation
+Br6032,supertype_label,Lamp5_6,3,old_correlation
+Br6032,supertype_label,Pvalb_13,3,old_correlation
+Br6032,supertype_label,Vip_13,3,old_correlation
+Br6032,supertype_label,Astro_3,2,old_correlation
+Br6032,supertype_label,L5 ET_1,2,old_correlation
+Br6032,supertype_label,Pvalb_10,2,old_correlation
+Br6032,supertype_label,Sncg_8,1,old_correlation
+Br6032,supertype_label,L5 IT_1,1,old_correlation
+Br6032,supertype_label,Vip_6,1,old_correlation
+Br6032,supertype_label,Pvalb_12,1,old_correlation
+Br6032,supertype_label,Unassigned,0,old_correlation
+Br6389,class_label,Non-neuronal and Non-neural,34383,old_correlation
+Br6389,class_label,Neuronal: Glutamatergic,12877,old_correlation
+Br6389,class_label,Neuronal: GABAergic,3980,old_correlation
+Br6389,class_label,Unassigned,0,old_correlation
+Br6389,subclass_label,Oligodendrocyte,14929,old_correlation
+Br6389,subclass_label,Astrocyte,5531,old_correlation
+Br6389,subclass_label,L2/3 IT,5354,old_correlation
+Br6389,subclass_label,VLMC,5336,old_correlation
+Br6389,subclass_label,Endothelial,5153,old_correlation
+Br6389,subclass_label,L4 IT,2847,old_correlation
+Br6389,subclass_label,Microglia-PVM,2670,old_correlation
+Br6389,subclass_label,L6b,2251,old_correlation
+Br6389,subclass_label,Sst,1237,old_correlation
+Br6389,subclass_label,L5 IT,1211,old_correlation
+Br6389,subclass_label,Vip,978,old_correlation
+Br6389,subclass_label,OPC,764,old_correlation
+Br6389,subclass_label,Pvalb,595,old_correlation
+Br6389,subclass_label,L5 ET,449,old_correlation
+Br6389,subclass_label,Lamp5,410,old_correlation
+Br6389,subclass_label,L6 IT,302,old_correlation
+Br6389,subclass_label,Chandelier,251,old_correlation
+Br6389,subclass_label,Sncg,243,old_correlation
+Br6389,subclass_label,L5/6 NP,216,old_correlation
+Br6389,subclass_label,L6 CT,156,old_correlation
+Br6389,subclass_label,Pax6,116,old_correlation
+Br6389,subclass_label,L6 IT Car3,91,old_correlation
+Br6389,subclass_label,Sst Chodl,90,old_correlation
+Br6389,subclass_label,Lamp5 Lhx6,60,old_correlation
+Br6389,subclass_label,Unassigned,0,old_correlation
+Br6389,supertype_label,Oligo_4,10107,old_correlation
+Br6389,supertype_label,Endo_2,3964,old_correlation
+Br6389,supertype_label,SMC-SEAAD,3657,old_correlation
+Br6389,supertype_label,Astro_2,3297,old_correlation
+Br6389,supertype_label,Oligo_2_1-SEAAD,3145,old_correlation
+Br6389,supertype_label,L4 IT_1,1529,old_correlation
+Br6389,supertype_label,L2/3 IT_12,1340,old_correlation
+Br6389,supertype_label,Endo_1,1133,old_correlation
+Br6389,supertype_label,Oligo_3,1088,old_correlation
+Br6389,supertype_label,L2/3 IT_7,1071,old_correlation
+Br6389,supertype_label,L2/3 IT_2,1067,old_correlation
+Br6389,supertype_label,L2/3 IT_1,1062,old_correlation
+Br6389,supertype_label,Pericyte_1,869,old_correlation
+Br6389,supertype_label,Astro_4,834,old_correlation
+Br6389,supertype_label,L6b_6,826,old_correlation
+Br6389,supertype_label,L4 IT_2,818,old_correlation
+Br6389,supertype_label,Micro-PVM_2,779,old_correlation
+Br6389,supertype_label,Micro-PVM_3-SEAAD,778,old_correlation
+Br6389,supertype_label,VLMC_1,749,old_correlation
+Br6389,supertype_label,L6b_2,631,old_correlation
+Br6389,supertype_label,L6b_1,616,old_correlation
+Br6389,supertype_label,Lymphocyte,600,old_correlation
+Br6389,supertype_label,OPC_2_1-SEAAD,594,old_correlation
+Br6389,supertype_label,Astro_5,594,old_correlation
+Br6389,supertype_label,Oligo_1,589,old_correlation
+Br6389,supertype_label,L5 IT_6,470,old_correlation
+Br6389,supertype_label,Pvalb_15,441,old_correlation
+Br6389,supertype_label,Astro_3,440,old_correlation
+Br6389,supertype_label,L5 ET_2,411,old_correlation
+Br6389,supertype_label,Astro_6-SEAAD,363,old_correlation
+Br6389,supertype_label,Monocyte,344,old_correlation
+Br6389,supertype_label,Sst_10,340,old_correlation
+Br6389,supertype_label,L2/3 IT_13,320,old_correlation
+Br6389,supertype_label,L4 IT_4,304,old_correlation
+Br6389,supertype_label,L5 IT_7,285,old_correlation
+Br6389,supertype_label,L5 IT_2,276,old_correlation
+Br6389,supertype_label,Vip_21,252,old_correlation
+Br6389,supertype_label,L2/3 IT_5,226,old_correlation
+Br6389,supertype_label,L6 IT_2,219,old_correlation
+Br6389,supertype_label,L4 IT_3,196,old_correlation
+Br6389,supertype_label,L5/6 NP_4,176,old_correlation
+Br6389,supertype_label,OPC_1,169,old_correlation
+Br6389,supertype_label,Vip_19,160,old_correlation
+Br6389,supertype_label,Sst_3,157,old_correlation
+Br6389,supertype_label,L2/3 IT_3,157,old_correlation
+Br6389,supertype_label,Lamp5_1,149,old_correlation
+Br6389,supertype_label,Chandelier_1,140,old_correlation
+Br6389,supertype_label,Lamp5_5,138,old_correlation
+Br6389,supertype_label,Vip_23,122,old_correlation
+Br6389,supertype_label,Sst_5,117,old_correlation
+Br6389,supertype_label,Chandelier_2,111,old_correlation
+Br6389,supertype_label,Sst_20,107,old_correlation
+Br6389,supertype_label,Vip_1,105,old_correlation
+Br6389,supertype_label,Sncg_5,102,old_correlation
+Br6389,supertype_label,Sst_19,100,old_correlation
+Br6389,supertype_label,Sst_7,97,old_correlation
+Br6389,supertype_label,L6 CT_3,91,old_correlation
+Br6389,supertype_label,L5 IT_5,90,old_correlation
+Br6389,supertype_label,L6b_5,89,old_correlation
+Br6389,supertype_label,Sst_11,85,old_correlation
+Br6389,supertype_label,L6 IT_1,83,old_correlation
+Br6389,supertype_label,L6 IT Car3_3,79,old_correlation
+Br6389,supertype_label,Micro-PVM_1,70,old_correlation
+Br6389,supertype_label,Lamp5_3,70,old_correlation
+Br6389,supertype_label,Sncg_4,68,old_correlation
+Br6389,supertype_label,Vip_16,67,old_correlation
+Br6389,supertype_label,Sst Chodl_2,66,old_correlation
+Br6389,supertype_label,Sst_25,65,old_correlation
+Br6389,supertype_label,L6b_4,64,old_correlation
+Br6389,supertype_label,L6 CT_2,64,old_correlation
+Br6389,supertype_label,Pericyte_2-SEAAD,61,old_correlation
+Br6389,supertype_label,Micro-PVM_2_1-SEAAD,60,old_correlation
+Br6389,supertype_label,Lamp5_Lhx6_1,60,old_correlation
+Br6389,supertype_label,Vip_14,58,old_correlation
+Br6389,supertype_label,Pvalb_8,57,old_correlation
+Br6389,supertype_label,Endo_3,56,old_correlation
+Br6389,supertype_label,Pax6_2,55,old_correlation
+Br6389,supertype_label,Sst_13,54,old_correlation
+Br6389,supertype_label,L5 IT_3,50,old_correlation
+Br6389,supertype_label,L2/3 IT_10,49,old_correlation
+Br6389,supertype_label,Sst_1,44,old_correlation
+Br6389,supertype_label,L2/3 IT_8,41,old_correlation
+Br6389,supertype_label,L5 IT_1,40,old_correlation
+Br6389,supertype_label,L5 ET_1,38,old_correlation
+Br6389,supertype_label,Pax6_1,38,old_correlation
+Br6389,supertype_label,Pvalb_13,34,old_correlation
+Br6389,supertype_label,Vip_2,31,old_correlation
+Br6389,supertype_label,Vip_13,30,old_correlation
+Br6389,supertype_label,Micro-PVM_2_3-SEAAD,28,old_correlation
+Br6389,supertype_label,Vip_5,27,old_correlation
+Br6389,supertype_label,Vip_6,27,old_correlation
+Br6389,supertype_label,Sst_4,26,old_correlation
+Br6389,supertype_label,Pvalb_6,26,old_correlation
+Br6389,supertype_label,L6b_3,25,old_correlation
+Br6389,supertype_label,Lamp5_4,25,old_correlation
+Br6389,supertype_label,Lamp5_2,25,old_correlation
+Br6389,supertype_label,Sst Chodl_1,24,old_correlation
+Br6389,supertype_label,Sncg_2,23,old_correlation
+Br6389,supertype_label,Sncg_6,23,old_correlation
+Br6389,supertype_label,Vip_12,22,old_correlation
+Br6389,supertype_label,Vip_9,22,old_correlation
+Br6389,supertype_label,L2/3 IT_6,21,old_correlation
+Br6389,supertype_label,Vip_18,20,old_correlation
+Br6389,supertype_label,Vip_4,18,old_correlation
+Br6389,supertype_label,Sncg_8,17,old_correlation
+Br6389,supertype_label,L5/6 NP_6,17,old_correlation
+Br6389,supertype_label,Sst_22,15,old_correlation
+Br6389,supertype_label,Sst_9,14,old_correlation
+Br6389,supertype_label,Vip_15,14,old_correlation
+Br6389,supertype_label,Pax6_3,13,old_correlation
+Br6389,supertype_label,Pvalb_10,12,old_correlation
+Br6389,supertype_label,Micro-PVM_4-SEAAD,11,old_correlation
+Br6389,supertype_label,L6 IT Car3_1,10,old_correlation
+Br6389,supertype_label,Pvalb_12,10,old_correlation
+Br6389,supertype_label,Pax6_4,10,old_correlation
+Br6389,supertype_label,Sncg_3,10,old_correlation
+Br6389,supertype_label,L5/6 NP_1,10,old_correlation
+Br6389,supertype_label,L5/6 NP_2,9,old_correlation
+Br6389,supertype_label,Sst_12,8,old_correlation
+Br6389,supertype_label,Pvalb_5,7,old_correlation
+Br6389,supertype_label,Sst_2,6,old_correlation
+Br6389,supertype_label,L5/6 NP_3,4,old_correlation
+Br6389,supertype_label,Pvalb_9,4,old_correlation
+Br6389,supertype_label,Lamp5_6,3,old_correlation
+Br6389,supertype_label,Astro_1,3,old_correlation
+Br6389,supertype_label,Vip_11,3,old_correlation
+Br6389,supertype_label,L6 IT Car3_2,2,old_correlation
+Br6389,supertype_label,Sst_23,2,old_correlation
+Br6389,supertype_label,Pvalb_7,2,old_correlation
+Br6389,supertype_label,L6 CT_4,1,old_correlation
+Br6389,supertype_label,OPC_2_2-SEAAD,1,old_correlation
+Br6389,supertype_label,Pvalb_1,1,old_correlation
+Br6389,supertype_label,Pvalb_2,1,old_correlation
+Br6389,supertype_label,Unassigned,0,old_correlation
+Br6432,class_label,Non-neuronal and Non-neural,24772,old_correlation
+Br6432,class_label,Neuronal: Glutamatergic,9829,old_correlation
+Br6432,class_label,Neuronal: GABAergic,5215,old_correlation
+Br6432,class_label,Unassigned,0,old_correlation
+Br6432,subclass_label,Oligodendrocyte,8832,old_correlation
+Br6432,subclass_label,L2/3 IT,6561,old_correlation
+Br6432,subclass_label,Endothelial,6488,old_correlation
+Br6432,subclass_label,Astrocyte,3915,old_correlation
+Br6432,subclass_label,VLMC,2666,old_correlation
+Br6432,subclass_label,Microglia-PVM,2496,old_correlation
+Br6432,subclass_label,Vip,1616,old_correlation
+Br6432,subclass_label,Pvalb,1229,old_correlation
+Br6432,subclass_label,L4 IT,1046,old_correlation
+Br6432,subclass_label,L6b,776,old_correlation
+Br6432,subclass_label,Sst,621,old_correlation
+Br6432,subclass_label,L6 IT,539,old_correlation
+Br6432,subclass_label,Lamp5,517,old_correlation
+Br6432,subclass_label,L5 IT,502,old_correlation
+Br6432,subclass_label,Chandelier,500,old_correlation
+Br6432,subclass_label,OPC,375,old_correlation
+Br6432,subclass_label,Sncg,295,old_correlation
+Br6432,subclass_label,Pax6,225,old_correlation
+Br6432,subclass_label,Sst Chodl,133,old_correlation
+Br6432,subclass_label,L5/6 NP,130,old_correlation
+Br6432,subclass_label,L6 CT,123,old_correlation
+Br6432,subclass_label,L5 ET,83,old_correlation
+Br6432,subclass_label,Lamp5 Lhx6,79,old_correlation
+Br6432,subclass_label,L6 IT Car3,69,old_correlation
+Br6432,subclass_label,Unassigned,0,old_correlation
+Br6432,supertype_label,Oligo_4,8366,old_correlation
+Br6432,supertype_label,Endo_1,4474,old_correlation
+Br6432,supertype_label,Micro-PVM_2,2290,old_correlation
+Br6432,supertype_label,Endo_2,2014,old_correlation
+Br6432,supertype_label,L2/3 IT_7,1793,old_correlation
+Br6432,supertype_label,VLMC_2,1722,old_correlation
+Br6432,supertype_label,Astro_4,1658,old_correlation
+Br6432,supertype_label,L2/3 IT_13,1469,old_correlation
+Br6432,supertype_label,L2/3 IT_12,1323,old_correlation
+Br6432,supertype_label,Astro_5,1304,old_correlation
+Br6432,supertype_label,L2/3 IT_8,1266,old_correlation
+Br6432,supertype_label,Vip_21,1179,old_correlation
+Br6432,supertype_label,VLMC_1,944,old_correlation
+Br6432,supertype_label,Astro_2,843,old_correlation
+Br6432,supertype_label,Pvalb_8,755,old_correlation
+Br6432,supertype_label,L4 IT_1,656,old_correlation
+Br6432,supertype_label,L6 IT_2,527,old_correlation
+Br6432,supertype_label,Chandelier_2,488,old_correlation
+Br6432,supertype_label,L2/3 IT_2,466,old_correlation
+Br6432,supertype_label,L6b_1,426,old_correlation
+Br6432,supertype_label,Oligo_1,396,old_correlation
+Br6432,supertype_label,L5 IT_6,373,old_correlation
+Br6432,supertype_label,Lamp5_5,361,old_correlation
+Br6432,supertype_label,L4 IT_2,322,old_correlation
+Br6432,supertype_label,Sst_11,237,old_correlation
+Br6432,supertype_label,Micro-PVM_1,206,old_correlation
+Br6432,supertype_label,Vip_1,201,old_correlation
+Br6432,supertype_label,OPC_2,194,old_correlation
+Br6432,supertype_label,OPC_1,181,old_correlation
+Br6432,supertype_label,L6b_2,177,old_correlation
+Br6432,supertype_label,Pax6_1,171,old_correlation
+Br6432,supertype_label,Sst_10,166,old_correlation
+Br6432,supertype_label,L2/3 IT_3,160,old_correlation
+Br6432,supertype_label,Pvalb_5,140,old_correlation
+Br6432,supertype_label,Pvalb_6,129,old_correlation
+Br6432,supertype_label,Vip_9,123,old_correlation
+Br6432,supertype_label,Sst Chodl_2,118,old_correlation
+Br6432,supertype_label,L6b_6,116,old_correlation
+Br6432,supertype_label,Sncg_5,108,old_correlation
+Br6432,supertype_label,Astro_3,108,old_correlation
+Br6432,supertype_label,L5/6 NP_3,104,old_correlation
+Br6432,supertype_label,L6 CT_3,99,old_correlation
+Br6432,supertype_label,L5 IT_2,98,old_correlation
+Br6432,supertype_label,Lamp5_2,86,old_correlation
+Br6432,supertype_label,Pvalb_2,82,old_correlation
+Br6432,supertype_label,L5 ET_2,82,old_correlation
+Br6432,supertype_label,Lamp5_Lhx6_1,79,old_correlation
+Br6432,supertype_label,Sncg_3,76,old_correlation
+Br6432,supertype_label,Sncg_2,73,old_correlation
+Br6432,supertype_label,L6 IT Car3_3,69,old_correlation
+Br6432,supertype_label,L2/3 IT_5,68,old_correlation
+Br6432,supertype_label,Lamp5_3,66,old_correlation
+Br6432,supertype_label,Oligo_2,57,old_correlation
+Br6432,supertype_label,L4 IT_4,56,old_correlation
+Br6432,supertype_label,Pvalb_15,55,old_correlation
+Br6432,supertype_label,Sst_4,54,old_correlation
+Br6432,supertype_label,Pvalb_14,51,old_correlation
+Br6432,supertype_label,Sst_20,43,old_correlation
+Br6432,supertype_label,Vip_19,41,old_correlation
+Br6432,supertype_label,Pax6_4,30,old_correlation
+Br6432,supertype_label,L5 IT_7,30,old_correlation
+Br6432,supertype_label,Sst_2,29,old_correlation
+Br6432,supertype_label,Vip_16,28,old_correlation
+Br6432,supertype_label,Sst_5,28,old_correlation
+Br6432,supertype_label,L6b_3,26,old_correlation
+Br6432,supertype_label,Sncg_6,22,old_correlation
+Br6432,supertype_label,L6b_5,21,old_correlation
+Br6432,supertype_label,Sst_3,20,old_correlation
+Br6432,supertype_label,Sst_1,15,old_correlation
+Br6432,supertype_label,Pvalb_3,15,old_correlation
+Br6432,supertype_label,Sst Chodl_1,15,old_correlation
+Br6432,supertype_label,Pax6_2,14,old_correlation
+Br6432,supertype_label,Sncg_4,14,old_correlation
+Br6432,supertype_label,Oligo_3,13,old_correlation
+Br6432,supertype_label,Vip_12,12,old_correlation
+Br6432,supertype_label,L6 IT_1,12,old_correlation
+Br6432,supertype_label,Chandelier_1,12,old_correlation
+Br6432,supertype_label,L4 IT_3,12,old_correlation
+Br6432,supertype_label,Vip_4,11,old_correlation
+Br6432,supertype_label,L2/3 IT_1,11,old_correlation
+Br6432,supertype_label,Sst_25,11,old_correlation
+Br6432,supertype_label,Vip_14,10,old_correlation
+Br6432,supertype_label,Pax6_3,10,old_correlation
+Br6432,supertype_label,L6b_4,10,old_correlation
+Br6432,supertype_label,L6 CT_1,9,old_correlation
+Br6432,supertype_label,Sst_19,8,old_correlation
+Br6432,supertype_label,L5/6 NP_1,8,old_correlation
+Br6432,supertype_label,L5/6 NP_6,8,old_correlation
+Br6432,supertype_label,L6 CT_4,8,old_correlation
+Br6432,supertype_label,L6 CT_2,7,old_correlation
+Br6432,supertype_label,Sst_7,7,old_correlation
+Br6432,supertype_label,L5/6 NP_4,6,old_correlation
+Br6432,supertype_label,Vip_13,6,old_correlation
+Br6432,supertype_label,L2/3 IT_6,5,old_correlation
+Br6432,supertype_label,Lamp5_6,4,old_correlation
+Br6432,supertype_label,L5/6 NP_2,4,old_correlation
+Br6432,supertype_label,Vip_6,2,old_correlation
+Br6432,supertype_label,Vip_15,2,old_correlation
+Br6432,supertype_label,Sst_9,2,old_correlation
+Br6432,supertype_label,Sncg_8,2,old_correlation
+Br6432,supertype_label,Astro_1,2,old_correlation
+Br6432,supertype_label,Vip_5,1,old_correlation
+Br6432,supertype_label,L5 IT_3,1,old_correlation
+Br6432,supertype_label,L5 ET_1,1,old_correlation
+Br6432,supertype_label,Pvalb_7,1,old_correlation
+Br6432,supertype_label,Sst_23,1,old_correlation
+Br6432,supertype_label,Pvalb_13,1,old_correlation
+Br6432,supertype_label,Unassigned,0,old_correlation
+Br6437,class_label,Non-neuronal and Non-neural,35113,old_correlation
+Br6437,class_label,Neuronal: Glutamatergic,15509,old_correlation
+Br6437,class_label,Neuronal: GABAergic,6996,old_correlation
+Br6437,class_label,Unassigned,0,old_correlation
+Br6437,subclass_label,Oligodendrocyte,15645,old_correlation
+Br6437,subclass_label,L2/3 IT,8880,old_correlation
+Br6437,subclass_label,Endothelial,7982,old_correlation
+Br6437,subclass_label,Astrocyte,4633,old_correlation
+Br6437,subclass_label,VLMC,4070,old_correlation
+Br6437,subclass_label,Vip,2489,old_correlation
+Br6437,subclass_label,L4 IT,2305,old_correlation
+Br6437,subclass_label,Microglia-PVM,2053,old_correlation
+Br6437,subclass_label,L6b,1928,old_correlation
+Br6437,subclass_label,Pvalb,1747,old_correlation
+Br6437,subclass_label,L6 IT,1061,old_correlation
+Br6437,subclass_label,Sst,909,old_correlation
+Br6437,subclass_label,L5 IT,764,old_correlation
+Br6437,subclass_label,OPC,730,old_correlation
+Br6437,subclass_label,Chandelier,508,old_correlation
+Br6437,subclass_label,Lamp5,465,old_correlation
+Br6437,subclass_label,Sncg,356,old_correlation
+Br6437,subclass_label,Pax6,245,old_correlation
+Br6437,subclass_label,L5/6 NP,218,old_correlation
+Br6437,subclass_label,Sst Chodl,147,old_correlation
+Br6437,subclass_label,L6 CT,146,old_correlation
+Br6437,subclass_label,L5 ET,132,old_correlation
+Br6437,subclass_label,Lamp5 Lhx6,130,old_correlation
+Br6437,subclass_label,L6 IT Car3,75,old_correlation
+Br6437,subclass_label,Unassigned,0,old_correlation
+Br6437,supertype_label,Oligo_4,13250,old_correlation
+Br6437,supertype_label,Endo_1,5263,old_correlation
+Br6437,supertype_label,L2/3 IT_13,3144,old_correlation
+Br6437,supertype_label,Astro_4,2795,old_correlation
+Br6437,supertype_label,Endo_2,2716,old_correlation
+Br6437,supertype_label,VLMC_2,2536,old_correlation
+Br6437,supertype_label,L2/3 IT_7,2375,old_correlation
+Br6437,supertype_label,Vip_21,2059,old_correlation
+Br6437,supertype_label,Micro-PVM_2,1944,old_correlation
+Br6437,supertype_label,Oligo_1,1802,old_correlation
+Br6437,supertype_label,VLMC_1,1534,old_correlation
+Br6437,supertype_label,L2/3 IT_12,1474,old_correlation
+Br6437,supertype_label,L4 IT_1,1359,old_correlation
+Br6437,supertype_label,Pvalb_8,1112,old_correlation
+Br6437,supertype_label,L6b_1,1096,old_correlation
+Br6437,supertype_label,L6 IT_2,1061,old_correlation
+Br6437,supertype_label,L2/3 IT_8,1012,old_correlation
+Br6437,supertype_label,L4 IT_2,862,old_correlation
+Br6437,supertype_label,Astro_5,782,old_correlation
+Br6437,supertype_label,Astro_2,732,old_correlation
+Br6437,supertype_label,L2/3 IT_2,628,old_correlation
+Br6437,supertype_label,Oligo_2,525,old_correlation
+Br6437,supertype_label,L5 IT_6,521,old_correlation
+Br6437,supertype_label,Chandelier_2,493,old_correlation
+Br6437,supertype_label,OPC_1,485,old_correlation
+Br6437,supertype_label,L6b_6,354,old_correlation
+Br6437,supertype_label,L6b_2,349,old_correlation
+Br6437,supertype_label,Sst_11,338,old_correlation
+Br6437,supertype_label,Astro_3,322,old_correlation
+Br6437,supertype_label,Sst_10,274,old_correlation
+Br6437,supertype_label,Lamp5_5,253,old_correlation
+Br6437,supertype_label,OPC_2,245,old_correlation
+Br6437,supertype_label,Pvalb_6,211,old_correlation
+Br6437,supertype_label,Pax6_1,204,old_correlation
+Br6437,supertype_label,Vip_1,195,old_correlation
+Br6437,supertype_label,L5 IT_2,189,old_correlation
+Br6437,supertype_label,Pvalb_5,184,old_correlation
+Br6437,supertype_label,L2/3 IT_3,173,old_correlation
+Br6437,supertype_label,L5/6 NP_3,172,old_correlation
+Br6437,supertype_label,Lamp5_2,146,old_correlation
+Br6437,supertype_label,L5 ET_2,130,old_correlation
+Br6437,supertype_label,Lamp5_Lhx6_1,130,old_correlation
+Br6437,supertype_label,Pvalb_2,119,old_correlation
+Br6437,supertype_label,Sst Chodl_2,118,old_correlation
+Br6437,supertype_label,Vip_9,116,old_correlation
+Br6437,supertype_label,L6 CT_3,116,old_correlation
+Br6437,supertype_label,Sncg_5,109,old_correlation
+Br6437,supertype_label,Micro-PVM_1,109,old_correlation
+Br6437,supertype_label,Sncg_2,99,old_correlation
+Br6437,supertype_label,Sncg_3,88,old_correlation
+Br6437,supertype_label,L6 IT Car3_3,75,old_correlation
+Br6437,supertype_label,Oligo_3,68,old_correlation
+Br6437,supertype_label,L4 IT_4,66,old_correlation
+Br6437,supertype_label,L6b_3,65,old_correlation
+Br6437,supertype_label,L2/3 IT_5,64,old_correlation
+Br6437,supertype_label,Lamp5_3,64,old_correlation
+Br6437,supertype_label,Sst_20,60,old_correlation
+Br6437,supertype_label,Pvalb_15,53,old_correlation
+Br6437,supertype_label,Pvalb_14,52,old_correlation
+Br6437,supertype_label,Sst_4,49,old_correlation
+Br6437,supertype_label,L5 IT_7,48,old_correlation
+Br6437,supertype_label,L6b_5,42,old_correlation
+Br6437,supertype_label,Sst_2,34,old_correlation
+Br6437,supertype_label,Sst_3,34,old_correlation
+Br6437,supertype_label,Sst_25,33,old_correlation
+Br6437,supertype_label,Sncg_6,33,old_correlation
+Br6437,supertype_label,Sst Chodl_1,29,old_correlation
+Br6437,supertype_label,Sst_5,29,old_correlation
+Br6437,supertype_label,Vip_16,28,old_correlation
+Br6437,supertype_label,Vip_19,28,old_correlation
+Br6437,supertype_label,Sncg_4,26,old_correlation
+Br6437,supertype_label,Pax6_4,26,old_correlation
+Br6437,supertype_label,Sst_7,23,old_correlation
+Br6437,supertype_label,L5/6 NP_6,22,old_correlation
+Br6437,supertype_label,L6b_4,22,old_correlation
+Br6437,supertype_label,Sst_1,22,old_correlation
+Br6437,supertype_label,L4 IT_3,18,old_correlation
+Br6437,supertype_label,Vip_14,17,old_correlation
+Br6437,supertype_label,Vip_12,15,old_correlation
+Br6437,supertype_label,Chandelier_1,15,old_correlation
+Br6437,supertype_label,L5/6 NP_1,13,old_correlation
+Br6437,supertype_label,L6 CT_1,13,old_correlation
+Br6437,supertype_label,L6 CT_4,10,old_correlation
+Br6437,supertype_label,Vip_4,9,old_correlation
+Br6437,supertype_label,L5/6 NP_4,9,old_correlation
+Br6437,supertype_label,Pvalb_3,9,old_correlation
+Br6437,supertype_label,Vip_5,8,old_correlation
+Br6437,supertype_label,L2/3 IT_1,8,old_correlation
+Br6437,supertype_label,Pax6_2,8,old_correlation
+Br6437,supertype_label,Sst_9,7,old_correlation
+Br6437,supertype_label,Pax6_3,7,old_correlation
+Br6437,supertype_label,L6 CT_2,7,old_correlation
+Br6437,supertype_label,Vip_13,7,old_correlation
+Br6437,supertype_label,L5 IT_3,6,old_correlation
+Br6437,supertype_label,Pvalb_7,6,old_correlation
+Br6437,supertype_label,Sst_19,6,old_correlation
+Br6437,supertype_label,Vip_6,4,old_correlation
+Br6437,supertype_label,Endo_3,3,old_correlation
+Br6437,supertype_label,L5 ET_1,2,old_correlation
+Br6437,supertype_label,L5/6 NP_2,2,old_correlation
+Br6437,supertype_label,L2/3 IT_6,2,old_correlation
+Br6437,supertype_label,Astro_1,2,old_correlation
+Br6437,supertype_label,Vip_15,1,old_correlation
+Br6437,supertype_label,Lamp5_1,1,old_correlation
+Br6437,supertype_label,Sncg_8,1,old_correlation
+Br6437,supertype_label,Vip_11,1,old_correlation
+Br6437,supertype_label,Lamp5_6,1,old_correlation
+Br6437,supertype_label,Pvalb_13,1,old_correlation
+Br6437,supertype_label,Vip_2,1,old_correlation
+Br6437,supertype_label,Unassigned,0,old_correlation
+Br6496,class_label,Non-neuronal and Non-neural,35769,old_correlation
+Br6496,class_label,Neuronal: Glutamatergic,15044,old_correlation
+Br6496,class_label,Neuronal: GABAergic,7095,old_correlation
+Br6496,class_label,Unassigned,0,old_correlation
+Br6496,subclass_label,Oligodendrocyte,17456,old_correlation
+Br6496,subclass_label,L2/3 IT,9407,old_correlation
+Br6496,subclass_label,Endothelial,7564,old_correlation
+Br6496,subclass_label,Astrocyte,4679,old_correlation
+Br6496,subclass_label,VLMC,2710,old_correlation
+Br6496,subclass_label,Microglia-PVM,2679,old_correlation
+Br6496,subclass_label,Vip,2347,old_correlation
+Br6496,subclass_label,L4 IT,2004,old_correlation
+Br6496,subclass_label,Pvalb,1686,old_correlation
+Br6496,subclass_label,L6b,1610,old_correlation
+Br6496,subclass_label,Sst,1209,old_correlation
+Br6496,subclass_label,L5 IT,747,old_correlation
+Br6496,subclass_label,L6 IT,718,old_correlation
+Br6496,subclass_label,OPC,681,old_correlation
+Br6496,subclass_label,Lamp5,553,old_correlation
+Br6496,subclass_label,Chandelier,407,old_correlation
+Br6496,subclass_label,Sncg,390,old_correlation
+Br6496,subclass_label,Pax6,281,old_correlation
+Br6496,subclass_label,L5/6 NP,249,old_correlation
+Br6496,subclass_label,L6 CT,159,old_correlation
+Br6496,subclass_label,Lamp5 Lhx6,129,old_correlation
+Br6496,subclass_label,Sst Chodl,93,old_correlation
+Br6496,subclass_label,L5 ET,89,old_correlation
+Br6496,subclass_label,L6 IT Car3,61,old_correlation
+Br6496,subclass_label,Unassigned,0,old_correlation
+Br6496,supertype_label,Oligo_4,16073,old_correlation
+Br6496,supertype_label,Endo_1,4654,old_correlation
+Br6496,supertype_label,L2/3 IT_7,4002,old_correlation
+Br6496,supertype_label,Astro_4,3334,old_correlation
+Br6496,supertype_label,Endo_2,2909,old_correlation
+Br6496,supertype_label,Micro-PVM_2,2568,old_correlation
+Br6496,supertype_label,L2/3 IT_12,2250,old_correlation
+Br6496,supertype_label,VLMC_2,1941,old_correlation
+Br6496,supertype_label,Vip_21,1697,old_correlation
+Br6496,supertype_label,L2/3 IT_13,1652,old_correlation
+Br6496,supertype_label,Oligo_1,1226,old_correlation
+Br6496,supertype_label,L4 IT_1,1102,old_correlation
+Br6496,supertype_label,Pvalb_8,1062,old_correlation
+Br6496,supertype_label,VLMC_1,769,old_correlation
+Br6496,supertype_label,L4 IT_2,755,old_correlation
+Br6496,supertype_label,L6 IT_2,703,old_correlation
+Br6496,supertype_label,L6b_1,700,old_correlation
+Br6496,supertype_label,L2/3 IT_8,683,old_correlation
+Br6496,supertype_label,L5 IT_6,562,old_correlation
+Br6496,supertype_label,Astro_2,552,old_correlation
+Br6496,supertype_label,Sst_11,530,old_correlation
+Br6496,supertype_label,Astro_5,448,old_correlation
+Br6496,supertype_label,L6b_2,421,old_correlation
+Br6496,supertype_label,Chandelier_2,406,old_correlation
+Br6496,supertype_label,L6b_6,387,old_correlation
+Br6496,supertype_label,L2/3 IT_2,377,old_correlation
+Br6496,supertype_label,Vip_1,343,old_correlation
+Br6496,supertype_label,OPC_2,343,old_correlation
+Br6496,supertype_label,Astro_3,343,old_correlation
+Br6496,supertype_label,OPC_1,338,old_correlation
+Br6496,supertype_label,Sst_10,337,old_correlation
+Br6496,supertype_label,L2/3 IT_3,283,old_correlation
+Br6496,supertype_label,Lamp5_5,255,old_correlation
+Br6496,supertype_label,Pax6_1,216,old_correlation
+Br6496,supertype_label,L5/6 NP_3,207,old_correlation
+Br6496,supertype_label,Lamp5_2,202,old_correlation
+Br6496,supertype_label,Pvalb_6,194,old_correlation
+Br6496,supertype_label,Pvalb_5,174,old_correlation
+Br6496,supertype_label,L5 IT_2,159,old_correlation
+Br6496,supertype_label,L2/3 IT_5,150,old_correlation
+Br6496,supertype_label,L6 CT_3,132,old_correlation
+Br6496,supertype_label,Lamp5_Lhx6_1,129,old_correlation
+Br6496,supertype_label,Sncg_5,124,old_correlation
+Br6496,supertype_label,Vip_9,120,old_correlation
+Br6496,supertype_label,Pvalb_2,116,old_correlation
+Br6496,supertype_label,Oligo_2,115,old_correlation
+Br6496,supertype_label,Micro-PVM_1,111,old_correlation
+Br6496,supertype_label,L4 IT_4,108,old_correlation
+Br6496,supertype_label,Sncg_3,98,old_correlation
+Br6496,supertype_label,Sncg_2,95,old_correlation
+Br6496,supertype_label,Lamp5_3,93,old_correlation
+Br6496,supertype_label,L5 ET_2,86,old_correlation
+Br6496,supertype_label,Sst_20,85,old_correlation
+Br6496,supertype_label,Sst_4,78,old_correlation
+Br6496,supertype_label,Pvalb_14,71,old_correlation
+Br6496,supertype_label,Sst Chodl_2,71,old_correlation
+Br6496,supertype_label,Vip_16,69,old_correlation
+Br6496,supertype_label,L6 IT Car3_3,61,old_correlation
+Br6496,supertype_label,Vip_19,55,old_correlation
+Br6496,supertype_label,L6b_5,50,old_correlation
+Br6496,supertype_label,Pvalb_15,46,old_correlation
+Br6496,supertype_label,Sncg_6,44,old_correlation
+Br6496,supertype_label,Oligo_3,42,old_correlation
+Br6496,supertype_label,Pax6_4,40,old_correlation
+Br6496,supertype_label,L6b_3,39,old_correlation
+Br6496,supertype_label,L4 IT_3,39,old_correlation
+Br6496,supertype_label,Sst_2,35,old_correlation
+Br6496,supertype_label,Sst_1,32,old_correlation
+Br6496,supertype_label,Sst_5,31,old_correlation
+Br6496,supertype_label,Sst_25,31,old_correlation
+Br6496,supertype_label,Sst_3,27,old_correlation
+Br6496,supertype_label,Sncg_4,27,old_correlation
+Br6496,supertype_label,L5/6 NP_6,23,old_correlation
+Br6496,supertype_label,Vip_4,23,old_correlation
+Br6496,supertype_label,Sst Chodl_1,22,old_correlation
+Br6496,supertype_label,L5 IT_7,22,old_correlation
+Br6496,supertype_label,L6 CT_1,19,old_correlation
+Br6496,supertype_label,Pax6_2,19,old_correlation
+Br6496,supertype_label,Pvalb_3,17,old_correlation
+Br6496,supertype_label,L6 IT_1,15,old_correlation
+Br6496,supertype_label,Vip_14,15,old_correlation
+Br6496,supertype_label,L6b_4,13,old_correlation
+Br6496,supertype_label,L5/6 NP_1,11,old_correlation
+Br6496,supertype_label,Sst_7,11,old_correlation
+Br6496,supertype_label,Sst_19,10,old_correlation
+Br6496,supertype_label,Vip_12,10,old_correlation
+Br6496,supertype_label,L2/3 IT_1,9,old_correlation
+Br6496,supertype_label,L5/6 NP_4,7,old_correlation
+Br6496,supertype_label,Vip_5,7,old_correlation
+Br6496,supertype_label,Pax6_3,6,old_correlation
+Br6496,supertype_label,L6 CT_2,5,old_correlation
+Br6496,supertype_label,Pvalb_7,4,old_correlation
+Br6496,supertype_label,L5 IT_3,4,old_correlation
+Br6496,supertype_label,Vip_13,3,old_correlation
+Br6496,supertype_label,L5 ET_1,3,old_correlation
+Br6496,supertype_label,Lamp5_6,3,old_correlation
+Br6496,supertype_label,L6 CT_4,3,old_correlation
+Br6496,supertype_label,Vip_11,2,old_correlation
+Br6496,supertype_label,Vip_15,2,old_correlation
+Br6496,supertype_label,Pvalb_13,2,old_correlation
+Br6496,supertype_label,Sncg_8,2,old_correlation
+Br6496,supertype_label,Astro_1,2,old_correlation
+Br6496,supertype_label,Vip_6,1,old_correlation
+Br6496,supertype_label,Chandelier_1,1,old_correlation
+Br6496,supertype_label,Endo_3,1,old_correlation
+Br6496,supertype_label,Sst_23,1,old_correlation
+Br6496,supertype_label,Sst_9,1,old_correlation
+Br6496,supertype_label,L2/3 IT_6,1,old_correlation
+Br6496,supertype_label,L5/6 NP_2,1,old_correlation
+Br6496,supertype_label,Unassigned,0,old_correlation
+Br8433,class_label,Non-neuronal and Non-neural,36434,old_correlation
+Br8433,class_label,Neuronal: Glutamatergic,16123,old_correlation
+Br8433,class_label,Neuronal: GABAergic,7245,old_correlation
+Br8433,class_label,Unassigned,0,old_correlation
+Br8433,subclass_label,Oligodendrocyte,11392,old_correlation
+Br8433,subclass_label,Endothelial,10981,old_correlation
+Br8433,subclass_label,L2/3 IT,10171,old_correlation
+Br8433,subclass_label,Astrocyte,7004,old_correlation
+Br8433,subclass_label,VLMC,3768,old_correlation
+Br8433,subclass_label,Microglia-PVM,2897,old_correlation
+Br8433,subclass_label,Vip,2111,old_correlation
+Br8433,subclass_label,L4 IT,1751,old_correlation
+Br8433,subclass_label,L6b,1470,old_correlation
+Br8433,subclass_label,Pvalb,1459,old_correlation
+Br8433,subclass_label,L6 IT,1163,old_correlation
+Br8433,subclass_label,Sst,1021,old_correlation
+Br8433,subclass_label,L5 IT,854,old_correlation
+Br8433,subclass_label,Chandelier,726,old_correlation
+Br8433,subclass_label,Lamp5,725,old_correlation
+Br8433,subclass_label,Sncg,442,old_correlation
+Br8433,subclass_label,OPC,392,old_correlation
+Br8433,subclass_label,Pax6,321,old_correlation
+Br8433,subclass_label,L5/6 NP,318,old_correlation
+Br8433,subclass_label,Sst Chodl,286,old_correlation
+Br8433,subclass_label,L6 CT,245,old_correlation
+Br8433,subclass_label,Lamp5 Lhx6,154,old_correlation
+Br8433,subclass_label,L5 ET,98,old_correlation
+Br8433,subclass_label,L6 IT Car3,53,old_correlation
+Br8433,subclass_label,Unassigned,0,old_correlation
+Br8433,supertype_label,Oligo_4,10419,old_correlation
+Br8433,supertype_label,Endo_1,8203,old_correlation
+Br8433,supertype_label,L2/3 IT_7,3251,old_correlation
+Br8433,supertype_label,Astro_4,3048,old_correlation
+Br8433,supertype_label,VLMC_2,2847,old_correlation
+Br8433,supertype_label,Astro_2,2746,old_correlation
+Br8433,supertype_label,Endo_2,2743,old_correlation
+Br8433,supertype_label,Micro-PVM_2,2677,old_correlation
+Br8433,supertype_label,L2/3 IT_13,2617,old_correlation
+Br8433,supertype_label,L2/3 IT_12,1757,old_correlation
+Br8433,supertype_label,L2/3 IT_8,1536,old_correlation
+Br8433,supertype_label,Vip_21,1484,old_correlation
+Br8433,supertype_label,L6 IT_2,1132,old_correlation
+Br8433,supertype_label,L4 IT_1,992,old_correlation
+Br8433,supertype_label,VLMC_1,921,old_correlation
+Br8433,supertype_label,Astro_5,880,old_correlation
+Br8433,supertype_label,Pvalb_8,802,old_correlation
+Br8433,supertype_label,Oligo_1,734,old_correlation
+Br8433,supertype_label,Chandelier_2,716,old_correlation
+Br8433,supertype_label,L4 IT_2,678,old_correlation
+Br8433,supertype_label,L6b_1,633,old_correlation
+Br8433,supertype_label,L2/3 IT_2,623,old_correlation
+Br8433,supertype_label,L5 IT_6,574,old_correlation
+Br8433,supertype_label,L6b_6,429,old_correlation
+Br8433,supertype_label,Lamp5_5,373,old_correlation
+Br8433,supertype_label,Vip_1,319,old_correlation
+Br8433,supertype_label,Sst_11,298,old_correlation
+Br8433,supertype_label,Sst_10,292,old_correlation
+Br8433,supertype_label,L2/3 IT_3,276,old_correlation
+Br8433,supertype_label,L5/6 NP_3,274,old_correlation
+Br8433,supertype_label,L6b_2,268,old_correlation
+Br8433,supertype_label,L5 IT_2,253,old_correlation
+Br8433,supertype_label,Sst Chodl_2,249,old_correlation
+Br8433,supertype_label,Pax6_1,233,old_correlation
+Br8433,supertype_label,Astro_3,226,old_correlation
+Br8433,supertype_label,OPC_1,223,old_correlation
+Br8433,supertype_label,L6 CT_3,222,old_correlation
+Br8433,supertype_label,Micro-PVM_1,220,old_correlation
+Br8433,supertype_label,Lamp5_2,220,old_correlation
+Br8433,supertype_label,Pvalb_6,198,old_correlation
+Br8433,supertype_label,Sncg_5,186,old_correlation
+Br8433,supertype_label,OPC_2,169,old_correlation
+Br8433,supertype_label,Pvalb_5,154,old_correlation
+Br8433,supertype_label,Lamp5_Lhx6_1,154,old_correlation
+Br8433,supertype_label,Vip_9,146,old_correlation
+Br8433,supertype_label,Pvalb_2,140,old_correlation
+Br8433,supertype_label,Oligo_2,137,old_correlation
+Br8433,supertype_label,Lamp5_3,129,old_correlation
+Br8433,supertype_label,Astro_1,104,old_correlation
+Br8433,supertype_label,Oligo_3,102,old_correlation
+Br8433,supertype_label,L2/3 IT_5,100,old_correlation
+Br8433,supertype_label,L5 ET_2,95,old_correlation
+Br8433,supertype_label,Sst_20,93,old_correlation
+Br8433,supertype_label,Sst_4,93,old_correlation
+Br8433,supertype_label,Sncg_3,89,old_correlation
+Br8433,supertype_label,Sncg_2,87,old_correlation
+Br8433,supertype_label,Pvalb_15,81,old_correlation
+Br8433,supertype_label,L4 IT_4,73,old_correlation
+Br8433,supertype_label,Pvalb_14,61,old_correlation
+Br8433,supertype_label,L6b_5,58,old_correlation
+Br8433,supertype_label,Sst_3,55,old_correlation
+Br8433,supertype_label,Vip_16,53,old_correlation
+Br8433,supertype_label,L6 IT Car3_3,52,old_correlation
+Br8433,supertype_label,Sncg_6,47,old_correlation
+Br8433,supertype_label,Sst_25,47,old_correlation
+Br8433,supertype_label,L6b_3,46,old_correlation
+Br8433,supertype_label,Sst_2,46,old_correlation
+Br8433,supertype_label,Vip_19,41,old_correlation
+Br8433,supertype_label,Pax6_4,40,old_correlation
+Br8433,supertype_label,Sst Chodl_1,37,old_correlation
+Br8433,supertype_label,L6b_4,36,old_correlation
+Br8433,supertype_label,Endo_3,35,old_correlation
+Br8433,supertype_label,Sst_1,31,old_correlation
+Br8433,supertype_label,Sncg_4,31,old_correlation
+Br8433,supertype_label,L6 IT_1,31,old_correlation
+Br8433,supertype_label,Pax6_2,30,old_correlation
+Br8433,supertype_label,Sst_7,26,old_correlation
+Br8433,supertype_label,Sst_5,25,old_correlation
+Br8433,supertype_label,L5/6 NP_6,23,old_correlation
+Br8433,supertype_label,L5 IT_7,23,old_correlation
+Br8433,supertype_label,Pax6_3,18,old_correlation
+Br8433,supertype_label,Vip_12,18,old_correlation
+Br8433,supertype_label,Vip_14,17,old_correlation
+Br8433,supertype_label,Vip_4,17,old_correlation
+Br8433,supertype_label,L5/6 NP_1,15,old_correlation
+Br8433,supertype_label,Sst_19,12,old_correlation
+Br8433,supertype_label,Chandelier_1,10,old_correlation
+Br8433,supertype_label,L2/3 IT_1,9,old_correlation
+Br8433,supertype_label,L6 CT_2,9,old_correlation
+Br8433,supertype_label,Pvalb_3,9,old_correlation
+Br8433,supertype_label,L4 IT_3,8,old_correlation
+Br8433,supertype_label,Pvalb_13,8,old_correlation
+Br8433,supertype_label,L6 CT_1,8,old_correlation
+Br8433,supertype_label,Vip_13,7,old_correlation
+Br8433,supertype_label,L6 CT_4,6,old_correlation
+Br8433,supertype_label,L5/6 NP_4,5,old_correlation
+Br8433,supertype_label,Vip_6,4,old_correlation
+Br8433,supertype_label,Lamp5_6,3,old_correlation
+Br8433,supertype_label,Sst_23,3,old_correlation
+Br8433,supertype_label,L5 IT_3,3,old_correlation
+Br8433,supertype_label,L5 ET_1,3,old_correlation
+Br8433,supertype_label,Pvalb_7,3,old_correlation
+Br8433,supertype_label,Vip_15,2,old_correlation
+Br8433,supertype_label,Sncg_8,2,old_correlation
+Br8433,supertype_label,Vip_5,2,old_correlation
+Br8433,supertype_label,L2/3 IT_6,2,old_correlation
+Br8433,supertype_label,L6 IT Car3_1,1,old_correlation
+Br8433,supertype_label,Pvalb_1,1,old_correlation
+Br8433,supertype_label,L5 IT_1,1,old_correlation
+Br8433,supertype_label,Pvalb_10,1,old_correlation
+Br8433,supertype_label,Vip_18,1,old_correlation
+Br8433,supertype_label,Pvalb_12,1,old_correlation
+Br8433,supertype_label,L5/6 NP_2,1,old_correlation
+Br8433,supertype_label,Unassigned,0,old_correlation
+Br8667,class_label,Non-neuronal and Non-neural,42836,old_correlation
+Br8667,class_label,Neuronal: Glutamatergic,16807,old_correlation
+Br8667,class_label,Neuronal: GABAergic,8045,old_correlation
+Br8667,class_label,Unassigned,0,old_correlation
+Br8667,subclass_label,Oligodendrocyte,15189,old_correlation
+Br8667,subclass_label,Endothelial,10966,old_correlation
+Br8667,subclass_label,L2/3 IT,9867,old_correlation
+Br8667,subclass_label,Astrocyte,8400,old_correlation
+Br8667,subclass_label,VLMC,3996,old_correlation
+Br8667,subclass_label,Microglia-PVM,3674,old_correlation
+Br8667,subclass_label,L4 IT,2755,old_correlation
+Br8667,subclass_label,Vip,2143,old_correlation
+Br8667,subclass_label,Pvalb,1757,old_correlation
+Br8667,subclass_label,Sst,1373,old_correlation
+Br8667,subclass_label,L6b,1328,old_correlation
+Br8667,subclass_label,L6 IT,1156,old_correlation
+Br8667,subclass_label,L5 IT,942,old_correlation
+Br8667,subclass_label,Chandelier,774,old_correlation
+Br8667,subclass_label,Lamp5,724,old_correlation
+Br8667,subclass_label,OPC,611,old_correlation
+Br8667,subclass_label,Sncg,467,old_correlation
+Br8667,subclass_label,Sst Chodl,341,old_correlation
+Br8667,subclass_label,L5/6 NP,311,old_correlation
+Br8667,subclass_label,Pax6,296,old_correlation
+Br8667,subclass_label,L6 CT,280,old_correlation
+Br8667,subclass_label,Lamp5 Lhx6,170,old_correlation
+Br8667,subclass_label,L5 ET,110,old_correlation
+Br8667,subclass_label,L6 IT Car3,58,old_correlation
+Br8667,subclass_label,Unassigned,0,old_correlation
+Br8667,supertype_label,Oligo_4,14104,old_correlation
+Br8667,supertype_label,Endo_1,7952,old_correlation
+Br8667,supertype_label,Micro-PVM_2,3441,old_correlation
+Br8667,supertype_label,Astro_2,3327,old_correlation
+Br8667,supertype_label,VLMC_2,3035,old_correlation
+Br8667,supertype_label,Endo_2,3009,old_correlation
+Br8667,supertype_label,Astro_4,2835,old_correlation
+Br8667,supertype_label,L2/3 IT_7,2679,old_correlation
+Br8667,supertype_label,L2/3 IT_13,2410,old_correlation
+Br8667,supertype_label,Astro_5,2048,old_correlation
+Br8667,supertype_label,L2/3 IT_12,2029,old_correlation
+Br8667,supertype_label,L2/3 IT_8,1650,old_correlation
+Br8667,supertype_label,Vip_21,1557,old_correlation
+Br8667,supertype_label,L4 IT_1,1292,old_correlation
+Br8667,supertype_label,L4 IT_2,1277,old_correlation
+Br8667,supertype_label,L6 IT_2,1150,old_correlation
+Br8667,supertype_label,Oligo_1,981,old_correlation
+Br8667,supertype_label,Pvalb_8,974,old_correlation
+Br8667,supertype_label,VLMC_1,961,old_correlation
+Br8667,supertype_label,L2/3 IT_2,792,old_correlation
+Br8667,supertype_label,Chandelier_2,752,old_correlation
+Br8667,supertype_label,L5 IT_6,657,old_correlation
+Br8667,supertype_label,L6b_1,577,old_correlation
+Br8667,supertype_label,Sst_10,440,old_correlation
+Br8667,supertype_label,Lamp5_5,378,old_correlation
+Br8667,supertype_label,L6b_6,367,old_correlation
+Br8667,supertype_label,OPC_1,352,old_correlation
+Br8667,supertype_label,Sst Chodl_2,321,old_correlation
+Br8667,supertype_label,L6b_2,296,old_correlation
+Br8667,supertype_label,Sst_11,286,old_correlation
+Br8667,supertype_label,Vip_1,283,old_correlation
+Br8667,supertype_label,L5/6 NP_3,273,old_correlation
+Br8667,supertype_label,OPC_2,259,old_correlation
+Br8667,supertype_label,L6 CT_3,255,old_correlation
+Br8667,supertype_label,Pvalb_6,254,old_correlation
+Br8667,supertype_label,Pvalb_5,239,old_correlation
+Br8667,supertype_label,L5 IT_2,237,old_correlation
+Br8667,supertype_label,Pax6_1,235,old_correlation
+Br8667,supertype_label,Micro-PVM_1,233,old_correlation
+Br8667,supertype_label,Lamp5_2,199,old_correlation
+Br8667,supertype_label,L2/3 IT_3,198,old_correlation
+Br8667,supertype_label,Sncg_5,181,old_correlation
+Br8667,supertype_label,Astro_3,180,old_correlation
+Br8667,supertype_label,Lamp5_Lhx6_1,170,old_correlation
+Br8667,supertype_label,Pvalb_2,163,old_correlation
+Br8667,supertype_label,L4 IT_4,160,old_correlation
+Br8667,supertype_label,Vip_9,151,old_correlation
+Br8667,supertype_label,Lamp5_3,145,old_correlation
+Br8667,supertype_label,Sncg_2,124,old_correlation
+Br8667,supertype_label,Sst_20,123,old_correlation
+Br8667,supertype_label,Sst_25,117,old_correlation
+Br8667,supertype_label,L5 ET_2,110,old_correlation
+Br8667,supertype_label,L2/3 IT_5,107,old_correlation
+Br8667,supertype_label,Sst_4,103,old_correlation
+Br8667,supertype_label,Sncg_3,100,old_correlation
+Br8667,supertype_label,Sst_2,87,old_correlation
+Br8667,supertype_label,Sst_3,84,old_correlation
+Br8667,supertype_label,Oligo_2,67,old_correlation
+Br8667,supertype_label,Pvalb_14,59,old_correlation
+Br8667,supertype_label,L6 IT Car3_3,58,old_correlation
+Br8667,supertype_label,Pvalb_15,52,old_correlation
+Br8667,supertype_label,L5 IT_7,43,old_correlation
+Br8667,supertype_label,Vip_19,41,old_correlation
+Br8667,supertype_label,Sst_5,37,old_correlation
+Br8667,supertype_label,Oligo_3,37,old_correlation
+Br8667,supertype_label,Vip_16,36,old_correlation
+Br8667,supertype_label,Sncg_6,34,old_correlation
+Br8667,supertype_label,Sst_19,34,old_correlation
+Br8667,supertype_label,L6b_5,34,old_correlation
+Br8667,supertype_label,L6b_3,28,old_correlation
+Br8667,supertype_label,Sst_1,28,old_correlation
+Br8667,supertype_label,Sncg_4,28,old_correlation
+Br8667,supertype_label,L6b_4,26,old_correlation
+Br8667,supertype_label,Sst_7,26,old_correlation
+Br8667,supertype_label,L4 IT_3,26,old_correlation
+Br8667,supertype_label,Pax6_4,22,old_correlation
+Br8667,supertype_label,Chandelier_1,22,old_correlation
+Br8667,supertype_label,Sst Chodl_1,20,old_correlation
+Br8667,supertype_label,Pax6_2,20,old_correlation
+Br8667,supertype_label,Vip_12,20,old_correlation
+Br8667,supertype_label,Vip_4,19,old_correlation
+Br8667,supertype_label,L5/6 NP_6,19,old_correlation
+Br8667,supertype_label,Pax6_3,19,old_correlation
+Br8667,supertype_label,Vip_13,18,old_correlation
+Br8667,supertype_label,Vip_14,12,old_correlation
+Br8667,supertype_label,L5/6 NP_1,12,old_correlation
+Br8667,supertype_label,L6 CT_1,11,old_correlation
+Br8667,supertype_label,Astro_1,10,old_correlation
+Br8667,supertype_label,Pvalb_3,9,old_correlation
+Br8667,supertype_label,Sst_9,8,old_correlation
+Br8667,supertype_label,L6 CT_4,8,old_correlation
+Br8667,supertype_label,L6 IT_1,6,old_correlation
+Br8667,supertype_label,L6 CT_2,6,old_correlation
+Br8667,supertype_label,Pvalb_7,5,old_correlation
+Br8667,supertype_label,L5 IT_3,5,old_correlation
+Br8667,supertype_label,Endo_3,5,old_correlation
+Br8667,supertype_label,Vip_6,4,old_correlation
+Br8667,supertype_label,L5/6 NP_4,4,old_correlation
+Br8667,supertype_label,L5/6 NP_2,3,old_correlation
+Br8667,supertype_label,Pvalb_13,2,old_correlation
+Br8667,supertype_label,L2/3 IT_1,2,old_correlation
+Br8667,supertype_label,Lamp5_6,1,old_correlation
+Br8667,supertype_label,Lamp5_1,1,old_correlation
+Br8667,supertype_label,Vip_15,1,old_correlation
+Br8667,supertype_label,Vip_23,1,old_correlation
+Br8667,supertype_label,Unassigned,0,old_correlation
+Br8772,class_label,Non-neuronal and Non-neural,34706,old_correlation
+Br8772,class_label,Neuronal: Glutamatergic,13784,old_correlation
+Br8772,class_label,Neuronal: GABAergic,7005,old_correlation
+Br8772,class_label,Unassigned,0,old_correlation
+Br8772,subclass_label,Oligodendrocyte,11363,old_correlation
+Br8772,subclass_label,Endothelial,9264,old_correlation
+Br8772,subclass_label,L2/3 IT,7249,old_correlation
+Br8772,subclass_label,Astrocyte,6427,old_correlation
+Br8772,subclass_label,VLMC,5141,old_correlation
+Br8772,subclass_label,L4 IT,2218,old_correlation
+Br8772,subclass_label,Vip,2175,old_correlation
+Br8772,subclass_label,Microglia-PVM,2123,old_correlation
+Br8772,subclass_label,L6b,1971,old_correlation
+Br8772,subclass_label,Pvalb,1509,old_correlation
+Br8772,subclass_label,L6 IT,1110,old_correlation
+Br8772,subclass_label,Sst,1100,old_correlation
+Br8772,subclass_label,L5 IT,742,old_correlation
+Br8772,subclass_label,Lamp5,644,old_correlation
+Br8772,subclass_label,Chandelier,586,old_correlation
+Br8772,subclass_label,OPC,388,old_correlation
+Br8772,subclass_label,Sncg,381,old_correlation
+Br8772,subclass_label,Pax6,270,old_correlation
+Br8772,subclass_label,L5/6 NP,233,old_correlation
+Br8772,subclass_label,Lamp5 Lhx6,196,old_correlation
+Br8772,subclass_label,L6 CT,155,old_correlation
+Br8772,subclass_label,Sst Chodl,144,old_correlation
+Br8772,subclass_label,L5 ET,71,old_correlation
+Br8772,subclass_label,L6 IT Car3,35,old_correlation
+Br8772,subclass_label,Unassigned,0,old_correlation
+Br8772,supertype_label,Oligo_4,10360,old_correlation
+Br8772,supertype_label,Endo_1,6927,old_correlation
+Br8772,supertype_label,Astro_4,3167,old_correlation
+Br8772,supertype_label,VLMC_2,3148,old_correlation
+Br8772,supertype_label,Astro_2,2338,old_correlation
+Br8772,supertype_label,Endo_2,2334,old_correlation
+Br8772,supertype_label,L2/3 IT_7,2299,old_correlation
+Br8772,supertype_label,Micro-PVM_2,2010,old_correlation
+Br8772,supertype_label,VLMC_1,1993,old_correlation
+Br8772,supertype_label,L2/3 IT_13,1859,old_correlation
+Br8772,supertype_label,Vip_21,1780,old_correlation
+Br8772,supertype_label,L2/3 IT_12,1507,old_correlation
+Br8772,supertype_label,L4 IT_1,1298,old_correlation
+Br8772,supertype_label,L6 IT_2,1100,old_correlation
+Br8772,supertype_label,L6b_1,1014,old_correlation
+Br8772,supertype_label,L2/3 IT_8,929,old_correlation
+Br8772,supertype_label,Oligo_1,907,old_correlation
+Br8772,supertype_label,Pvalb_8,905,old_correlation
+Br8772,supertype_label,L4 IT_2,821,old_correlation
+Br8772,supertype_label,Astro_5,755,old_correlation
+Br8772,supertype_label,Chandelier_2,581,old_correlation
+Br8772,supertype_label,L5 IT_6,524,old_correlation
+Br8772,supertype_label,L6b_6,473,old_correlation
+Br8772,supertype_label,L2/3 IT_2,416,old_correlation
+Br8772,supertype_label,L6b_2,401,old_correlation
+Br8772,supertype_label,Lamp5_5,358,old_correlation
+Br8772,supertype_label,Sst_10,357,old_correlation
+Br8772,supertype_label,Sst_11,352,old_correlation
+Br8772,supertype_label,Pvalb_6,227,old_correlation
+Br8772,supertype_label,Pax6_1,212,old_correlation
+Br8772,supertype_label,OPC_2,208,old_correlation
+Br8772,supertype_label,Vip_1,206,old_correlation
+Br8772,supertype_label,L5/6 NP_3,198,old_correlation
+Br8772,supertype_label,Lamp5_Lhx6_1,196,old_correlation
+Br8772,supertype_label,Lamp5_2,195,old_correlation
+Br8772,supertype_label,OPC_1,180,old_correlation
+Br8772,supertype_label,L5 IT_2,167,old_correlation
+Br8772,supertype_label,Pvalb_5,164,old_correlation
+Br8772,supertype_label,Astro_3,158,old_correlation
+Br8772,supertype_label,Sncg_5,158,old_correlation
+Br8772,supertype_label,L2/3 IT_3,149,old_correlation
+Br8772,supertype_label,L6 CT_3,135,old_correlation
+Br8772,supertype_label,Sst Chodl_2,123,old_correlation
+Br8772,supertype_label,Micro-PVM_1,113,old_correlation
+Br8772,supertype_label,Pvalb_2,101,old_correlation
+Br8772,supertype_label,Sncg_3,91,old_correlation
+Br8772,supertype_label,Lamp5_3,90,old_correlation
+Br8772,supertype_label,Vip_9,90,old_correlation
+Br8772,supertype_label,L2/3 IT_5,87,old_correlation
+Br8772,supertype_label,Oligo_2,81,old_correlation
+Br8772,supertype_label,Sst_20,79,old_correlation
+Br8772,supertype_label,L4 IT_4,75,old_correlation
+Br8772,supertype_label,L5 ET_2,70,old_correlation
+Br8772,supertype_label,Sst_4,69,old_correlation
+Br8772,supertype_label,Sncg_2,63,old_correlation
+Br8772,supertype_label,Sst_3,53,old_correlation
+Br8772,supertype_label,Pvalb_15,50,old_correlation
+Br8772,supertype_label,Sst_2,47,old_correlation
+Br8772,supertype_label,Sst_5,43,old_correlation
+Br8772,supertype_label,L5 IT_7,43,old_correlation
+Br8772,supertype_label,Sncg_6,42,old_correlation
+Br8772,supertype_label,Pvalb_14,42,old_correlation
+Br8772,supertype_label,L6 IT Car3_3,35,old_correlation
+Br8772,supertype_label,Vip_16,35,old_correlation
+Br8772,supertype_label,Sst_25,32,old_correlation
+Br8772,supertype_label,L6b_3,32,old_correlation
+Br8772,supertype_label,Vip_19,29,old_correlation
+Br8772,supertype_label,L6b_4,28,old_correlation
+Br8772,supertype_label,Pax6_2,28,old_correlation
+Br8772,supertype_label,Sncg_4,27,old_correlation
+Br8772,supertype_label,Pax6_4,26,old_correlation
+Br8772,supertype_label,Sst_7,25,old_correlation
+Br8772,supertype_label,L4 IT_3,24,old_correlation
+Br8772,supertype_label,L6b_5,23,old_correlation
+Br8772,supertype_label,Sst Chodl_1,21,old_correlation
+Br8772,supertype_label,Sst_1,20,old_correlation
+Br8772,supertype_label,L5/6 NP_1,19,old_correlation
+Br8772,supertype_label,Sst_19,18,old_correlation
+Br8772,supertype_label,Oligo_3,15,old_correlation
+Br8772,supertype_label,Pvalb_3,13,old_correlation
+Br8772,supertype_label,L5/6 NP_6,11,old_correlation
+Br8772,supertype_label,L6 IT_1,10,old_correlation
+Br8772,supertype_label,L6 CT_1,10,old_correlation
+Br8772,supertype_label,Vip_14,9,old_correlation
+Br8772,supertype_label,Vip_4,9,old_correlation
+Br8772,supertype_label,Vip_12,9,old_correlation
+Br8772,supertype_label,Astro_1,9,old_correlation
+Br8772,supertype_label,L5 IT_3,7,old_correlation
+Br8772,supertype_label,L6 CT_4,6,old_correlation
+Br8772,supertype_label,Pvalb_13,5,old_correlation
+Br8772,supertype_label,Vip_13,5,old_correlation
+Br8772,supertype_label,Chandelier_1,5,old_correlation
+Br8772,supertype_label,Pax6_3,4,old_correlation
+Br8772,supertype_label,L6 CT_2,4,old_correlation
+Br8772,supertype_label,L5/6 NP_4,4,old_correlation
+Br8772,supertype_label,Sst_23,3,old_correlation
+Br8772,supertype_label,Endo_3,3,old_correlation
+Br8772,supertype_label,Sst_9,2,old_correlation
+Br8772,supertype_label,L2/3 IT_1,2,old_correlation
+Br8772,supertype_label,Vip_15,2,old_correlation
+Br8772,supertype_label,Lamp5_6,1,old_correlation
+Br8772,supertype_label,Pvalb_10,1,old_correlation
+Br8772,supertype_label,L2/3 IT_6,1,old_correlation
+Br8772,supertype_label,Vip_5,1,old_correlation
+Br8772,supertype_label,L5 ET_1,1,old_correlation
+Br8772,supertype_label,Pvalb_7,1,old_correlation
+Br8772,supertype_label,L5 IT_5,1,old_correlation
+Br8772,supertype_label,L5/6 NP_2,1,old_correlation
+Br8772,supertype_label,Unassigned,0,old_correlation
