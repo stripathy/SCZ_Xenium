@@ -85,7 +85,7 @@ Key sizes for feasibility:
 ### Computational notes
 - Phase 1–2 are feasible on laptop if mitochondrial transcripts are filtered (reduces 282M → ~90M transcripts)
 - Phase 3 (full Proseg/Baysor) likely needs a machine with 64+ GB RAM for the largest samples, or spatial tiling
-- The existing per-gene JSON transcript export and `nuclear_counts.py` point-in-polygon infrastructure can be reused for Phase 1–2
+- The existing per-gene JSON transcript export and `code/nuclear_resolution/nuclear_counts.py` point-in-polygon infrastructure can be reused for Phase 1–2
 
 ---
 

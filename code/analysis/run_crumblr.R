@@ -29,13 +29,24 @@ suffix <- ""
 if (length(args) > 0 && args[1] == "--corr") {
   suffix <- "_corr"
   cat("Running with CORR QC inputs (non-default)\n")
+} else if (length(args) > 0 && args[1] == "--no-high-umi") {
+  suffix <- "_no_high_umi"
+  cat("Running with high-UMI cells EXCLUDED\n")
+} else if (length(args) > 0 && startsWith(args[1], "--suffix")) {
+  # Generic suffix: --suffix _pctl05
+  if (length(args) > 1) {
+    suffix <- args[2]
+  } else {
+    suffix <- sub("^--suffix=?", "", args[1])
+  }
+  cat(sprintf("Running with suffix: %s\n", suffix))
 }
 
 # ── Discover input files ───────────────────────────────────────────
 if (suffix == "") {
-  # Default (hybrid): match files that do NOT end with _corr.csv or _hybrid.csv
+  # Default (hybrid): match files that do NOT end with a known suffix
   all_files <- Sys.glob(file.path(in_dir, "crumblr_input_*.csv"))
-  input_files <- all_files[!grepl("_(corr|hybrid)\\.csv$", all_files)]
+  input_files <- all_files[!grepl("_(corr|hybrid|no_high_umi|pctl\\d+|margin_\\w+)\\.csv$", all_files)]
 } else {
   input_files <- Sys.glob(file.path(in_dir, sprintf("crumblr_input_*%s.csv", suffix)))
 }
@@ -49,7 +60,7 @@ for (fpath in input_files) {
   # Parse level from filename: crumblr_input_{level}[_hybrid].csv
   fname <- tools::file_path_sans_ext(basename(fpath))
   level <- sub("crumblr_input_", "", fname)
-  level <- sub("_(corr|hybrid)$", "", level)  # strip suffix for clean level name
+  level <- sub("_(corr|hybrid|no_high_umi|pctl\\d+|margin_\\w+)$", "", level)  # strip suffix for clean level name
   cat(sprintf("\n══ Processing: %s ══\n", level))
 
   # ── Load data ──────────────────────────────────────────────────

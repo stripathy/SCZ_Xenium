@@ -67,7 +67,7 @@ TAXONOMY_LEVELS = ["class", "subclass", "supertype"]
 
 # Correlation classifier settings (step 02b)
 CORR_CLASSIFIER_TOP_N = 100       # exemplar cells per type for centroid building
-CORR_CLASSIFIER_QC_PERCENTILE = 1.0  # bottom % of margin to flag per sample
+CORR_CLASSIFIER_QC_PERCENTILE = 5.0  # bottom % of margin to flag per sample
 
 # Nuclear doublet resolution settings (step 04)
 NUCLEAR_CHUNK_SIZE = 500_000      # transcripts per STRtree query batch

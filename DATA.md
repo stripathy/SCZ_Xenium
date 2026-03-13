@@ -60,7 +60,7 @@ wget -r -np -nd -A "*.h5,*.csv.gz,*.zarr.zip" \
 
 **Source:** [Gabitto et al. (2024)](https://doi.org/10.1038/s41593-024-01774-5) — Seattle Alzheimer's Disease Brain Cell Atlas.
 
-**Used for:** Training the cortical depth model (step 05), fitting the OOD/spatial domain classifier (step 06), and cell type proportion validation against Xenium.
+**Used for:** Training the cortical depth model (step 05), BANKSY spatial domain classification reference (step 06), and cell type proportion validation against Xenium.
 
 ```bash
 mkdir -p data/reference

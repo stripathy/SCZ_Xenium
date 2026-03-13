@@ -129,9 +129,8 @@ def load_sample_areas(sample_id):
     sup_col = "corr_supertype" if has_corr else "supertype_label"
 
     # Determine QC column
-    has_hybrid = "hybrid_qc_pass" in adata.obs.columns
-    if has_hybrid:
-        qc_mask = adata.obs["hybrid_qc_pass"].values == True
+    if "corr_qc_pass" in adata.obs.columns:
+        qc_mask = adata.obs["corr_qc_pass"].values == True
     else:
         qc_mask = adata.obs["qc_pass"].values == True
 

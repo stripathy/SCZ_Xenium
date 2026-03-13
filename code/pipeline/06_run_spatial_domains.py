@@ -4,7 +4,7 @@ Step 6: BANKSY spatial domain classification + depth-based layer assignment.
 
 For each sample:
   1. Load annotated h5ad (with QC, hierarchical labels, depth predictions)
-  2. Subset to hybrid_qc_pass cells (from step 04; falls back to qc_pass)
+  2. Subset to corr_qc_pass cells (from step 02b; falls back to qc_pass)
   3. Run BANKSY clustering (λ=0.8, res=0.3) for spatially coherent domains
   4. Classify domains: Cortical / Vascular / WM, with L1 border flag
   5. Assign layers: depth-bin layers for all cells, Vascular cells overridden
@@ -27,7 +27,7 @@ Spatial smoothing pipeline (3 steps):
   - BANKSY-anchored L1 contiguity: promotes banksy_is_l1 cells with shallow
     depth to L1, removes isolated non-BANKSY L1 cells
 
-Requires: Step 04 (hybrid_qc_pass), Step 05 (depth predictions), pybanksy.
+Requires: Step 02b (corr_qc_pass), Step 05 (depth predictions), pybanksy.
 
 New/updated h5ad columns:
   - banksy_cluster:  int   — raw BANKSY cluster ID
@@ -70,9 +70,10 @@ def _process_one_sample(h5ad_path):
         adata = ad.read_h5ad(h5ad_path)
         n_total = adata.shape[0]
 
-        # Prefer hybrid_qc_pass (from step 04); fall back to qc_pass
-        if "hybrid_qc_pass" in adata.obs.columns:
-            qc_mask = adata.obs["hybrid_qc_pass"].values.astype(bool)
+        # Use corr_qc_pass (spatial QC + margin filter + doublet exclusion);
+        # fall back to qc_pass if step 02b not run
+        if "corr_qc_pass" in adata.obs.columns:
+            qc_mask = adata.obs["corr_qc_pass"].values.astype(bool)
         elif "qc_pass" in adata.obs.columns:
             qc_mask = adata.obs["qc_pass"].values.astype(bool)
         else:

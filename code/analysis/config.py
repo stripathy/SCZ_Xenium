@@ -140,7 +140,7 @@ MARKER_SIZE_BG = 0.3
 
 
 def load_cells(sample_id, cortical_only=False, extra_obs_columns=None,
-               qc_mode='hybrid'):
+               qc_mode='corr'):
     """Load QC-pass cells from one Xenium sample.
 
     Central data loader for all analysis scripts. Uses correlation classifier
@@ -157,10 +157,9 @@ def load_cells(sample_id, cortical_only=False, extra_obs_columns=None,
         Additional obs columns to include (e.g., ["predicted_norm_depth"]).
     qc_mode : str
         QC filtering strategy:
-        - 'hybrid' : use hybrid_qc_pass (default; rescues resolved nuclear doublets,
-                     flags nuclear-only doublets). Falls back to 'corr' if
+        - 'corr'   : use corr_qc_pass (default; spatial QC + margin filter + doublet exclusion)
+        - 'hybrid' : use hybrid_qc_pass (nuclear doublet-resolved). Falls back to 'corr' if
                      hybrid_qc_pass column doesn't exist yet.
-        - 'corr'   : use corr_qc_pass (original behavior, without nuclear evidence)
 
     Returns
     -------
@@ -358,7 +357,7 @@ def compute_reference_proportions(level="Subclass", neurons_only=False):
     return stats
 
 
-def load_sample_adata(sample_id, cortical_only=True, qc_mode='hybrid'):
+def load_sample_adata(sample_id, cortical_only=True, qc_mode='corr'):
     """Load a full AnnData object with standardized labels and QC filtering.
 
     Unlike load_cells(), this returns the full AnnData (including X matrix),
@@ -372,9 +371,9 @@ def load_sample_adata(sample_id, cortical_only=True, qc_mode='hybrid'):
         If True, restrict to cortical + not-WM cells.
     qc_mode : str
         QC filtering strategy (same as load_cells):
-        - 'hybrid' : use hybrid_qc_pass (default; rescues resolved nuclear doublets).
-                     Falls back to 'corr' if hybrid_qc_pass doesn't exist.
-        - 'corr'   : use corr_qc_pass (original behavior, without nuclear evidence)
+        - 'corr'   : use corr_qc_pass (default; spatial QC + margin filter + doublet exclusion)
+        - 'hybrid' : use hybrid_qc_pass (nuclear doublet-resolved). Falls back to 'corr'
+                     if hybrid_qc_pass doesn't exist.
 
     Returns
     -------

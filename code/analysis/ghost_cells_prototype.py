@@ -41,9 +41,9 @@ from scipy.spatial import cKDTree
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import BG_COLOR, H5AD_DIR, PRESENTATION_DIR, style_dark_axis
 
-# Import nucleus polygon loader from modules
+# Import nucleus polygon loader from nuclear_resolution
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__))), "modules"))
+    os.path.abspath(__file__))), "nuclear_resolution"))
 from nuclear_counts import load_nucleus_polygons
 
 # ══════════════════════════════════════════════════════════════════════

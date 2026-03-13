@@ -4,7 +4,7 @@
 
 We mapped cell types in 24 human DLPFC Xenium sections (12 SCZ, 12 control; 1.3M cells; 300-gene panel) to the SEA-AD MTG taxonomy (24 subclasses, 137 supertypes). The core challenge is cross-platform label transfer: Xenium's 300 genes capture only ~1% of the transcriptome measured by the snRNA-seq reference (137,303 cells x 36,601 genes), and platform-specific artifacts (optical detection limits, probe specificity) make standard integration approaches unreliable.
 
-Our solution is a self-referencing correlation classifier that operates entirely within the Xenium feature space, combined with nuclear-informed doublet resolution that rescues cells conservatively excluded by initial QC. The pipeline produces 1,302,631 QC-pass cells with cell type assignments validated against an independent MERFISH reference.
+Our solution is a self-referencing correlation classifier that operates entirely within the Xenium feature space, with a simplified three-stage QC gate: spatial QC, 5th-percentile margin filter, and doublet suspect exclusion. The pipeline produces 1,225,037 QC-pass cells with cell type assignments validated against an independent MERFISH reference.
 
 ---
 
@@ -23,19 +23,16 @@ Step 02b: Two-stage correlation classifier
     → Build centroids from top-100 HANN exemplars per type (from Xenium data)
     → Stage 1: Subclass assignment via Pearson correlation (24 types)
     → Stage 2: Supertype assignment within subclass
-    → QC: Flag bottom 1% margin per sample + spatial doublets
+    → QC: Flag bottom 5% margin per sample + spatial doublets
     → Save centroids to disk for step 04
 
-Step 03: Export transcript coordinates (feeds step 04 + viewer)
+Step 03: Export transcript coordinates (for viewer + optional step 04)
 
-Step 04: Nuclear doublet resolution (hybrid QC)
-    → Build nuclear count matrices from transcript coordinates
-    → Reclassify doublets using nuclear-only counts
-    → Rescue high-UMI cells, reinstate resolved doublets
-    → 1,302,631 cells pass hybrid_qc_pass (76% doublet resolution rate)
+Step 04: (optional) Nuclear doublet resolution → code/nuclear_resolution/
+    → See nuclear_resolution/README.md for details
 
-Step 05: Cortical depth model (trained on MERFISH, uses hybrid_qc_pass)
-Step 06: Spatial domain annotation + layer assignment (uses hybrid_qc_pass)
+Step 05: Cortical depth model (trained on MERFISH)
+Step 06: Spatial domain annotation + layer assignment
 
 Step 07: Viewer export (per-sample JSON + standalone HTML)
 Step 08: Cell + nucleus boundary polygon export
@@ -46,11 +43,10 @@ Analysis: Cortical cells → crumblr compositional regression (SCZ vs Control)
 | QC Step | Cells | Lost | % Lost |
 |---------|-------|------|--------|
 | Raw (all cells) | 1,339,151 | — | — |
-| Step 01: spatial QC | 1,298,687 | 40,464 | 3.0% |
-| Step 02b: corr_qc_pass | 1,297,413 | 41,738 | 3.1% |
-| **Step 04: hybrid_qc_pass (final)** | **1,302,631** | **36,520** | **2.7%** |
+| Step 01: spatial QC (`qc_pass`) | 1,298,687 | 40,464 | 3.0% |
+| **Step 02b: `corr_qc_pass` (default gate)** | **1,225,037** | **114,114** | **8.5%** |
 
-*Cell counts reflect all 24 samples. The hybrid_qc_pass count exceeds corr_qc_pass because nuclear doublet resolution rescues resolved doublets and high-UMI cells. Br2039 is excluded from downstream disease comparisons due to high white matter content (54%).*
+*Cell counts reflect all 24 samples. `corr_qc_pass` combines spatial QC (step 01), 5th-percentile margin filter, and doublet suspect exclusion. An optional nuclear doublet resolution step (step 04, in `code/nuclear_resolution/`) can produce `hybrid_qc_pass` but was found to have negligible impact on downstream biology. Br2039 is excluded from downstream disease comparisons due to high white matter content (65%).*
 
 ---
 
@@ -73,7 +69,7 @@ The 300-gene panel provides sufficient marker resolution to validate assignments
 
 ### QC: margin filtering and spatial doublet detection
 
-**Margin filtering:** The bottom 1st percentile of subclass correlation margins per sample are flagged as low-confidence (~12,350 cells total). Per-sample thresholds account for variation in data quality across sections.
+**Margin filtering:** The bottom 5th percentile of subclass correlation margins per sample are flagged as low-confidence. Per-sample thresholds account for variation in data quality across sections. This threshold was calibrated against SEA-AD MERFISH ground-truth labels, where cells below the 5th percentile have ~80% subclass accuracy — see `docs/pipeline_qc_audit.md` for the full calibration analysis.
 
 **Spatial doublet detection** identifies cells with biologically implausible marker co-expression:
 - *Glut+GABA doublets:* Cells expressing 4+ of 7 GABAergic markers (GAD1, GAD2, SLC32A1, SST, PVALB, VIP, LAMP5) while also expressing glutamatergic markers. False-positive rate validated at 0.098% in snRNA-seq.
@@ -98,7 +94,9 @@ We benchmarked against Harmony + kNN label transfer (the standard cross-dataset 
 
 ---
 
-## 4. Nuclear Doublet Resolution
+## 4. Nuclear Doublet Resolution (optional — moved to `code/nuclear_resolution/`)
+
+> **Note:** This step was empirically shown to have negligible impact on downstream compositional analysis (see `docs/pipeline_qc_audit.md`). The simplified QC pipeline (spatial QC + 5th-percentile margin filter + doublet exclusion) is now the default. This section is retained for scientific interest.
 
 ### Motivation
 
@@ -111,8 +109,6 @@ For each sample, the pipeline builds a nuclear-only count matrix by intersecting
 - **Persistent:** Nuclear classification still shows mixed-class identity (true doublet)
 - **Nuclear-only:** Not flagged by whole-cell, but nuclear classification reveals a different class
 - **Insufficient:** <50 nuclear UMIs
-
-The hybrid QC mask combines: basic QC (with high-UMI-only failures rescued), correlation margin filter, resolved doublets reinstated to PASS, and persistent/nuclear-only/insufficient set to FAIL.
 
 ### Results across 24 samples
 
@@ -132,19 +128,9 @@ The overall resolution rate is **75.8%** (range: 68-83% across samples). Resolve
 ![Nuclear doublet marker evidence](output/presentation/nuclear_doublet_marker_evidence.png)
 *Figure 6. Marker expression evidence for doublet resolution. Resolved doublets show high whole-cell but low nuclear marker scores. Persistent doublets maintain high scores in both compartments.*
 
-### Rescue impact on cell composition
+### Impact on downstream biology
 
-The hybrid QC filter passes 26,453 more cells than the original corr_qc_pass, primarily from high-UMI cell rescue (+20,788) and resolved doublet reinstatement (+8,069), offset by persistent doublets confirmed (-2,469) and nuclear-only doublets added (-2,167).
-
-![Hybrid QC rescue impact](output/presentation/nuclear_hybrid_qc_impact.png)
-*Figure 7. Subclass composition before and after hybrid QC. Left: paired proportions under corr_qc_pass vs hybrid_qc_pass. Right: differential impact showing which types are preferentially rescued or removed.*
-
-### Validation: disease comparisons unchanged
-
-Hybrid QC produces near-identical SCZ vs Control compositional regression results (crumblr logFC correlation r = 0.9998). The same two types reach FDR < 0.05 under both filters: L6b (increased in SCZ, FDR = 0.005) and Endothelial (decreased in SCZ, FDR = 0.027).
-
-![QC mode comparison: crumblr results](output/presentation/qc_mode_comparison_crumblr.png)
-*Figure 8. Compositional regression effect sizes: corr QC vs hybrid QC. The logFC values are nearly identical, and the same disease signals reach significance under both filters.*
+The nuclear resolution machinery does not meaningfully change compositional SCZ vs Control results. Switching from `hybrid_qc_pass` to `corr_qc_pass` changes the snRNAseq meta-analysis correlation from r=0.405 to r=0.397, with identical top FDR-significant cell types. See `docs/pipeline_qc_audit.md` for the full comparison, including margin threshold calibration against MERFISH ground truth.
 
 ---
 
@@ -175,14 +161,10 @@ Median cortical depth per subclass correlates at r = 0.92 with the MERFISH refer
 
 ## 6. Robustness
 
-The key disease signals — L6b increase in SCZ (FDR = 0.005) and Endothelial decrease in SCZ (FDR = 0.027) — are robust across all cell typing and QC configurations tested:
+The top disease signals are robust across QC configurations. At the supertype level with the default pipeline (corr QC, 5th-percentile margin), 5 supertypes reach FDR < 0.05 (L5/6 NP_3, L2/3 IT_8, L6b_5, Pax6_3, Pvalb_13) and 8 reach FDR < 0.10. Effect sizes correlate with Nicole's snRNAseq meta-analysis at r = 0.432 (all supertypes) and r = 0.466 (neuronal only).
 
-| Configuration | L6b SCZ FDR | Endothelial SCZ FDR |
-|--------------|-------------|---------------------|
-| Final pipeline (hybrid QC) | 0.0047 | 0.0267 |
-| Flat correlation classifier | ~0.005 | ~0.03 |
-| Disable margin filter | 0.0043 | ~0.03 |
-| HANN confidence threshold = 0.5 | — | — (removed 25% of cells; abandoned) |
-| Harmony (flat or hierarchical) | — | — (69%/60% agreement; not used) |
-
-Both signals persist regardless of classifier hierarchy, QC stringency, or doublet handling, suggesting genuine biological effects rather than artifacts of any particular cell typing approach.
+The same top hits persist regardless of:
+- **QC gate**: Switching between `corr_qc_pass` and the legacy `hybrid_qc_pass` (which includes nuclear doublet resolution) changes median |delta logFC| by only 0.0065 across all 106 shared supertypes, with no cell type changing direction of effect (see `docs/pipeline_qc_audit.md`).
+- **Margin threshold**: Varying the margin filter from 1st to 10th percentile sharpens the signal but does not change the top hits.
+- **Classifier hierarchy**: Flat vs hierarchical correlation classifier yields the same disease signals.
+- **Doublet handling**: Including or excluding resolved doublets has negligible impact.

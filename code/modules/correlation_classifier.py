@@ -632,7 +632,7 @@ def flag_low_margin_cells(margins, sample_ids, percentile=1.0):
     sample_ids : np.ndarray
         Per-cell sample ID
     percentile : float
-        Bottom percentage to flag (default 1.0 = bottom 1%)
+        Bottom percentage to flag (e.g., 5.0 = bottom 5%)
 
     Returns
     -------

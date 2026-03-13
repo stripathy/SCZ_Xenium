@@ -8,7 +8,7 @@ built from high-confidence HANN-labeled exemplar cells (top-100 per type).
 Stage 1: Classify against 24 subclass centroids.
 Stage 2: Within the assigned subclass, classify against supertype centroids.
 
-QC 1: Flag bottom 1% by subclass correlation margin per sample
+QC 1: Flag bottom N% by subclass correlation margin per sample (default 5%, set in pipeline_config.py)
 QC 2: Flag suspected spatial doublets via marker co-expression
 
 New columns added to each h5ad:

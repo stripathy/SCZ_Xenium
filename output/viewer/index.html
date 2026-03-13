@@ -799,7 +799,7 @@ function render() {
 
     for (let i = 0; i < n; i++) {
       if (!activeSet.has(filterIndices[i])) continue;
-      if (hideQcFail && sampleData.corr_qc && sampleData.corr_qc[i] === 0) continue;
+      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
 
       // Quick check: is centroid on screen?
       const cx = x[i] * viewScale + viewX;
@@ -867,7 +867,7 @@ function render() {
     const colorPolygons = {};
     for (let i = 0; i < n; i++) {
       if (!activeSet.has(filterIndices[i])) continue;
-      if (hideQcFail && sampleData.corr_qc && sampleData.corr_qc[i] === 0) continue;
+      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
       const cx = x[i] * viewScale + viewX;
       const cy = y[i] * viewScale + viewY;
       if (cx < -50 || cx > w + 50 || cy < -50 || cy > h + 50) continue;
@@ -909,7 +909,7 @@ function render() {
     const colorBuckets = {};
     for (let i = 0; i < n; i++) {
       if (!activeSet.has(filterIndices[i])) continue;
-      if (hideQcFail && sampleData.corr_qc && sampleData.corr_qc[i] === 0) continue;
+      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
       const sx = x[i]*viewScale+viewX, sy = y[i]*viewScale+viewY;
       if (sx < -r || sx > w+r || sy < -r || sy > h+r) continue;
       const c = colors[i];
@@ -985,11 +985,19 @@ function updateLegend() {
         <span style="font-size:10px;color:#dc3030;">Low (0)</span>
         <div style="width:100px;height:12px;background:linear-gradient(to right,rgb(220,30,30),rgb(180,220,40),rgb(40,240,60));border-radius:2px;"></div>
         <span style="font-size:10px;color:#28f03c;">High</span></div>`;
-    if (sampleData.corr_qc) {
+    if (sampleData.qc_status) {
+      const qcLabels = {1: 'Spatial QC', 2: 'Low Margin', 3: 'Doublet Suspect'};
       let nFail = 0;
-      for (let i = 0; i < sampleData.corr_qc.length; i++) if (sampleData.corr_qc[i] === 0) nFail++;
+      const failCounts = {1: 0, 2: 0, 3: 0};
+      for (let i = 0; i < sampleData.qc_status.length; i++) {
+        const s = sampleData.qc_status[i];
+        if (s > 0) { nFail++; if (failCounts[s] !== undefined) failCounts[s]++; }
+      }
       const pctFail = (nFail / sampleData.n_cells * 100).toFixed(1);
       html += `<div style="margin-top:4px;font-size:10px;color:#aaa;">QC-fail: ${nFail.toLocaleString()} (${pctFail}%)</div>`;
+      for (const [code, label] of Object.entries(qcLabels)) {
+        if (failCounts[code] > 0) html += `<div style="font-size:9px;color:#777;padding-left:8px;">${label}: ${failCounts[code].toLocaleString()}</div>`;
+      }
     }
   } else if (colorMode === 'confidence') {
     const levelName = confidenceLevel.charAt(0).toUpperCase() + confidenceLevel.slice(1);
@@ -1354,11 +1362,17 @@ function handleHover(e) {
           html += `<div style="margin-top:4px;border-top:1px solid #333;padding-top:4px;font-size:10px;color:#e94560;font-weight:600;">QC Details</div>`;
           html += `<div style="font-size:11px;color:#888;">HANN conf: ${confSpan(confC)} / ${confSpan(confS)} / ${confSpan(confT)}</div>`;
           html += `<div style="font-size:9px;color:#555;">class / subclass / supertype</div>`;
-          // Correlation margin and QC flag
+          // Correlation margin and QC status
           if (sampleData.corr_margin) {
             const margin = (sampleData.corr_margin[bestCellIdx] / 1000).toFixed(3);
-            const isQcFail = sampleData.corr_qc && sampleData.corr_qc[bestCellIdx] === 0;
-            html += `<div style="font-size:11px;">Corr margin: ${margin}${isQcFail ? ' <span style="color:#e94560;font-weight:700;">QC-FAIL</span>' : ''}</div>`;
+            html += `<div style="font-size:11px;">Corr margin: ${margin}</div>`;
+          }
+          if (sampleData.qc_status) {
+            const qcVal = sampleData.qc_status[bestCellIdx];
+            const qcReasons = {0: null, 1: 'Spatial QC Fail', 2: 'Low Margin', 3: 'Doublet Suspect'};
+            if (qcVal > 0) {
+              html += `<div style="font-size:11px;"><span style="color:#e94560;font-weight:700;">QC-FAIL: ${qcReasons[qcVal] || 'Unknown'}</span></div>`;
+            }
           }
           // HANN subclass comparison (if different)
           if (sampleData.hann_subclass_cats && sampleData.hann_subclass) {

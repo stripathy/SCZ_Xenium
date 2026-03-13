@@ -85,8 +85,8 @@ def load_xenium_cortical():
         obs = adata.obs
 
         # QC filter
-        if "hybrid_qc_pass" in obs.columns:
-            qc = obs["hybrid_qc_pass"].values.astype(bool)
+        if "corr_qc_pass" in obs.columns:
+            qc = obs["corr_qc_pass"].values.astype(bool)
         elif "qc_pass" in obs.columns:
             qc = obs["qc_pass"].values.astype(bool)
         else:

@@ -4,8 +4,8 @@ Step 5: Retrain depth model from MERFISH and predict depth for all Xenium sample
 
 This retrains the GradientBoostingRegressor depth model from the SEA-AD MERFISH
 reference (using K=50 neighborhood composition features), then applies it to all
-24 Xenium samples. Uses hybrid_qc_pass (from step 04) when available to exclude
-confirmed doublets from neighborhood features.
+24 Xenium samples. Uses corr_qc_pass (from step 02b) when available to exclude
+low-margin and doublet-suspect cells from neighborhood features.
 
 Saves:
   - output/depth_model_normalized.pkl (model bundle)
@@ -58,10 +58,10 @@ def _process_sample(h5ad_path):
 
     try:
         adata = ad.read_h5ad(h5ad_path)
-        # Prefer hybrid_qc_pass (from step 04) to exclude confirmed doublets
-        # from neighborhood features; fall back to qc_pass if step 04 not run
-        if 'hybrid_qc_pass' in adata.obs.columns:
-            qc_mask = adata.obs['hybrid_qc_pass'].values.astype(bool)
+        # Use corr_qc_pass (spatial QC + margin filter + doublet exclusion);
+        # fall back to qc_pass if step 02b not run
+        if 'corr_qc_pass' in adata.obs.columns:
+            qc_mask = adata.obs['corr_qc_pass'].values.astype(bool)
         else:
             qc_mask = adata.obs.get("qc_pass", np.ones(adata.shape[0], dtype=bool))
             if hasattr(qc_mask, 'values'):

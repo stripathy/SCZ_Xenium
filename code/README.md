@@ -13,8 +13,8 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 | 02 | `pipeline/02_run_mapmycells.py` | MapMyCells hierarchical annotation → `class_label`, `subclass_label`, `supertype_label` |
 | 02b | `pipeline/02b_run_correlation_classifier.py` | Two-stage Pearson correlation reclassification + doublet detection |
 | 02c | `pipeline/02c_run_harmony_transfer.py` | Harmony-based hierarchical label transfer (alternative to 02b) |
-| 03 | `pipeline/03_export_transcripts.py` | Export per-gene transcript coordinates (feeds step 04 + viewer) |
-| 04 | `pipeline/04_run_nuclear_doublet_resolution.py` | Hybrid nuclear doublet resolution → `hybrid_qc_pass` |
+| 03 | `pipeline/03_export_transcripts.py` | Export per-gene transcript coordinates (for viewer + optional step 04) |
+| 04 | *(optional)* `nuclear_resolution/04_run_nuclear_doublet_resolution.py` | Nuclear doublet resolution (see `nuclear_resolution/README.md`) |
 | 05 | `pipeline/05_run_depth_prediction.py` | Retrain MERFISH depth model, predict cortical depth → `predicted_norm_depth` |
 | 06 | `pipeline/06_run_spatial_domains.py` | BANKSY spatial domain classification + layer assignment + spatial smoothing → `layer` column |
 | 07 | `pipeline/07_export_viewer.py` | Export JSON for interactive HTML viewer |
@@ -23,7 +23,7 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 ## Samples
 
 24 Xenium samples: 12 SCZ, 12 Control (1,339,151 total cells, 300-gene panel)
-- Outlier: **Br2039** (SCZ) flagged for excess white matter (48%) — exclude from analyses
+- Outlier: **Br2039** (SCZ) flagged for excess white matter (65%) — excluded from disease comparisons
 
 ## Modules (`code/modules/`)
 
@@ -109,6 +109,10 @@ matplotlib, pandas, statsmodels, h5py, cell_type_mapper
 - SEA-AD MERFISH: `SEAAD_MTG_MERFISH.2024-12-11.h5ad` (depth model training)
 - MapMyCells precomputed stats: `precomputed_stats.20231120.sea_ad.MTG.h5`
 - Subject metadata: `sample_metadata.xlsx`
+
+## Nuclear Resolution (`code/nuclear_resolution/`)
+
+Optional side investigation into using nuclear-only transcript counts to arbitrate doublet calls. Empirically shown to have negligible impact on downstream compositional analysis — the simplified QC pipeline (spatial QC + 5th-percentile margin filter + doublet exclusion) produces equivalent results. See `nuclear_resolution/README.md` for details.
 
 ## Archive
 

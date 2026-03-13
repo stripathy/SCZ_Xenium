@@ -40,13 +40,13 @@ def build_counts(obs_df, level_col):
 
 def main():
     parser = argparse.ArgumentParser(description="Build crumblr input CSVs")
-    parser.add_argument("--qc-mode", default="hybrid", choices=["corr", "hybrid"],
-                        help="QC mode: 'hybrid' (default, nuclear doublet-resolved) or 'corr'")
+    parser.add_argument("--qc-mode", default="corr", choices=["corr", "hybrid"],
+                        help="QC mode: 'corr' (default, spatial QC + margin filter) or 'hybrid' (nuclear doublet-resolved)")
     args = parser.parse_args()
 
     qc_mode = args.qc_mode
-    # Output suffix: default (hybrid) writes to standard filenames; corr gets suffix
-    suffix = "_corr" if qc_mode == "corr" else ""
+    # Output suffix: default (corr) writes to standard filenames; hybrid gets suffix
+    suffix = "_hybrid" if qc_mode == "hybrid" else ""
 
     t0 = time.time()
     os.makedirs(CRUMBLR_DIR, exist_ok=True)
@@ -75,8 +75,7 @@ def main():
         # Additional crumblr filter: spatial_domain=='Cortical' (excludes
         # cortical-layer cells in non-cortical spatial domains)
         obs = obs[obs["spatial_domain"] == "Cortical"]
-        n_total = len(obs)
-        print(f"  {sid}: {n_total:,} cortical cells")
+        print(f"  {sid}: {len(obs):,} cortical cells")
         all_obs.append(obs)
 
     df = pd.concat(all_obs, ignore_index=True)

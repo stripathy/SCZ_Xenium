@@ -47,9 +47,9 @@ Xenium measures only 300 genes per cell (vs 20,000+ in snRNAseq), which makes ce
 
 - **Accuracy of cell type calls over transcript purity.** Our goal is correct cell *type* assignment for proportion analysis, not accurate per-cell expression profiles. Xenium cell segmentation inevitably captures some mRNA from neighboring cells (cytoplasmic spillover), but this does not substantially affect correlation-based cell type calls — the classifier is robust to noise in individual genes as long as the overall expression profile matches. We track spillover via `nuclear_fraction` (median ~49% of transcripts fall within the nucleus) but do not attempt to deconvolve it.
 
-- **Flag-based QC rather than hard filtering.** The pipeline never removes cells from the h5ad files. Instead, it adds progressive QC flag columns — `qc_pass` (step 01), `corr_qc_pass` and `doublet_suspect` (step 02b), `hybrid_qc_pass` and `nuclear_doublet_status` (step 04) — so that downstream analyses can choose their own filtering stringency. All data is preserved and QC decisions are transparent and reversible.
+- **Flag-based QC rather than hard filtering.** The pipeline never removes cells from the h5ad files. Instead, it adds QC flag columns — `qc_pass` (step 01), `corr_qc_pass` and `doublet_suspect` (step 02b) — so that downstream analyses can choose their own filtering stringency. All data is preserved and QC decisions are transparent and reversible.
 
-- **Nuclear evidence for doublet resolution.** Rather than simply discarding cells flagged as spatial doublets (~10,500 cells), we build nuclear-only count matrices by intersecting transcript coordinates with nucleus boundary polygons. This distinguishes cytoplasmic spillover (where mixed-type signal is in the cytoplasm only — safely resolvable) from true multi-cell captures (mixed signal in the nucleus too). Approximately 76% of flagged doublets are resolved as spillover and rescued, while maintaining stringent filtering for genuine doublets.
+- **Simplified QC: spatial QC + margin filter + doublet exclusion.** The default QC gate (`corr_qc_pass`) uses three layers: (1) spatial QC flags cells with aberrant control probes, extreme UMI counts, or too few genes; (2) the 5th-percentile margin filter removes cells whose correlation classifier was least confident (per-sample); (3) doublet suspects flagged via validated marker co-expression rules (0.098% FP rate) are excluded. This achieves better cross-platform concordance than more complex rescue approaches — see `docs/pipeline_qc_audit.md`. An optional nuclear doublet resolution module (in `code/nuclear_resolution/`) can further arbitrate doublet calls using nuclear-only counts, but was found to have negligible impact on downstream compositional analyses.
 
 - **External validation at every step.** Cell type proportions are benchmarked against SEA-AD MERFISH (an independent spatial dataset with 341K cortical cells), depth distributions are validated against manually annotated cortical layers, and doublet detection thresholds are calibrated against snRNAseq false-positive rates (0.098% at our threshold). No result is accepted on internal consistency alone.
 
@@ -61,9 +61,15 @@ Xenium measures only 300 genes per cell (vs 20,000+ in snRNAseq), which makes ce
 
 ### QC strategy
 
-Quality control builds progressively across pipeline steps: basic spatial QC (step 01) flags cells with aberrant negative control probes or extreme UMI counts; the correlation classifier (step 02b) adds margin-based and spatial doublet flags; nuclear doublet resolution (step 04) uses nuclear-only evidence to refine doublet calls and rescue high-UMI cells that were conservatively excluded. Each layer adds QC columns rather than discarding cells — the final `hybrid_qc_pass` column integrates all evidence and is the recommended filter for downstream analyses.
+Quality control uses three layers, each adding flag columns to the h5ad (no cells are ever removed):
 
-The Br2039 sample (54% white matter, SCZ) is processed through the full pipeline but excluded from disease comparisons in analysis scripts via `EXCLUDE_SAMPLES` due to its atypical tissue composition.
+1. **Spatial QC** (step 01): Flags cells exceeding the 99th percentile in negative control probes/codewords/unassigned counts, or with extreme UMI/gene counts (5 MAD). Adds `qc_pass` column.
+2. **Margin filter** (step 02b): Flags the bottom 5% of cells by subclass correlation margin per sample — these are cells where the classifier was least confident. Also flags spatial doublet suspects via marker co-expression rules validated against snRNAseq (0.098% FP rate). Adds `corr_qc_pass` and `doublet_suspect` columns.
+3. **Default gate**: `corr_qc_pass` is the recommended filter for downstream analyses. It requires passing spatial QC, having sufficient classifier confidence, and not being a doublet suspect.
+
+An optional nuclear doublet resolution (step 04, now in `code/nuclear_resolution/`) can further refine doublet calls using nuclear-only counts, producing `hybrid_qc_pass`. This was found to have negligible impact on compositional SCZ results (see `docs/pipeline_qc_audit.md`) and is retained as a standalone investigation.
+
+The Br2039 sample (65% white matter, SCZ) is processed through the full pipeline but excluded from disease comparisons in analysis scripts via `EXCLUDE_SAMPLES` due to its atypical tissue composition.
 
 ### Reference datasets
 
@@ -74,10 +80,11 @@ Three external datasets serve distinct roles: **SEA-AD MERFISH** (1.9M cells, 18
 ```
 SCZ_Xenium/
 ├── code/
-│   ├── modules/          # Core library modules
-│   ├── pipeline/         # Numbered pipeline steps (run sequentially)
-│   ├── analysis/         # Downstream statistical analyses & plotting
-│   └── archive/          # Legacy/exploratory scripts (reference only)
+│   ├── modules/              # Core library modules
+│   ├── pipeline/             # Numbered pipeline steps (run sequentially)
+│   ├── analysis/             # Downstream statistical analyses & plotting
+│   ├── nuclear_resolution/   # Nuclear doublet resolution (optional side investigation)
+│   └── archive/              # Legacy/exploratory scripts (reference only)
 ├── data/
 │   ├── raw/              # 72 raw Xenium files (not in repo; see DATA.md)
 │   └── reference/        # SEA-AD reference datasets (not in repo; see DATA.md)
@@ -98,15 +105,15 @@ The pipeline consists of 10 numbered steps in `code/pipeline/`, run sequentially
 
 ```
 Raw .h5 + boundaries ─→ [00] ─→ initial h5ad
-                         [01] ─→ + QC columns
+                         [01] ─→ + QC columns (qc_pass)
                          [02] ─→ + MapMyCells labels
-                        [02b] ─→ + correlation classifier labels + doublet flags
+                        [02b] ─→ + correlation classifier labels + doublet flags (corr_qc_pass)
                         [02c] ─→ (alternative: Harmony-based label transfer)
-                         [03] ─→ transcript coordinates (for step 04)
-                         [04] ─→ + nuclear doublet resolution + hybrid_qc_pass
-                         [05] ─→ + depth predictions (uses hybrid_qc_pass)
-                         [06] ─→ + spatial domains + layers (uses hybrid_qc_pass)
-                         [07] ─→ viewer JSON + HTML
+                         [03] ─→ transcript coordinates (for viewer + optional step 04)
+                         [04] ─→ (optional) nuclear doublet resolution (see code/nuclear_resolution/)
+                         [05] ─→ + depth predictions
+                         [06] ─→ + spatial domains + layers
+                         [07] ─→ viewer JSON + HTML (exports all cells with qc_status flags)
                          [08] ─→ cell + nucleus boundary polygons
 ```
 
@@ -144,9 +151,9 @@ Two-stage hierarchical reclassification using Pearson correlation against self-b
 
 - **Stage 1:** Classify into 24 subclasses using top-100 HANN exemplars per subclass
 - **Stage 2:** Within each subclass, classify into supertypes using top-100 exemplars per supertype
-- **QC 1:** Flag bottom 1% by subclass correlation margin per sample
+- **QC 1:** Flag bottom 5% by subclass correlation margin per sample
 - **QC 2:** Flag suspected spatial doublets via marker co-expression (validated against Nicole's snRNAseq reference; FP rate 0.098%)
-- **Saves** pre-built centroids to `correlation_centroids.pkl` for reuse by step 04
+- **Saves** pre-built centroids to `correlation_centroids.pkl` for reproducibility
 
 Dramatically reduces misclassifications such as L6b appearing in upper cortical layers.
 
@@ -164,23 +171,11 @@ Exports per-gene transcript molecule coordinates from raw Xenium `transcripts.za
 
 **Output:** `output/viewer/transcripts/{sample}/gene_index.json` + per-gene JSON files
 
-### Step 04: Nuclear Doublet Resolution (`04_run_nuclear_doublet_resolution.py`)
+### Step 04: Nuclear Doublet Resolution (optional, moved to `code/nuclear_resolution/`)
 
-Hybrid QC approach that uses nuclear-only count matrices (transcripts within nucleus polygons) to resolve spatial doublets identified in step 02b:
+Optional step that uses nuclear-only count matrices to arbitrate doublet calls. Empirically shown to have negligible impact on downstream compositional analysis (see `docs/pipeline_qc_audit.md`). The `hybrid_qc_pass` column remains in h5ad files for samples where step 04 was run, but `corr_qc_pass` is now the default QC gate.
 
-- Builds nuclear count matrix from nucleus boundary polygons + transcript coordinates (step 03)
-- Re-runs doublet detection on nuclear counts
-- Classifies each whole-cell doublet as:
-  - **resolved** — WC doublet but NOT nuclear doublet (cytoplasmic spillover, safely rescued)
-  - **persistent** — doublet in both WC and nuclear (likely real doublet)
-  - **nuclear_only** — NOT WC doublet but IS nuclear doublet (new catch)
-  - **insufficient** — nuclear UMI too low for reliable assessment
-- Rescues high-UMI cells that were excluded only due to high total counts
-- Builds `hybrid_qc_pass` column that replaces blunt UMI filtering with nuclear evidence
-
-**Requires:** Step 02b (correlation classifier) and Step 03 (transcript export)
-
-**Output:** Updated h5ad files with `nuclear_total_counts`, `nuclear_n_genes`, `nuclear_fraction`, `nuclear_doublet_status`, `hybrid_qc_pass`
+See `code/nuclear_resolution/README.md` for details on running this step and interpreting results.
 
 ### Step 05: Depth Prediction (`05_run_depth_prediction.py`)
 
@@ -188,7 +183,7 @@ Trains and applies a cortical depth model from the SEA-AD MERFISH reference:
 
 - GradientBoostingRegressor using K=50 neighborhood composition features
 - Predicts normalized cortical depth (0=pia, 1=white matter)
-- Uses `hybrid_qc_pass` (from step 04) to exclude confirmed doublets from neighborhood features
+- Uses `corr_qc_pass` to exclude low-confidence cells and doublet suspects from neighborhood features
 
 **Output:** `output/depth_model_normalized.pkl`; `predicted_norm_depth` column in each h5ad
 
@@ -200,7 +195,7 @@ Classifies tissue domains using BANKSY (Nature Genetics 2024) and assigns cortic
 - **Domain classification:** Vascular (>50% Endothelial+VLMC), WM (>40% Oligodendrocyte + deep), L1 border (>50% non-neuronal + shallow — correctly classified as Cortical, not "Extra-cortical"), Cortical (remainder)
 - **Layer assignment:** Cortical cells → depth-based layers (L1, L2/3, L4, L5, L6, WM); Vascular cells overridden
 - **Spatial smoothing:** 3-step pipeline refines layer boundaries: (1) within-domain majority vote (k=30, 2 rounds) smooths cortical layers without crossing BANKSY domain borders; (2) vascular border trim reassigns border Vascular cells with >33% cortical neighbors; (3) BANKSY-anchored L1 contiguity promotes shallow `banksy_is_l1` cells to L1 and removes isolated L1 assignments
-- Uses `hybrid_qc_pass` (from step 04) to exclude confirmed doublets
+- Uses `corr_qc_pass` to exclude low-confidence cells and doublet suspects
 
 BANKSY replaces the earlier K-NN Leiden approach, which misclassified L1 border cells as "Extra-cortical" and lacked white matter detection. The BANKSY approach was validated against SEA-AD MERFISH ground truth.
 
@@ -228,8 +223,6 @@ Exports cell and nucleus boundary polygons for spatial overlay visualization.
 | `constants.py` | Shared project-wide constants (SAMPLE_TO_DX, SUBCLASS_TO_CLASS, etc.) |
 | `loading.py` | Xenium h5 file I/O, sample discovery |
 | `correlation_classifier.py` | Two-stage Pearson correlation classifier + spatial doublet detection |
-| `nuclear_counts.py` | Nuclear-only transcript counting via point-in-polygon spatial queries |
-| `hybrid_qc.py` | Hybrid QC: marker-based class inference + nuclear doublet QC logic |
 | `depth_model.py` | GBR depth model, neighborhood features, layer assignment, spatial layer smoothing |
 | `banksy_domains.py` | BANKSY-based spatial domain classification (Cortical/Vascular/WM + L1 border) |
 | `spatial_domains.py` | Legacy domain classifier; retained for `VASCULAR_TYPES`, `NON_NEURONAL_TYPES` constants |
@@ -246,9 +239,9 @@ Downstream statistical analyses comparing SCZ vs. Control. Configuration is cent
 | Script | Description |
 |--------|-------------|
 | **Composition** | |
-| `build_crumblr_input.py` | Prepare input for crumblr compositional regression (supports `--qc-mode hybrid`) |
+| `build_crumblr_input.py` | Prepare input for crumblr compositional regression (default: corr QC, supports `--qc-mode hybrid`) |
 | `run_crumblr.R` | Run crumblr CLR + dream linear model (supports `--hybrid` flag) |
-| `run_de_edgepython.py` | Pseudobulk differential expression via edgePy (supports `--qc-mode hybrid`) |
+| `run_de_edgepython.py` | Pseudobulk differential expression via edgePy (default: corr QC, supports `--qc-mode hybrid`) |
 | `compare_qc_modes.py` | Side-by-side comparison of corr vs hybrid QC results |
 | **Proportion validation** | |
 | `plot_xenium_composition_boxplots.py` | Per-subclass composition boxplots (SCZ vs Control) |
@@ -270,8 +263,6 @@ Downstream statistical analyses comparing SCZ vs. Control. Configuration is cent
 | `plot_sst_spatial_*.py` | SST subtype spatial comparison figures |
 | `plot_l6b_spatial_*.py` | L6b spatial comparison figures |
 | `plot_geometry_gallery.py` | Tissue geometry variability gallery |
-| **Doublet validation** | |
-| `plot_nuclear_doublet_validation.py` | Nuclear doublet resolution diagnostic figures |
 | **Classifier** | |
 | `plot_corr_classifier_validation.py` | Correlation classifier accuracy evaluation |
 | `weighted_classifier.py` | Weighted gene classifier utilities |
@@ -297,7 +288,7 @@ python3 -u code/pipeline/02_run_mapmycells.py
 python3 -u code/pipeline/02b_run_correlation_classifier.py
 # python3 -u code/pipeline/02c_run_harmony_transfer.py  # (alternative to 02b)
 python3 -u code/pipeline/03_export_transcripts.py
-python3 -u code/pipeline/04_run_nuclear_doublet_resolution.py
+# python3 -u code/nuclear_resolution/04_run_nuclear_doublet_resolution.py  # (optional)
 python3 -u code/pipeline/05_run_depth_prediction.py
 python3 -u code/pipeline/06_run_spatial_domains.py
 python3 -u code/pipeline/07_export_viewer.py
@@ -314,7 +305,7 @@ open output/viewer/xenium_viewer_standalone.html
 | File | Description |
 |------|-------------|
 | `output/h5ad/{sample}_annotated.h5ad` | Per-sample annotated data (24 files) |
-| `output/h5ad/correlation_centroids.pkl` | Pre-built correlation centroids (shared by steps 02b, 06) |
+| `output/h5ad/correlation_centroids.pkl` | Pre-built correlation centroids (from step 02b) |
 | `output/all_samples_annotated.h5ad` | Combined dataset (1.34M cells x 300 genes, ~1.3 GB) |
 | `output/depth_model_normalized.pkl` | Trained depth model bundle (111 MB) |
 | `output/qc_summary.csv` | Per-sample QC pass rates |
@@ -371,18 +362,18 @@ Each `{sample}_annotated.h5ad` contains:
 | `layer` | category | L1 / L2/3 / L4 / L5 / L6 / WM / Vascular (spatially smoothed) |
 | `layer_unsmoothed` | category | Pre-smoothing layer (depth bins + Vascular override) |
 | `layer_depth_only` | category | Layer from depth bins only (no Vascular override, no smoothing) |
-| **Nuclear doublet resolution (step 04)** | | |
+| **Nuclear doublet resolution (optional step 04)** | | |
 | `nuclear_total_counts` | int | Total UMI counts from nuclear-only transcripts |
 | `nuclear_n_genes` | int | Number of genes detected in nuclear transcripts |
 | `nuclear_fraction` | float32 | Fraction of UMIs in nucleus vs whole cell |
 | `nuclear_doublet_suspect` | bool | Nuclear-level doublet detected |
 | `nuclear_doublet_type` | str | '' / 'Glut+GABA' / 'GABA+GABA' (nuclear evidence) |
 | `nuclear_doublet_status` | str | 'clean' / 'resolved' / 'persistent' / 'nuclear_only' / 'insufficient' |
-| `hybrid_qc_pass` | bool | Hybrid QC pass (nuclear-informed, replaces blunt UMI filter) |
+| `hybrid_qc_pass` | bool | Hybrid QC pass (nuclear-informed; legacy, not used by default) |
 
 **Notes:**
 - The correlation classifier columns (`corr_*`, `doublet_*`) are present only in samples processed through step 02b. Analysis scripts prefer `corr_subclass`/`corr_supertype` when available, falling back to HANN labels otherwise.
-- The nuclear doublet columns are present only in samples processed through step 04. Analysis scripts support `qc_mode='hybrid'` to use `hybrid_qc_pass` instead of the default `corr_qc_pass`, with automatic fallback if step 04 hasn't been run.
+- The nuclear doublet columns are present only in samples where step 04 was previously run. These columns are retained for reference but `corr_qc_pass` is the default QC gate for all analyses.
 
 ## Cell Type Taxonomy
 
@@ -399,9 +390,9 @@ Layers are assigned through a combined approach:
 1. **BANKSY spatial domain classification** (step 06) uses BANKSY clustering (Nature Genetics 2024; λ=0.8, res=0.3) to identify spatially coherent tissue domains: Cortical (including L1 border cells), Vascular, and White Matter. BANKSY augments gene expression with spatial neighbor expression, producing clusters that respect tissue geometry. L1 border cells (shallow, non-neuronal-dominated clusters) are correctly identified as Cortical with a `banksy_is_l1` flag — validated by SEA-AD MERFISH comparison showing L1 has ~81% non-neuronal composition.
 2. **MERFISH depth model** (step 05; GradientBoostingRegressor on K=50 neighborhood composition features) predicts normalized cortical depth (0=pia, 1=WM; R²=0.90, MAE=0.031 on held-out donors), then bins into discrete layers
 3. **Layer bins:** L1 (<0.10), L2/3 (0.10–0.30), L4 (0.30–0.45), L5 (0.45–0.65), L6 (0.65–0.85), WM (>0.85)
-4. **Spatial smoothing** refines layer boundaries via 3-step pipeline: within-domain majority vote (k=30, 2 rounds) smooths noisy boundaries while respecting BANKSY domains; vascular border trim reassigns Vascular cells whose neighborhoods are predominantly cortical; BANKSY-anchored L1 contiguity promotes shallow `banksy_is_l1` cells to L1 and removes isolated L1 assignments. This reduces Vascular from 17.2% (BANKSY domain) to 6.6% (smoothed layer) and improves L1 contiguity.
+4. **Spatial smoothing** refines layer boundaries via 3-step pipeline: within-domain majority vote (k=30, 2 rounds) smooths noisy boundaries while respecting BANKSY domains; vascular border trim reassigns Vascular cells whose neighborhoods are predominantly cortical; BANKSY-anchored L1 contiguity promotes shallow `banksy_is_l1` cells to L1 and removes isolated L1 assignments. This reduces Vascular from 17.9% (BANKSY domain) to 6.8% (smoothed layer) and improves L1 contiguity.
 
-Final layer categories: **L1 (5.2%), L2/3 (17.5%), L4 (11.7%), L5 (24.9%), L6 (10.5%), WM (23.7%), Vascular (6.6%)** — median depth per subclass correlates at r=0.92 with the MERFISH reference.
+Final layer categories: **L1 (5.2%), L2/3 (17.6%), L4 (12.0%), L5 (23.2%), L6 (10.1%), WM (25.1%), Vascular (6.8%)** — median depth per subclass correlates at r=0.92 with the MERFISH reference.
 
 See **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** for full details, validation figures, and design decisions.
 

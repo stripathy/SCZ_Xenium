@@ -219,7 +219,7 @@ These are all highly specific to a single cell class, confirming that cell-type 
 To test whether the findings above generalize beyond the MERSCOPE 4K platform, we repeated the per-gene snRNAseq vs spatial correlation analysis for two additional platforms:
 
 - **SEA-AD MERFISH**: 1,887,729 cells, 180-gene curated panel, Allen Institute MTG reference data. Pre-normalized (ln(spots per 10K + 1)).
-- **SCZ Xenium**: 1,276,178 QC-pass cells across 24 sections (12 SCZ, 12 control), 300-gene panel, raw counts normalized (total-count to 10K + log1p).
+- **SCZ Xenium**: 1,225,037 QC-pass cells across 24 sections (12 SCZ, 12 control), 300-gene panel, raw counts normalized (total-count to 10K + log1p).
 
 Both were compared to the same snRNAseq reference using pseudobulk per subclass.
 
@@ -229,7 +229,7 @@ Both were compared to the same snRNAseq reference using pseudobulk per subclass.
 |----------|-------|-------|----------|--------|---------|---------|-------|
 | **MERSCOPE 4K** | 3,317 | 43,357 | 0.701 | 0.624 | 70.9% | 37.4% | 4.8% |
 | **SEA-AD MERFISH** | 140 | 1,887,729 | **0.893** | **0.871** | **98.6%** | **80.7%** | **0.0%** |
-| **SCZ Xenium** | 300 | 1,276,178 | **0.891** | 0.771 | 86.0% | 68.0% | 3.3% |
+| **SCZ Xenium** | 300 | 1,225,037 | **0.891** | 0.771 | 86.0% | 68.0% | 3.3% |
 
 The MERFISH and Xenium panels have dramatically higher median correlations (0.89 vs 0.70) and essentially no negatively-correlated genes. However, this reflects **panel design**, not superior platform chemistry: the 140-300 gene panels were curated to include cell-type-discriminating marker genes — exactly the high-CV, high-variance genes we identified as the strongest performers in Part 2. The MERSCOPE 4K panel includes thousands of additional genes, many with low cell-type variability, which drag the median down.
 
@@ -325,7 +325,7 @@ This distinction underscores that **cell-type variability is the fundamental pre
 - **snRNAseq reference**: SEA-AD MTG snRNAseq (Nicole Comfort), 137,303 cells, 36,601 genes, raw integer counts
 - **MERSCOPE 4K**: Fang et al. (2022), 4 donors, 14 sections (250g and 4000g panels), 43,357 QC-pass cells (4K sections), 3,999 genes, raw counts
 - **SEA-AD MERFISH**: Allen Institute, 27 donors, 69 sections, 1,887,729 cells, 180 genes, pre-normalized (ln(spots/10K + 1))
-- **SCZ Xenium**: 24 sections (12 SCZ, 12 control), 1,276,178 QC-pass cells, 300 genes, raw counts
+- **SCZ Xenium**: 24 sections (12 SCZ, 12 control), 1,225,037 QC-pass cells, 300 genes, raw counts
 
 ### Normalization
 

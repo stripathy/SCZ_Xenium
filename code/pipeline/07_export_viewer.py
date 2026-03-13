@@ -150,18 +150,12 @@ def main():
         adata = ad.read_h5ad(path)
         n_total = adata.n_obs
 
-        # Filter to QC-pass cells only
-        if "qc_pass" in adata.obs.columns:
-            qc_mask = adata.obs["qc_pass"].values.astype(bool)
-            n_fail = (~qc_mask).sum()
-            adata = adata[qc_mask].copy()
-            print(f"({n_total} total, {n_fail} QC-fail removed, "
-                  f"{adata.n_obs} kept)", end=" ")
-        else:
-            print(f"(no qc_pass column, keeping all {n_total})", end=" ")
+        # Keep ALL cells — QC status is tracked as a field, not used for filtering
+        adata = adata.copy()
+        print(f"({n_total} total)", end=" ")
 
         total_cells_all += n_total
-        total_qc_pass += adata.n_obs
+        total_qc_pass += n_total  # all cells exported now
 
         # Extract data
         x = adata.obsm["spatial"][:, 0].astype(np.float32)
@@ -196,22 +190,45 @@ def main():
             if sup_val not in global_supertype_to_subclass:
                 global_supertype_to_subclass[sup_val] = sub_val
 
-        # Override labels to "QC Failed" for cells that fail hybrid QC
-        qc_col = "hybrid_qc_pass" if "hybrid_qc_pass" in adata.obs.columns else (
-            "corr_qc_pass" if has_corr and "corr_qc_pass" in adata.obs.columns else None)
-        n_qc_fail = 0
-        if qc_col is not None:
-            qc_fail_mask = ~adata.obs[qc_col].values.astype(bool)
-            n_qc_fail = qc_fail_mask.sum()
-            if n_qc_fail > 0:
-                subclass = subclass.copy()
-                supertype = supertype.copy()
-                class_label = class_label.copy()
-                subclass[qc_fail_mask] = "QC Failed"
-                supertype[qc_fail_mask] = "QC Failed"
-                class_label[qc_fail_mask] = "QC Failed"
-        # Ensure QC Failed is in the supertype mapping
-        global_supertype_to_subclass["QC Failed"] = "QC Failed"
+        # Compute qc_status: 0=pass, 1=fail_spatial_qc, 2=fail_low_margin, 3=fail_doublet
+        qc_status = np.zeros(len(adata), dtype=np.uint8)
+        has_qc_pass = "qc_pass" in adata.obs.columns
+        has_corr_qc = has_corr and "corr_qc_pass" in adata.obs.columns
+        has_doublet = "doublet_suspect" in adata.obs.columns
+
+        if has_qc_pass:
+            fail_spatial = ~adata.obs["qc_pass"].values.astype(bool)
+            qc_status[fail_spatial] = 1
+
+        if has_doublet:
+            is_doublet = adata.obs["doublet_suspect"].values.astype(bool)
+            # Only mark as doublet if not already failed spatial QC
+            qc_status[(qc_status == 0) & is_doublet] = 3
+
+        if has_corr_qc and has_qc_pass:
+            passes_spatial = adata.obs["qc_pass"].values.astype(bool)
+            fails_corr = ~adata.obs["corr_qc_pass"].values.astype(bool)
+            # Low margin = passes spatial QC but fails corr_qc_pass AND not already doublet
+            low_margin = passes_spatial & fails_corr
+            if has_doublet:
+                low_margin = low_margin & ~is_doublet
+            qc_status[(qc_status == 0) & low_margin] = 2
+
+        n_qc_fail = (qc_status > 0).sum()
+        QC_LABELS = {1: "QC: Spatial Fail", 2: "QC: Low Margin", 3: "QC: Doublet Suspect"}
+        if n_qc_fail > 0:
+            subclass = subclass.copy()
+            supertype = supertype.copy()
+            class_label = class_label.copy()
+            for code, label in QC_LABELS.items():
+                mask = qc_status == code
+                if mask.any():
+                    subclass[mask] = label
+                    supertype[mask] = label
+                    class_label[mask] = label
+        # Ensure QC labels are in the supertype mapping
+        for label in list(QC_LABELS.values()) + ["QC Failed"]:
+            global_supertype_to_subclass[label] = label
 
         # Round coordinates to save space
         x = np.round(x, 1)
@@ -275,14 +292,8 @@ def main():
             "hann_subclass": [hann_subclass_idx[s] for s in hann_subclass],
         }
 
-        # QC flag: use hybrid_qc_pass (final pipeline QC) if available,
-        # fall back to corr_qc_pass
-        if "hybrid_qc_pass" in adata.obs.columns:
-            qc_flag = adata.obs["hybrid_qc_pass"].values.astype(bool)
-            data["corr_qc"] = [1 if q else 0 for q in qc_flag]
-        elif has_corr and "corr_qc_pass" in adata.obs.columns:
-            corr_qc = adata.obs["corr_qc_pass"].values.astype(bool)
-            data["corr_qc"] = [1 if q else 0 for q in corr_qc]
+        # QC status: 0=pass, 1=fail_spatial, 2=fail_low_margin, 3=fail_doublet
+        data["qc_status"] = qc_status.tolist()
 
         # Correlation margin (always export if available)
         if has_corr and "corr_subclass_margin" in adata.obs.columns:

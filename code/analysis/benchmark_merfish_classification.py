@@ -165,7 +165,7 @@ def phase_b_correlation_classifier(adata):
     1. Build subclass centroids from top-100 HANN exemplars (180-gene space)
     2. Build supertype centroids within each subclass
     3. Run two-stage Pearson correlation classifier
-    4. Low-margin QC (bottom 1% per section)
+    4. Low-margin QC (bottom 5% per section)
     5. Doublet detection (adapted for MERFISH panel)
 
     Returns adata with corr_* and doublet_* columns added.
@@ -202,7 +202,7 @@ def phase_b_correlation_classifier(adata):
         lambda x: SUBCLASS_TO_CLASS.get(x, 'Unknown'))
 
     # ── QC: Low margin flagging (per section) ──
-    print(f"\nFlagging bottom 1% margin per section...")
+    print(f"\nFlagging bottom 5% margin per section...")
     section_ids = adata.obs['Section'].astype(str).values
     margins = results['corr_subclass_margin'].values
     corr_qc_pass, thresholds = flag_low_margin_cells(

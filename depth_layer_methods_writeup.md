@@ -24,8 +24,8 @@ The depth model is a `GradientBoostingRegressor` (n_estimators=300, max_depth=5,
 
 | Metric | Train | Test |
 |--------|-------|------|
-| R^2 | 0.92 | 0.90 |
-| MAE | 0.025 | 0.031 |
+| R^2 | 0.93 | 0.89 |
+| MAE | 0.050 | 0.069 |
 | Pearson r | 0.96 | 0.95 |
 
 Predictions are deliberately **not clamped** to [0, 1]. Cells in white matter receive depth > 1 and cells above the pia receive depth < 0, providing natural tissue boundary detection without requiring hard cutoffs.
@@ -83,15 +83,15 @@ Key advantages of this approach:
 
 ### Aggregate domain breakdown
 
-Across all 24 samples (1,302,631 QC-pass cells), the BANKSY domain distribution is:
+Across all 24 samples (1,225,037 QC-pass cells), the BANKSY domain distribution is:
 
 | Domain | Cells | % |
 |--------|-------|---|
-| Cortical (including L1 border) | 821,034 | 63.0% |
-| Vascular | 223,438 | 17.2% |
-| White Matter | 258,159 | 19.8% |
+| Cortical (including L1 border) | 744,878 | 60.8% |
+| Vascular | 219,030 | 17.9% |
+| White Matter | 261,129 | 21.3% |
 
-Note: The Vascular domain fraction (17.2%) is larger than the final Vascular layer fraction (6.6%) because BANKSY captures spatially coherent vascular-associated tissue including border cells. Spatial smoothing (Section 4) subsequently reassigns most border Vascular cells to cortical layers. Similarly, the L1 border flag (6.3% of cells) is used to promote additional cells to L1 during smoothing.
+Note: The Vascular domain fraction (17.9%) is larger than the final Vascular layer fraction (6.8%) because BANKSY captures spatially coherent vascular-associated tissue including border cells. Spatial smoothing (Section 4) subsequently reassigns most border Vascular cells to cortical layers. Similarly, the L1 border flag (6.5% of cells) is used to promote additional cells to L1 during smoothing.
 
 ![Layer composition by sample](output/presentation/slide_layer_stacked_bar.png)
 *Figure 3. Per-sample layer composition showing the proportion of cells in each cortical layer, white matter, and vascular domains.*
@@ -119,7 +119,7 @@ Raw depth-bin layers produce noisy boundaries: individual cells may receive inco
 
 **Step 1: Within-domain majority vote (k=30, 2 rounds).** For each cell, the layer labels of its k=30 spatial nearest neighbors *within the same BANKSY domain* are tallied, and the cell is reassigned to the majority layer. This smooths noisy cortical layer boundaries without allowing reassignments to cross BANKSY domain borders (e.g., a cortical cell cannot be voted into Vascular). Two rounds of voting are applied for convergence.
 
-**Step 2: Vascular border trim.** Border Vascular cells — those with >33% of spatial neighbors in cortical layers (L2/3, L4, L5, L6) — are reassigned to the most common non-Vascular layer among their neighbors. A secondary rule reassigns Vascular cells with >66% of neighbors in any non-Vascular layer (including WM and L1). This trims the Vascular domain from 17.2% (BANKSY domain) to 6.6% (smoothed layer), removing spurious Vascular assignments at domain boundaries while preserving truly spatially contiguous blood vessel regions.
+**Step 2: Vascular border trim.** Border Vascular cells — those with >33% of spatial neighbors in cortical layers (L2/3, L4, L5, L6) — are reassigned to the most common non-Vascular layer among their neighbors. A secondary rule reassigns Vascular cells with >66% of neighbors in any non-Vascular layer (including WM and L1). This trims the Vascular domain from 17.9% (BANKSY domain) to 6.8% (smoothed layer), removing spurious Vascular assignments at domain boundaries while preserving truly spatially contiguous blood vessel regions.
 
 **Step 3: BANKSY-anchored L1 contiguity.** Two sub-steps refine L1 assignment: (a) *Promotion*: cells flagged as `banksy_is_l1` with predicted depth < 0.20 and at least 5% L1 neighbors are promoted to L1, recovering cells that depth binning alone missed. (b) *Removal*: isolated L1 cells (non-BANKSY L1 cells with <20% L1 neighbors, or BANKSY L1 cells with <5% L1 neighbors) are reassigned to their neighbors' majority layer.
 
@@ -129,13 +129,13 @@ The pre-smoothing layers are preserved as `layer_unsmoothed` (depth bins + Vascu
 
 | Layer | Cells | % |
 |-------|-------|---|
-| L1 | 68,335 | 5.2% |
-| L2/3 | 227,799 | 17.5% |
-| L4 | 151,765 | 11.7% |
-| L5 | 323,939 | 24.9% |
-| L6 | 136,486 | 10.5% |
-| WM | 308,452 | 23.7% |
-| Vascular | 85,855 | 6.6% |
+| L1 | 64,119 | 5.2% |
+| L2/3 | 215,592 | 17.6% |
+| L4 | 146,614 | 12.0% |
+| L5 | 284,402 | 23.2% |
+| L6 | 124,079 | 10.1% |
+| WM | 306,926 | 25.1% |
+| Vascular | 83,305 | 6.8% |
 
 ### Output columns
 

@@ -45,7 +45,7 @@ events = [
     ('QC fail:\ncontrol probes\n& low genes', -T['qc_fail_other'], '#CC6677'),
     ('QC fail:\nhigh UMI\n(multi-fail)', -T['high_umi_multi_fail'], '#CC6677'),
     ('QC fail:\nhigh UMI only\n(→ rescued later)', -T['high_umi_only'], '#DDAA33'),
-    ('Low corr\nmargin\n(bottom 1%)', -T['low_margin'], '#CC6677'),
+    ('Low corr\nmargin\n(bottom 5%)', -T['low_margin'], '#CC6677'),
     ('Doublet:\nGlut+GABA', -T['glut_gaba'], '#CC6677'),
     ('Doublet:\nGABA+GABA', -T['gaba_gaba'], '#CC6677'),
     ('High-UMI\nrescued\n(Step 04)', +T['high_umi_only'], '#228833'),
@@ -290,7 +290,7 @@ print()
 print(f'{"After Step 01 (qc_pass)":<40} {T["qc_pass"]:>10,} {T["qc_pass"]/T["total"]*100:>9.2f}% {T["qc_pass"]-T["total"]:>+10,}')
 print()
 print(f'  Step 02b additional flags (among qc_pass):')
-print(f'    {"Low margin (bottom 1% per sample)":<36} {-T["low_margin"]:>10,} {T["low_margin"]/T["total"]*100:>9.2f}%')
+print(f'    {"Low margin (bottom 5% per sample)":<36} {-T["low_margin"]:>10,} {T["low_margin"]/T["total"]*100:>9.2f}%')
 print(f'    {"Doublet: Glut+GABA":<36} {-T["glut_gaba"]:>10,} {T["glut_gaba"]/T["total"]*100:>9.2f}%')
 print(f'    {"Doublet: GABA+GABA":<36} {-T["gaba_gaba"]:>10,} {T["gaba_gaba"]/T["total"]*100:>9.2f}%')
 print()
