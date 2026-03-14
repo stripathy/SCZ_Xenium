@@ -48,7 +48,7 @@ Run in approximate order:
 | `characterize_poor_genes.py` | Identify gene properties (biotype, expression, specificity) that predict poor spatial performance |
 | `merscope_panel_assessment.py` | Panel overlap matrices, supertype marker coverage, detection rate calibration |
 | `supertype_markers_panel_overlap.py` | Wilcoxon markers at supertype level; check which are missing from each panel |
-| `nsforest_supertype_markers.py` | NS-Forest minimal combinatorial marker sets for each supertype |
+| ~~`nsforest_supertype_markers.py`~~ | *(archived to `code/archive/stale_analysis/`)* NS-Forest marker sets |
 | `hierarchical_probe_selection.py` | Two-round hierarchical probe design with dropout-aware scoring |
 | `visualize_marker_quality.py` | Dotplots, matrixplots, violin plots of selected markers |
 

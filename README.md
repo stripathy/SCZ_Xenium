@@ -6,7 +6,7 @@ Analysis pipeline for 24 Xenium spatial transcriptomics samples (12 schizophreni
 - **[Pipeline Rationale](#pipeline-philosophy--design-rationale)** — Why the pipeline is structured this way and key design decisions
 - **[Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md)** — Detailed methods writeup with figures: classification approaches, doublet resolution, MERFISH benchmarking, ablation studies
 - **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** — Cortical depth model, spatial domain classification, layer assignment, and validation against MERFISH
-- **[Data Download Instructions](DATA.md)** — How to obtain all input datasets
+- **[Data Download Instructions](data/README.md)** — How to obtain all input datasets
 
 ## Datasets & References
 
@@ -29,7 +29,7 @@ Cell type annotation and cortical depth modeling use reference data from the Sea
 - Gabitto et al. (2024) *Integrated multimodal cell atlas of Alzheimer's disease.* Nature Neuroscience. [doi:10.1038/s41593-024-01774-5](https://doi.org/10.1038/s41593-024-01774-5)
 - [Allen Brain Cell Atlas portal](https://portal.brain-map.org/)
 
-See **[DATA.md](DATA.md)** for complete download instructions.
+See **[data/README.md](data/README.md)** for complete download instructions.
 
 ## Pipeline Philosophy & Design Rationale
 
@@ -94,9 +94,8 @@ SCZ_Xenium/
 │   ├── crumblr/          # Compositional regression results
 │   ├── presentation/     # Presentation-ready figures
 │   └── ...               # CSVs, model files (generated)
-├── sample_metadata.xlsx  # Donor demographics & diagnosis
-├── DATA.md               # Data download instructions
-└── requirements.txt      # Python dependencies
+├── environment.yml      # Python/conda dependencies
+└── requirements.txt     # Python dependencies (pip)
 ```
 
 ## Pipeline
@@ -108,7 +107,6 @@ Raw .h5 + boundaries ─→ [00] ─→ initial h5ad
                          [01] ─→ + QC columns (qc_pass)
                          [02] ─→ + MapMyCells labels
                         [02b] ─→ + correlation classifier labels + doublet flags (corr_qc_pass)
-                        [02c] ─→ (alternative: Harmony-based label transfer)
                          [03] ─→ transcript coordinates (for viewer + optional step 04)
                          [04] ─→ (optional) nuclear doublet resolution (see code/nuclear_resolution/)
                          [05] ─→ + depth predictions
@@ -158,12 +156,6 @@ Two-stage hierarchical reclassification using Pearson correlation against self-b
 Dramatically reduces misclassifications such as L6b appearing in upper cortical layers.
 
 **Output:** Updated h5ad files with `corr_subclass`, `corr_supertype`, `corr_class`, correlation scores, `corr_qc_pass`, `doublet_suspect`, `doublet_type`; `output/h5ad/correlation_centroids.pkl`
-
-### Step 02c: Harmony Transfer (alternative) (`02c_run_harmony_transfer.py`)
-
-Three-stage hierarchical classification using PCA + Harmony + kNN at each level (Class, Subclass, Supertype). An alternative to step 02b that does not require step 02 — only requires step 01. Independent re-runs Harmony at each stage to correct for modality-specific batch effects.
-
-**Output:** Updated h5ad files with `harmony_subclass`, `harmony_supertype`, `harmony_class`
 
 ### Step 03: Export Transcripts (`03_export_transcripts.py`)
 
@@ -241,14 +233,11 @@ Downstream statistical analyses comparing SCZ vs. Control. Configuration is cent
 | **Composition** | |
 | `build_crumblr_input.py` | Prepare input for crumblr compositional regression (default: corr QC, supports `--qc-mode hybrid`) |
 | `run_crumblr.R` | Run crumblr CLR + dream linear model (supports `--hybrid` flag) |
-| `run_de_edgepython.py` | Pseudobulk differential expression via edgePy (default: corr QC, supports `--qc-mode hybrid`) |
-| `compare_qc_modes.py` | Side-by-side comparison of corr vs hybrid QC results |
 | **Proportion validation** | |
 | `plot_xenium_composition_boxplots.py` | Per-subclass composition boxplots (SCZ vs Control) |
 | `plot_cropped_proportions.py` | MERFISH vs Xenium proportion scatter (cropped/uncropped) |
 | `plot_predicted_proportion_scatter.py` | Neurons-only proportion scatter with error bars |
 | `plot_merfish_vs_xenium_proportions.py` | MERFISH vs Xenium naive proportion comparison |
-| `check_layer_type_proportions.py` | Upper vs deep excitatory balance check |
 | `plot_merfish_xenium_benchmark.py` | MERFISH vs Xenium benchmark: proportions, median depth, depth violins |
 | **Depth** | |
 | `plot_depth_comparison.py` | 4-panel depth comparison: MERFISH section vs Xenium |
@@ -270,14 +259,14 @@ Downstream statistical analyses comparing SCZ vs. Control. Configuration is cent
 ## Quick Start
 
 ```bash
-# 1. Download required datasets (see DATA.md for full instructions)
+# 1. Download required datasets (see data/README.md for full instructions)
 #    - Raw Xenium data -> data/raw/
 #    - SEA-AD MERFISH reference -> data/reference/
 #    - SEA-AD snRNAseq reference -> data/reference/
 #    - MapMyCells precomputed stats -> data/reference/
 
 # 2. Install Python dependencies
-pip install -r requirements.txt
+conda env create -f environment.yml   # or: pip install -r requirements.txt
 pip install pybanksy  # Required for step 06 (BANKSY spatial domain classification)
 pip install "cell_type_mapper @ git+https://github.com/AllenInstitute/cell_type_mapper"  # Python 3.10+
 
@@ -286,7 +275,6 @@ python3 -u code/pipeline/00_create_h5ad.py
 python3 -u code/pipeline/01_run_qc.py
 python3 -u code/pipeline/02_run_mapmycells.py
 python3 -u code/pipeline/02b_run_correlation_classifier.py
-# python3 -u code/pipeline/02c_run_harmony_transfer.py  # (alternative to 02b)
 python3 -u code/pipeline/03_export_transcripts.py
 # python3 -u code/nuclear_resolution/04_run_nuclear_doublet_resolution.py  # (optional)
 python3 -u code/pipeline/05_run_depth_prediction.py
@@ -402,7 +390,7 @@ Contains legacy and exploratory scripts from earlier iterations of the analysis:
 
 | Directory | Contents |
 |-----------|----------|
-| `stale_analysis/` | Superseded analysis scripts (threshold analysis, old comparisons, scCODA) |
+| `stale_analysis/` | Archived analysis scripts: diagnostic comparisons, edgepython DE, Harmony transfer, nsforest markers, calibration scripts |
 | `one_time_utils/` | One-time data migration scripts (rename columns, annotate MERFISH depth) |
 | `legacy_runners/` | Old pipeline runners (pre-numbered-step architecture) |
 | `ood_methods/` | OOD method exploration scripts (superseded by BANKSY domain classification) |

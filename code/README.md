@@ -12,7 +12,6 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 | 01 | `pipeline/01_run_qc.py` | Cell-level QC (Kwon et al. approach), adds `qc_pass` column |
 | 02 | `pipeline/02_run_mapmycells.py` | MapMyCells hierarchical annotation → `class_label`, `subclass_label`, `supertype_label` |
 | 02b | `pipeline/02b_run_correlation_classifier.py` | Two-stage Pearson correlation reclassification + doublet detection |
-| 02c | `pipeline/02c_run_harmony_transfer.py` | Harmony-based hierarchical label transfer (alternative to 02b) |
 | 03 | `pipeline/03_export_transcripts.py` | Export per-gene transcript coordinates (for viewer + optional step 04) |
 | 04 | *(optional)* `nuclear_resolution/04_run_nuclear_doublet_resolution.py` | Nuclear doublet resolution (see `nuclear_resolution/README.md`) |
 | 05 | `pipeline/05_run_depth_prediction.py` | Retrain MERFISH depth model, predict cortical depth → `predicted_norm_depth` |
@@ -99,8 +98,10 @@ Uses the SEA-AD MTG hierarchy (via MapMyCells):
 ## Dependencies
 
 ```
-anndata, scanpy, numpy, scipy, scikit-learn, scikit-image,
-matplotlib, pandas, statsmodels, h5py, cell_type_mapper
+anndata, scanpy, numpy, scipy, scikit-learn,
+matplotlib, pandas, statsmodels, h5py, openpyxl,
+adjustText, cell_type_mapper
+# See environment.yml or requirements.txt for full list
 ```
 
 ## Data Requirements
@@ -117,10 +118,11 @@ Optional side investigation into using nuclear-only transcript counts to arbitra
 ## Archive
 
 Legacy code is preserved in `code/archive/` for reference:
+- `stale_analysis/` — Archived analysis scripts (diagnostic comparisons, edgepython DE, Harmony transfer, nsforest markers, calibration scripts)
 - `label_transfer.py` — Old kNN-based label transfer (superseded by MapMyCells)
 - `layers.py` — Old density-based layer segmentation (superseded by depth model)
 - `legacy_runners/` — Old monolithic pipeline runners
 - `ood_methods/` — Exploratory OOD detection approaches (superseded by BANKSY domains)
 - `spatial_domain_exploration/` — Experimental spatial domain scripts
 - `banksy_exploration/` — BANKSY parameter tuning, validation, and batch runner (logic now in `modules/banksy_domains.py`)
-- `curved_strips/` — Curved cortex strip identification pipeline (experimental approach for selecting cortical strips with complete L1–L6 laminar structure)
+- `curved_strips/` — Curved cortex strip identification pipeline (experimental)

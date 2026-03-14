@@ -84,4 +84,4 @@ python3 plot_doublet_transcripts.py
 ## Dependencies
 
 Same as the main pipeline, plus:
-- `shapely` (for point-in-polygon nuclear boundary queries)
+- `shapely` (for point-in-polygon nuclear boundary queries; optional, not in `environment.yml` — install with `pip install shapely`)
