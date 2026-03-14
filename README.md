@@ -13,6 +13,31 @@ The pipeline uses a two-stage classification approach: initial labels come from 
 - **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** — Cortical depth model, spatial domains, validation
 - **[Data Download Instructions](data/README.md)** — How to obtain all input datasets
 
+## Datasets & References
+
+This pipeline is an **analysis pipeline only** — it does not generate any of the primary datasets. All data were produced by other groups and are publicly available.
+
+### Xenium SCZ Data (primary dataset)
+
+- **Source:** [Kwon et al. (2026)](https://doi.org/10.64898/2026.02.16.706214) — *Mapping spatially organized molecular and genetic signatures of schizophrenia across multiple scales in human prefrontal cortex*
+- **GEO Accession:** [GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404)
+- **Description:** 24 DLPFC sections (12 SCZ, 12 control) profiled with a 300-gene Xenium panel, yielding ~1.34 million cells total
+
+### SEA-AD Reference Datasets (Allen Institute)
+
+Cell type annotation and cortical depth modeling use reference data from the [Seattle Alzheimer's Disease Brain Cell Atlas](https://portal.brain-map.org/) (SEA-AD), produced by the Allen Institute for Brain Science:
+
+- **SEA-AD MERFISH** (`SEAAD_MTG_MERFISH.2024-12-11.h5ad`) — Middle temporal gyrus MERFISH spatial reference (1.9M cells, 180 genes, 27 donors, 69 sections). Used for training the cortical depth model and for cross-modal proportion validation. [Download (3.1 GB)](https://sea-ad-spatial-transcriptomics.s3.us-west-2.amazonaws.com/middle-temporal-gyrus/all_donors-h5ad/SEAAD_MTG_MERFISH.2024-12-11.h5ad)
+- **SEA-AD snRNAseq** (`seaad_mtg_snrnaseq_reference.h5ad`) — SEA-AD MTG single-nucleus RNA-seq dataset, subset to the 5 neurotypical reference donors (137K cells, 36K genes). Used for ground-truth validation of doublet detection and as a full-transcriptome reference. Recreated from the full dataset via `code/pipeline/create_snrnaseq_reference.py`; original data: [Download (33.8 GB)](https://sea-ad-single-cell-profiling.s3.us-west-2.amazonaws.com/MTG/RNAseq/SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad)
+- **MapMyCells precomputed stats** (`precomputed_stats.20231120.sea_ad.MTG.h5`) — Precomputed taxonomy statistics for hierarchical cell type mapping. [Download (251 MB)](https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/mapmycells/SEAAD/20240831/precomputed_stats.20231120.sea_ad.MTG.h5)
+- **Cell type mapper:** [AllenInstitute/cell_type_mapper](https://github.com/AllenInstitute/cell_type_mapper) (requires Python 3.10+)
+
+**References:**
+- Gabitto et al. (2024) *Integrated multimodal cell atlas of Alzheimer's disease.* Nature Neuroscience. [doi:10.1038/s41593-024-01774-5](https://doi.org/10.1038/s41593-024-01774-5)
+- [Allen Brain Cell Atlas portal](https://portal.brain-map.org/)
+
+See **[data/README.md](data/README.md)** for complete download instructions.
+
 ## Pipeline Overview
 
 The pipeline consists of 8 numbered steps in `code/pipeline/`, run sequentially. All paths and settings are centralized in `code/pipeline/pipeline_config.py`.
@@ -216,27 +241,6 @@ open output/viewer/xenium_viewer_standalone.html
 **Note:** Steps 04-05 use multiprocessing (4 workers by default, configurable in `pipeline_config.py`). The full pipeline processes ~1.34M cells across 24 samples. Step 04 (depth model training) is the most time-intensive (~80 min). Total pipeline runtime is approximately 2-3 hours.
 
 The Br2039 sample (65% white matter, SCZ) is processed through the full pipeline but excluded from disease comparisons in analysis scripts via `EXCLUDE_SAMPLES` due to its atypical tissue composition.
-
-## Datasets & References
-
-### Xenium SCZ Data
-
-- **Source:** [Kwon et al. (2026)](https://doi.org/10.64898/2026.02.16.706214) — *Mapping spatially organized molecular and genetic signatures of schizophrenia across multiple scales in human prefrontal cortex*
-- **GEO Accession:** [GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404)
-- **Description:** 24 DLPFC sections (12 SCZ, 12 control) profiled with a 300-gene Xenium panel, yielding ~1.34 million cells total
-
-### SEA-AD Reference Datasets
-
-Cell type annotation and cortical depth modeling use reference data from the Seattle Alzheimer's Disease Brain Cell Atlas:
-
-- **SEA-AD MERFISH** (`SEAAD_MTG_MERFISH.2024-12-11.h5ad`) — Middle temporal gyrus MERFISH spatial reference (1.9M cells, 180 genes) used for training the cortical depth model and proportion validation. [Download (3.1 GB)](https://sea-ad-spatial-transcriptomics.s3.us-west-2.amazonaws.com/middle-temporal-gyrus/all_donors-h5ad/SEAAD_MTG_MERFISH.2024-12-11.h5ad)
-- **SEA-AD snRNAseq** (`seaad_mtg_snrnaseq_reference.h5ad`) — SEA-AD MTG single-nucleus RNA-seq dataset, subset to the 5 neurotypical reference donors (137K cells, 36K genes). Used for ground-truth validation of doublet detection and as a full-transcriptome reference.
-- **MapMyCells precomputed stats** (`precomputed_stats.20231120.sea_ad.MTG.h5`) — Precomputed taxonomy statistics for hierarchical cell type mapping. [Download (251 MB)](https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/mapmycells/SEAAD/20240831/precomputed_stats.20231120.sea_ad.MTG.h5)
-- **Cell type mapper:** [AllenInstitute/cell_type_mapper](https://github.com/AllenInstitute/cell_type_mapper) (requires Python 3.10+)
-
-**References:**
-- Gabitto et al. (2024) *Integrated multimodal cell atlas of Alzheimer's disease.* Nature Neuroscience. [doi:10.1038/s41593-024-01774-5](https://doi.org/10.1038/s41593-024-01774-5)
-- [Allen Brain Cell Atlas portal](https://portal.brain-map.org/)
 
 ## Nuclear Doublet Resolution (optional)
 
