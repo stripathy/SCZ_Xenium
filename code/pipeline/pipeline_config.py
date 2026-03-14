@@ -2,7 +2,7 @@
 Shared configuration for the SCZ Xenium processing pipeline.
 
 Centralizes all paths, constants, and settings used across pipeline steps
-(00_create_h5ad through 08_export_boundaries). Import from here instead of
+(00_create_h5ad through 07_export_boundaries). Import from here instead of
 hardcoding paths in each script.
 
 This is the pipeline equivalent of code/analysis/config.py.
@@ -21,12 +21,12 @@ RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
 METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
 
 # Reference data (SEA-AD)
-# MERFISH spatial reference — REQUIRED for depth model training (step 05)
+# MERFISH spatial reference — REQUIRED for depth model training (step 04)
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                             "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
 # snRNAseq reference — NOT required for core pipeline; used for validation only
 SNRNASEQ_REF_PATH = os.path.join(BASE_DIR, "data", "reference",
-                                  "nicole_sea_ad_snrnaseq_reference.h5ad")
+                                  "seaad_mtg_snrnaseq_reference.h5ad")
 # MapMyCells precomputed stats — REQUIRED for cell type annotation (step 02)
 PRECOMPUTED_STATS_PATH = os.path.join(
     BASE_DIR, "data", "reference",
@@ -61,7 +61,7 @@ CENTROID_PATH = os.path.join(H5AD_DIR, "correlation_centroids.pkl")
 # Processing settings
 # ──────────────────────────────────────────────────────────────────────
 
-N_WORKERS = 4  # for multiprocessing in steps 05/06
+N_WORKERS = 4  # for multiprocessing in steps 04/05
 
 # MapMyCells settings (step 02)
 MAPMYCELLS_BOOTSTRAP_ITER = 100
@@ -76,12 +76,12 @@ CORR_CLASSIFIER_TOP_N = 100       # exemplar cells per type for centroid buildin
 CORR_CLASSIFIER_QC_PERCENTILE = 5.0  # bottom % of margin to flag per sample
 L6B_MARGIN_THRESHOLD = 0.02           # absolute margin threshold for L6b cells
 
-# Nuclear doublet resolution settings (step 04)
+# Nuclear doublet resolution settings (optional nuclear resolution)
 NUCLEAR_CHUNK_SIZE = 500_000      # transcripts per STRtree query batch
 NUCLEAR_MIN_UMI = 50              # min nuclear UMI for reliable doublet assessment
 NUCLEAR_MIN_CORR = 0.3            # min correlation for high-confidence resolution
 
-# Transcript export directory (step 03 output, step 04 input)
+# Transcript export directory (step 03 output, used by optional nuclear resolution)
 TRANSCRIPT_DIR = os.path.join(VIEWER_DIR, "transcripts")
 
 # ──────────────────────────────────────────────────────────────────────

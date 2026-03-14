@@ -426,11 +426,11 @@ def phase_d_benchmark(adata):
         depth = adata.obs[depth_col].astype(float).values
         strata = {
             'L1 (<0.10)': (0.0, 0.10),
-            'L2/3 (0.10-0.30)': (0.10, 0.30),
-            'L4 (0.30-0.45)': (0.30, 0.45),
-            'L5 (0.45-0.65)': (0.45, 0.65),
-            'L6 (0.65-0.85)': (0.65, 0.85),
-            'WM (>0.85)': (0.85, 1.5),
+            'L2/3 (0.10-0.40)': (0.10, 0.40),
+            'L4 (0.40-0.55)': (0.40, 0.55),
+            'L5 (0.55-0.70)': (0.55, 0.70),
+            'L6 (0.70-0.90)': (0.70, 0.90),
+            'WM (>0.90)': (0.90, 1.5),
         }
         depth_acc_records = []
         for name, (lo, hi) in strata.items():
@@ -829,8 +829,8 @@ def _run_single_ablation(adata, config, eval_mask=None):
         if eval_mask is not None:
             depth = depth[eval_mask]
         strata = {
-            'L1': (0.0, 0.10), 'L2/3': (0.10, 0.30), 'L4': (0.30, 0.45),
-            'L5': (0.45, 0.65), 'L6': (0.65, 0.85), 'WM': (0.85, 1.5),
+            'L1': (0.0, 0.10), 'L2/3': (0.10, 0.40), 'L4': (0.40, 0.55),
+            'L5': (0.55, 0.70), 'L6': (0.70, 0.90), 'WM': (0.90, 1.5),
         }
         for sname, (lo, hi) in strata.items():
             mask = (depth >= lo) & (depth < hi) & ~np.isnan(depth)

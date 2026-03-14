@@ -22,15 +22,15 @@ Not all data is required for every use case. Here's a quick guide:
 | Dataset | Size | Core pipeline | Analysis scripts | Validation plots |
 |---------|------|:---:|:---:|:---:|
 | Raw Xenium cell matrices + boundaries | 809 MB | **Required** | — | — |
-| Raw Xenium transcript coordinates (.zarr.zip) | ~33 GB | Optional (steps 03-04 only) | — | — |
-| SEA-AD MERFISH reference | 3.1 GB | **Required** (step 05) | — | Used if available |
+| Raw Xenium transcript coordinates (.zarr.zip) | ~33 GB | Optional (step 03 only) | — | — |
+| SEA-AD MERFISH reference | 3.1 GB | **Required** (step 04) | — | Used if available |
 | MapMyCells precomputed stats | 251 MB | **Required** (step 02) | — | — |
 | SEA-AD snRNAseq reference | 33.8 GB | Not needed | — | Used if available |
 | Gene symbol mappings | <1 MB | **Required** (step 02) | — | — |
 
-**Minimum for core pipeline (steps 00-02b, 05-06):** ~4.1 GB (cell matrices + MERFISH + MapMyCells stats + gene mappings)
+**Minimum for core pipeline (steps 00-02b, 04-05):** ~4.1 GB (cell matrices + MERFISH + MapMyCells stats + gene mappings)
 
-**With transcript viewer (+ steps 03, 07-08):** ~37 GB (adds zarr files)
+**With transcript viewer (+ steps 03, 06-07):** ~37 GB (adds zarr files)
 
 **With all validation plots:** ~71 GB (adds snRNAseq reference)
 
@@ -49,8 +49,8 @@ The pipeline and analysis scripts check for reference file availability at runti
 Each sample has 4 files:
 - `cell_feature_matrix.h5` — Gene expression counts (541 features: 300 genes + controls) **[Required]**
 - `cell_boundaries.csv.gz` — Cell boundary polygons **[Required]**
-- `nucleus_boundaries.csv.gz` — Nucleus boundary polygons **[Required for step 08]**
-- `transcripts.zarr.zip` — Molecule-level transcript coordinates **[Optional — only needed for interactive viewer (step 03) and nuclear doublet resolution (step 04)]**
+- `nucleus_boundaries.csv.gz` — Nucleus boundary polygons **[Required for step 07]**
+- `transcripts.zarr.zip` — Molecule-level transcript coordinates **[Optional — only needed for interactive viewer (step 03) and nuclear doublet resolution (see `code/nuclear_resolution/`)]**
 
 ```bash
 mkdir -p data/raw
@@ -73,7 +73,9 @@ The pipeline discovers samples by globbing `data/raw/*-cell_feature_matrix.h5`.
 
 **Source:** [Gabitto et al. (2024)](https://doi.org/10.1038/s41593-024-01774-5) — Seattle Alzheimer's Disease Brain Cell Atlas.
 
-**Used for:** Training the cortical depth model (step 05). Also used by validation/comparison plots if available.
+**Used for:** Training the cortical depth model (step 04). Also used by validation/comparison plots if available.
+
+**Note on depth bins:** The pipeline uses depth bins derived from SEA-AD MERFISH manual annotations: L1 <0.10, L2/3 0.10-0.40, L4 0.40-0.55, L5 0.55-0.70, L6 0.70-0.90, WM >0.90.
 
 ```bash
 mkdir -p data/reference
@@ -127,7 +129,9 @@ aws s3 cp \
   data/reference/ --no-sign-request
 ```
 
-**Subsetting:** The pipeline uses only the 5 neurotypical reference donors: `H18.30.001`, `H18.30.002`, `H19.30.001`, `H19.30.002`, `H200.1023` (137,303 cells x 36,601 genes). Subsetting is performed in code.
+**Subsetting:** The pipeline uses only the 5 neurotypical reference donors: `H18.30.001`, `H18.30.002`, `H19.30.001`, `H19.30.002`, `H200.1023` (137,303 cells x 36,601 genes). Subsetting is performed in code, producing `data/reference/seaad_mtg_snrnaseq_reference.h5ad`.
+
+**Provenance note:** This is the full SEA-AD snRNAseq dataset subset to 5 neurotypical reference donors. The Allen Institute provides a version of this dataset, but it lacks the complete set of SEA-AD supertypes. This subset retains all supertype annotations needed for proportion validation.
 
 ---
 
@@ -151,9 +155,9 @@ aws s3 cp \
 
 | Dataset | Size | Required for | Source |
 |---------|------|-------------|--------|
-| Xenium cell matrices + boundaries | 809 MB | Core pipeline (steps 00-06) | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
-| Xenium transcript coordinates | ~33 GB | Viewer + nuclear resolution (steps 03-04) | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
-| SEA-AD MERFISH | 3.1 GB | Depth model (step 05) | [Allen Brain Cell Atlas](https://sea-ad-spatial-transcriptomics.s3.us-west-2.amazonaws.com/middle-temporal-gyrus/all_donors-h5ad/SEAAD_MTG_MERFISH.2024-12-11.h5ad) |
+| Xenium cell matrices + boundaries | 809 MB | Core pipeline (steps 00-05) | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
+| Xenium transcript coordinates | ~33 GB | Viewer (step 03) | [GEO GSE307404](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307404) |
+| SEA-AD MERFISH | 3.1 GB | Depth model (step 04) | [Allen Brain Cell Atlas](https://sea-ad-spatial-transcriptomics.s3.us-west-2.amazonaws.com/middle-temporal-gyrus/all_donors-h5ad/SEAAD_MTG_MERFISH.2024-12-11.h5ad) |
 | MapMyCells stats | 251 MB | Cell type annotation (step 02) | [Allen Brain Cell Atlas](https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/mapmycells/SEAAD/20240831/precomputed_stats.20231120.sea_ad.MTG.h5) |
 | SEA-AD snRNAseq | 33.8 GB | Validation plots only (optional) | [Allen Brain Cell Atlas](https://sea-ad-single-cell-profiling.s3.us-west-2.amazonaws.com/MTG/RNAseq/SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad) |
 | **Minimum required** | **~4.1 GB** | | |

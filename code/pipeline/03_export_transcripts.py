@@ -4,7 +4,8 @@ Step 3: Export per-gene transcript molecule coordinates.
 
 Reads Xenium transcripts.zarr (or .zarr.zip) files for one or more samples,
 extracts (x, y) coordinates for each gene, and writes compact JSON files.
-Used by step 04 (nuclear doublet resolution) and by the browser-based viewer.
+Used by optional nuclear doublet resolution (see nuclear_resolution/) and
+by the browser-based viewer.
 
 Output (per sample):
   - output/viewer/transcripts/<SAMPLE_ID>/gene_index.json

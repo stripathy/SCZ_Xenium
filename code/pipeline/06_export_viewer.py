@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 7: Export viewer JSON files from annotated h5ad files.
+Step 6: Export viewer JSON files from annotated h5ad files.
 
 Reads per-sample h5ad files, filters to QC-pass cells only, and writes
 compact JSON files for the interactive Xenium spatial viewer.
@@ -241,7 +241,7 @@ def main():
         supertype_idx = {c: i for i, c in enumerate(supertype_cats)}
         class_idx = {c: i for i, c in enumerate(class_cats)}
 
-        # Layer column (from step 06)
+        # Layer column (from step 05)
         if "layer" in adata.obs.columns:
             layers = adata.obs["layer"].values.astype(str)
         else:

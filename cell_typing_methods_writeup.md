@@ -24,18 +24,18 @@ Step 02b: Two-stage correlation classifier
     → Stage 1: Subclass assignment via Pearson correlation (24 types)
     → Stage 2: Supertype assignment within subclass
     → QC: Flag bottom 5% margin per sample + spatial doublets
-    → Save centroids to disk for step 04
+    → Save centroids to disk for optional nuclear resolution (see code/nuclear_resolution/)
 
-Step 03: Export transcript coordinates (for viewer + optional step 04)
+Step 03: Export transcript coordinates (for viewer)
 
-Step 04: (optional) Nuclear doublet resolution → code/nuclear_resolution/
-    → See nuclear_resolution/README.md for details
+Step 04: Cortical depth model (trained on MERFISH)
+Step 05: Spatial domain annotation + layer assignment
 
-Step 05: Cortical depth model (trained on MERFISH)
-Step 06: Spatial domain annotation + layer assignment
+Step 06: Viewer export (per-sample JSON + standalone HTML)
+Step 07: Cell + nucleus boundary polygon export
 
-Step 07: Viewer export (per-sample JSON + standalone HTML)
-Step 08: Cell + nucleus boundary polygon export
+Optional: Nuclear doublet resolution → code/nuclear_resolution/
+    → See nuclear_resolution/README.md for details (not part of numbered sequence)
 
 Analysis: Cortical cells → crumblr compositional regression (SCZ vs Control)
 ```
@@ -46,7 +46,7 @@ Analysis: Cortical cells → crumblr compositional regression (SCZ vs Control)
 | Step 01: spatial QC (`qc_pass`) | 1,298,687 | 40,464 | 3.0% |
 | **Step 02b: `corr_qc_pass` (default gate)** | **1,225,037** | **114,114** | **8.5%** |
 
-*Cell counts reflect all 24 samples. `corr_qc_pass` combines spatial QC (step 01), 5th-percentile margin filter, and doublet suspect exclusion. An optional nuclear doublet resolution step (step 04, in `code/nuclear_resolution/`) can produce `hybrid_qc_pass` but was found to have negligible impact on downstream biology. Br2039 is excluded from downstream disease comparisons due to high white matter content (65%).*
+*Cell counts reflect all 24 samples. `corr_qc_pass` combines spatial QC (step 01), 5th-percentile margin filter, and doublet suspect exclusion. An optional nuclear doublet resolution step (in `code/nuclear_resolution/`, not part of the numbered pipeline) can produce `hybrid_qc_pass` but was found to have negligible impact on downstream biology. Br2039 is excluded from downstream disease comparisons due to high white matter content (65%).*
 
 ---
 

@@ -18,6 +18,7 @@ import sys
 import numpy as np
 import pandas as pd
 import anndata as ad
+import matplotlib.ticker as mticker
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 # Import shared constants from modules/constants.py and re-export
@@ -35,11 +36,11 @@ from constants import (  # noqa: F401 — re-exported
 
 BASE_DIR = os.path.expanduser("~/Github/SCZ_Xenium")
 H5AD_DIR = os.path.join(BASE_DIR, "output", "h5ad")
-# Nicole's snRNAseq reference — validation only (137K cells, 36K genes)
+# SEA-AD snRNAseq reference — validation only (137K cells, 36K genes)
 # NOT required for the core pipeline; used for proportion validation plots
 SNRNASEQ_REF_PATH = os.path.join(BASE_DIR, "data", "reference",
-                                  "nicole_sea_ad_snrnaseq_reference.h5ad")
-# MERFISH spatial reference — required for depth model training (step 05)
+                                  "seaad_mtg_snrnaseq_reference.h5ad")
+# MERFISH spatial reference — required for depth model training (step 04)
 # Also used for validation plots (proportion comparison, depth comparison)
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                              "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
@@ -219,7 +220,7 @@ def load_cells(sample_id, cortical_only=False, extra_obs_columns=None,
     # Determine effective QC mode
     effective_mode = qc_mode
     if effective_mode == 'hybrid' and not has_hybrid:
-        effective_mode = 'corr'  # fallback if step 04 hasn't run
+        effective_mode = 'corr'  # fallback if optional nuclear resolution hasn't run
 
     # QC pass filter
     # For hybrid mode, hybrid_qc_pass IS the complete QC column (includes
@@ -412,7 +413,7 @@ def load_sample_adata(sample_id, cortical_only=True, qc_mode='corr'):
 
     effective_mode = qc_mode
     if effective_mode == 'hybrid' and not has_hybrid:
-        effective_mode = 'corr'  # fallback if step 04 hasn't run
+        effective_mode = 'corr'  # fallback if optional nuclear resolution hasn't run
 
     # Build QC mask
     # For hybrid mode, hybrid_qc_pass IS the complete QC column (includes
@@ -545,6 +546,344 @@ def format_pval(p):
         return f"p = {p:.2f}"
     else:
         return f"p = {p:.2f}"
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Inferred-class colors (short names: Glut/GABA/NN/Other)
+# ──────────────────────────────────────────────────────────────────────
+# Used by crumblr volcano/effect plots and snRNAseq concordance scatters.
+# These map the short class labels returned by infer_class() to hex colors.
+# Distinct from CLASS_COLORS (which uses long names: Glutamatergic/GABAergic/Non-neuronal).
+INFER_CLASS_COLORS = {
+    'Glut': '#00ADF8',
+    'GABA': '#F05A28',
+    'NN': '#808080',
+    'Other': '#999999',
+}
+
+# ──────────────────────────────────────────────────────────────────────
+# Shared plotting utilities
+# ──────────────────────────────────────────────────────────────────────
+
+
+def pct_formatter(val, pos):
+    """Format a proportion (0-1 scale) as a human-readable percentage string.
+
+    Intended for use with matplotlib.ticker.FuncFormatter on log-scale axes
+    displaying proportions. Used by proportion scatter plots.
+    """
+    pct = val * 100
+    if pct >= 1:
+        return f"{pct:.0f}%"
+    elif pct >= 0.1:
+        return f"{pct:.1f}%"
+    elif pct >= 0.01:
+        return f"{pct:.2f}%"
+    else:
+        return f"{pct:.3f}%"
+
+
+def style_dark_boxplot(ax, ctrl_vals, scz_vals, ylabel=None, title=None,
+                       pval=None, pval_label="", subtitle=None,
+                       point_size=40, jitter_range=0.12, show_means=False):
+    """Draw a dark-background boxplot + strip plot comparing Control vs SCZ.
+
+    This is the shared pattern used by plot_aggregated_boxplots.py and
+    plot_xenium_composition_boxplots.py. Draws paired boxplots with
+    translucent colored boxes, jittered individual data points, and
+    optional p-value annotation.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axis to draw on.
+    ctrl_vals : array-like
+        Values for the Control group.
+    scz_vals : array-like
+        Values for the SCZ group.
+    ylabel : str, optional
+        Y-axis label.
+    title : str, optional
+        Panel title (displayed above the axis).
+    pval : float, optional
+        P-value to annotate. If None, no annotation is drawn.
+    pval_label : str
+        Prefix for the p-value annotation (e.g., "Welch's t-test",
+        "crumblr"). Empty string for no prefix.
+    subtitle : str, optional
+        Subtitle text placed just above the panel (e.g., cell type list).
+    point_size : float
+        Size of individual data points (default 40).
+    jitter_range : float
+        Half-width of horizontal jitter for strip points (default 0.12).
+    show_means : bool
+        If True, display group means alongside the p-value.
+
+    Returns
+    -------
+    float or None
+        The p-value passed in (for convenience in chaining).
+    """
+    ctrl_vals = np.asarray(ctrl_vals, dtype=float)
+    scz_vals = np.asarray(scz_vals, dtype=float)
+
+    positions = [0, 1]
+    bp = ax.boxplot([ctrl_vals, scz_vals], positions=positions,
+                    widths=0.5, patch_artist=True, showfliers=False,
+                    medianprops=dict(color="white", linewidth=1.5),
+                    whiskerprops=dict(color="#888888", linewidth=1.2),
+                    capprops=dict(color="#888888", linewidth=1.2))
+
+    for patch, color in zip(bp['boxes'],
+                            [DX_COLORS["Control"], DX_COLORS["SCZ"]]):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.4)
+        patch.set_edgecolor("white")
+        patch.set_linewidth(0.8)
+
+    # Individual points with jitter
+    n_ctrl = len(ctrl_vals)
+    n_scz = len(scz_vals)
+    for i, (vals, dx) in enumerate([(ctrl_vals, "Control"),
+                                     (scz_vals, "SCZ")]):
+        jitter = np.random.default_rng(42).uniform(
+            -jitter_range, jitter_range, len(vals))
+        ax.scatter(np.full(len(vals), i) + jitter, vals,
+                   c=DX_COLORS[dx], s=point_size, alpha=0.85,
+                   edgecolors="white", linewidths=0.5, zorder=5)
+
+    ax.set_xticks(positions)
+    ax.set_xticklabels([f"Ctrl\n(n={n_ctrl})", f"SCZ\n(n={n_scz})"],
+                       fontsize=12, color="white")
+
+    if title:
+        ax.set_title(title, fontsize=15, fontweight="bold",
+                     color="white", pad=6)
+
+    # P-value annotation
+    if pval is not None:
+        pval_str = format_pval(pval)
+        pval_color = ("white" if pval < 0.05
+                      else ("#cccccc" if pval < 0.1 else "#888888"))
+        pval_weight = "bold" if pval < 0.1 else "normal"
+
+        label_parts = []
+        if pval_label:
+            label_parts.append(f"{pval_label} {pval_str}")
+        else:
+            label_parts.append(pval_str)
+        if show_means:
+            label_parts.append(
+                f"Ctrl: {np.mean(ctrl_vals):.2f}, "
+                f"SCZ: {np.mean(scz_vals):.2f}")
+
+        ax.text(0.5, 0.02 if not show_means else 0.96,
+                "\n".join(label_parts),
+                transform=ax.transAxes,
+                ha="center",
+                va="bottom" if not show_means else "top",
+                fontsize=10, color=pval_color, fontweight=pval_weight,
+                fontstyle="italic",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="#1a1a1a",
+                          edgecolor="#444444", alpha=0.85)
+                if show_means else {})
+
+    if subtitle:
+        ax.text(0.5, 1.01, subtitle, transform=ax.transAxes,
+                ha="center", va="bottom",
+                fontsize=11, color="#aaaaaa", fontstyle="italic")
+
+    if ylabel:
+        ax.set_ylabel(ylabel, fontsize=15, color="white")
+
+    ax.set_facecolor(BG_COLOR)
+    ax.tick_params(colors="white", labelsize=11)
+    for spine in ax.spines.values():
+        spine.set_color("#555555")
+    ax.grid(axis="y", alpha=0.15, color="#555555")
+
+    return pval
+
+
+def style_proportion_scatter(ax, x, y, celltypes, title="", xlabel="",
+                             ylabel="", max_labels=15, show_corr=True,
+                             classify_fn=None):
+    """Draw a log-log proportion scatter with percentage tick formatting.
+
+    This is the shared pattern used by plot_merfish_vs_xenium_proportions.py,
+    plot_cropped_proportions.py, and plot_predicted_proportion_scatter.py.
+    Plots cell type proportions on log-log axes with a diagonal identity line,
+    class-colored dots, correlation statistics, and deviant-point labels.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axis to draw on.
+    x, y : array-like
+        Proportion values for the two platforms being compared.
+    celltypes : array-like of str
+        Cell type names (same length as x and y).
+    title, xlabel, ylabel : str
+        Axis labels and title.
+    max_labels : int
+        Maximum number of deviant points to label (default 15).
+    show_corr : bool
+        If True (default), show Pearson r (log-scale) and Spearman rho.
+    classify_fn : callable, optional
+        Function that takes a celltype name and returns (hex_color, class_name).
+        Defaults to classify_celltype.
+    """
+    from scipy.stats import pearsonr, spearmanr
+
+    if classify_fn is None:
+        classify_fn = classify_celltype
+
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    celltypes = np.asarray(celltypes)
+
+    colors = [classify_fn(ct)[0] for ct in celltypes]
+
+    ax.scatter(x, y, c=colors, s=70, alpha=0.8, edgecolors="white",
+               linewidths=0.5, zorder=5)
+
+    # Label most deviant points (by log-ratio distance from diagonal)
+    valid = (x > 0) & (y > 0)
+    if valid.sum() > 0 and max_labels > 0:
+        log_ratio = np.full_like(x, 0.0)
+        log_ratio[valid] = np.abs(np.log2(
+            (y[valid] + 1e-7) / (x[valid] + 1e-7)))
+        top_idx = np.argsort(log_ratio)[-max_labels:]
+        for idx in top_idx:
+            if log_ratio[idx] > 0:
+                ax.annotate(celltypes[idx],
+                            (x[idx], y[idx]),
+                            fontsize=9, color="#dddddd", alpha=0.9,
+                            xytext=(5, 5), textcoords="offset points")
+
+    # Diagonal identity line
+    pos_x = x[x > 0]
+    pos_y = y[y > 0]
+    if len(pos_x) > 0 and len(pos_y) > 0:
+        lo = min(pos_x.min(), pos_y.min()) * 0.3
+        hi = max(x.max(), y.max()) * 3
+        ax.plot([lo, hi], [lo, hi], "--", color="#888888", linewidth=1.5,
+                alpha=0.6, zorder=1)
+
+    # Correlation statistics
+    if show_corr and valid.sum() > 3:
+        r, p = pearsonr(np.log10(x[valid]), np.log10(y[valid]))
+        rho, _ = spearmanr(x[valid], y[valid])
+        ax.text(0.04, 0.96,
+                f"r = {r:.2f} (log-scale)\n\u03c1 = {rho:.2f}"
+                f"\nn = {valid.sum()} types",
+                transform=ax.transAxes, ha="left", va="top",
+                fontsize=14, color="#dddddd",
+                bbox=dict(boxstyle="round,pad=0.4", facecolor="#333333",
+                          edgecolor="#555555", alpha=0.85))
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+
+    for axis in [ax.xaxis, ax.yaxis]:
+        axis.set_major_formatter(mticker.FuncFormatter(pct_formatter))
+        axis.set_minor_formatter(mticker.NullFormatter())
+
+    ax.set_xlabel(xlabel, fontsize=16, color="white")
+    ax.set_ylabel(ylabel, fontsize=16, color="white")
+    ax.set_title(title, fontsize=20, fontweight="bold", color="white", pad=10)
+    ax.set_facecolor(BG_COLOR)
+    ax.tick_params(colors="white", labelsize=13)
+    for spine in ax.spines.values():
+        spine.set_color("#555555")
+    ax.grid(True, alpha=0.2, color="#555555")
+
+
+def plot_volcano(ax, df, celltype_col="celltype", logfc_col="logFC",
+                 pval_col="P.Value", fdr_col="FDR",
+                 class_colors=None, classify_fn=None,
+                 fdr_thresh_bold=0.05, fdr_thresh_light=0.10,
+                 title="", xlabel="logFC (SCZ vs Control)",
+                 ylabel="-log10(p-value)", dot_size=60):
+    """Draw a volcano plot: logFC vs -log10(p-value), colored by cell class.
+
+    This is the shared pattern used by plot_crumblr_results.py and
+    plot_seaad_crumblr_results.py. Points are colored by inferred cell class,
+    with FDR-significant types labeled.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axis to draw on.
+    df : DataFrame
+        Must contain columns for celltype, logFC, p-value, and FDR.
+    celltype_col, logfc_col, pval_col, fdr_col : str
+        Column names in df.
+    class_colors : dict, optional
+        Mapping of class name to hex color. Defaults to INFER_CLASS_COLORS.
+    classify_fn : callable, optional
+        Function mapping celltype -> class name. Defaults to infer_class.
+    fdr_thresh_bold : float
+        FDR threshold for bold labels (default 0.05).
+    fdr_thresh_light : float
+        FDR threshold for lighter labels (default 0.10).
+    title, xlabel, ylabel : str
+        Axis labels and title.
+    dot_size : float
+        Scatter dot size (default 60).
+    """
+    if class_colors is None:
+        class_colors = INFER_CLASS_COLORS
+    if classify_fn is None:
+        classify_fn = infer_class
+
+    df = df.copy()
+    df['_class'] = df[celltype_col].apply(classify_fn)
+    df['_nlog10p'] = -np.log10(df[pval_col])
+
+    for cls in ['Glut', 'GABA', 'NN', 'Other']:
+        mask = df['_class'] == cls
+        if mask.sum() == 0:
+            continue
+        sub = df[mask]
+        ax.scatter(sub[logfc_col], sub['_nlog10p'],
+                   c=class_colors.get(cls, '#999999'), s=dot_size,
+                   alpha=0.7, label=cls,
+                   edgecolors='white', linewidth=0.5, zorder=5)
+
+    # Label FDR-significant types
+    for _, row in df.iterrows():
+        if row[fdr_col] < fdr_thresh_bold:
+            ax.annotate(row[celltype_col],
+                        (row[logfc_col], row['_nlog10p']),
+                        xytext=(5, 5), textcoords='offset points',
+                        fontsize=9, fontweight='bold', alpha=0.9)
+        elif row[fdr_col] < fdr_thresh_light:
+            ax.annotate(row[celltype_col],
+                        (row[logfc_col], row['_nlog10p']),
+                        xytext=(5, 5), textcoords='offset points',
+                        fontsize=8, alpha=0.7)
+
+    # Reference lines
+    if df[pval_col].min() < 0.05:
+        ax.axhline(-np.log10(0.05), color='grey', linestyle='--',
+                   alpha=0.5, linewidth=1)
+        ax.text(ax.get_xlim()[1] * 0.95, -np.log10(0.05) + 0.05, 'p=0.05',
+                ha='right', fontsize=9, color='grey', fontstyle='italic')
+    ax.axvline(0, color='grey', alpha=0.3, linewidth=0.5)
+
+    # Summary annotation
+    n_fdr = (df[fdr_col] < fdr_thresh_bold).sum()
+    ax.text(0.98, 0.98,
+            f'n={len(df)} types\n{n_fdr} FDR<{fdr_thresh_bold}',
+            transform=ax.transAxes, ha='right', va='top', fontsize=10,
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+    ax.set_xlabel(xlabel, fontsize=14)
+    ax.set_ylabel(ylabel, fontsize=14)
+    if title:
+        ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.legend(fontsize=11, loc='upper left')
 
 
 # ──────────────────────────────────────────────────────────────────────

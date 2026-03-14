@@ -9,8 +9,8 @@ CSV, computes cell centroids, and saves an AnnData (.h5ad) file with:
   - .obs['sample_id']: sample identifier (e.g. 'Br8667')
 
 This is the first step in the pipeline. Subsequent steps add QC columns
-(step 01), cell type labels (step 02), depth predictions (step 03),
-and spatial domain/layer assignments (step 04).
+(step 01), cell type labels (step 02), transcript export (step 03),
+depth predictions (step 04), and spatial domain/layer assignments (step 05).
 
 Usage:
     python3 -u 00_create_h5ad.py

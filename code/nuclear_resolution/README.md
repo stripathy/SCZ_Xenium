@@ -1,4 +1,6 @@
-# Nuclear Doublet Resolution
+# Nuclear Doublet Resolution (Optional — Not Part of the Main Pipeline)
+
+> **This is an optional side investigation**, not part of the numbered pipeline sequence (steps 00-07). The main pipeline runs without this step. Nuclear doublet resolution was found to have negligible impact on downstream biology (see below). It is retained here for scientific interest and reproducibility.
 
 Side investigation into using nuclear-only transcript counts to arbitrate doublet calls in Xenium spatial transcriptomics data.
 
@@ -66,7 +68,7 @@ For each cell flagged as a whole-cell doublet suspect:
 
 ## Running
 
-These scripts expect the pipeline to have been run through Step 03 (transcript export). The `hybrid_qc_pass` column remains in the h5ad files for reference but is no longer the default QC gate.
+These scripts expect the main pipeline to have been run through step 03 (transcript export). This optional step is independent of the main pipeline sequence (steps 04-07 do not depend on it). The `hybrid_qc_pass` column remains in the h5ad files for reference but is no longer the default QC gate.
 
 ```bash
 # Run nuclear doublet resolution on all samples

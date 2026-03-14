@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 5: Retrain depth model from MERFISH and predict depth for all Xenium samples.
+Step 4: Retrain depth model from MERFISH and predict depth for all Xenium samples.
 
 This retrains the GradientBoostingRegressor depth model from the SEA-AD MERFISH
 reference (using K=50 neighborhood composition features), then applies it to all
@@ -11,11 +11,11 @@ Saves:
   - output/depth_model_normalized.pkl (model bundle)
   - Updates predicted_norm_depth column in each h5ad file
 
-Note: Domain classification (Vascular, WM, L1 border) is handled by step 06
+Note: Domain classification (Vascular, WM, L1 border) is handled by step 05
 using BANKSY spatial clustering (see banksy_domains.py).
 
 Usage:
-    python3 -u 05_run_depth_prediction.py
+    python3 -u 04_run_depth_prediction.py
 """
 
 import os

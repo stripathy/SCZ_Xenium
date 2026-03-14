@@ -64,8 +64,8 @@ CLASS_BG = {
 }
 
 # Layer boundary positions and labels
-LAYER_BOUNDARIES = [0.10, 0.30, 0.45, 0.65, 0.85]
-LAYER_TICKS = [0.05, 0.20, 0.375, 0.55, 0.75, 0.925]
+LAYER_BOUNDARIES = [0.10, 0.40, 0.55, 0.70, 0.90]
+LAYER_TICKS = [0.05, 0.25, 0.475, 0.625, 0.80, 0.95]
 LAYER_NAMES = ["L1", "L2/3", "L4", "L5", "L6", "WM"]
 
 

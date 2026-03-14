@@ -2,7 +2,7 @@
 """
 MERSCOPE annotation pipeline using SEA-AD MTG taxonomy.
 
-Adapts the SCZ Xenium annotation pipeline (steps 00-06) for MERSCOPE data
+Adapts the SCZ Xenium annotation pipeline (steps 00-05) for MERSCOPE data
 from Fang et al. (Dryad: doi:10.5061/dryad.x3ffbg7mw). Reuses the core
 annotation modules (MapMyCells HANN + correlation classifier + depth model
 + BANKSY domains) while handling MERSCOPE-specific data format (triplet
@@ -520,7 +520,7 @@ def step5_depth_prediction(samples):
 
     if not os.path.exists(DEPTH_MODEL_PATH):
         print(f"ERROR: Depth model not found at {DEPTH_MODEL_PATH}")
-        print("Train it first via code/pipeline/05_run_depth_prediction.py")
+        print("Train it first via code/pipeline/04_run_depth_prediction.py")
         return
 
     model_bundle = load_depth_model(DEPTH_MODEL_PATH)
@@ -596,7 +596,7 @@ def step6_spatial_domains(samples):
         n_total = adata.n_obs
 
         if "predicted_norm_depth" not in adata.obs.columns:
-            print(f"  {sid}: no depth predictions, skipping (run step 5 first)")
+            print(f"  {sid}: no depth predictions, skipping (run step 4 first)")
             continue
 
         if "qc_pass" in adata.obs.columns:
@@ -662,14 +662,6 @@ def step6_spatial_domains(samples):
         full_layer = np.full(n_total, "Unassigned", dtype=object)
         full_layer[qc_idx] = smoothed_layers
         adata.obs["layer"] = full_layer
-
-        full_unsmoothed = np.full(n_total, "Unassigned", dtype=object)
-        full_unsmoothed[qc_idx] = combined_layers
-        adata.obs["layer_unsmoothed"] = full_unsmoothed
-
-        full_depth_layer = np.full(n_total, "Unassigned", dtype=object)
-        full_depth_layer[qc_idx] = depth_layers
-        adata.obs["layer_depth_only"] = full_depth_layer
 
         adata.write_h5ad(fpath)
 

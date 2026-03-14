@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 6: BANKSY spatial domain classification + depth-based layer assignment.
+Step 5: BANKSY spatial domain classification + depth-based layer assignment.
 
 For each sample:
   1. Load annotated h5ad (with QC, hierarchical labels, depth predictions)
@@ -27,7 +27,7 @@ Spatial smoothing pipeline (3 steps):
   - BANKSY-anchored L1 contiguity: promotes banksy_is_l1 cells with shallow
     depth to L1, removes isolated non-BANKSY L1 cells
 
-Requires: Step 02b (corr_qc_pass), Step 05 (depth predictions), pybanksy.
+Requires: Step 02b (corr_qc_pass), Step 04 (depth predictions), pybanksy.
 
 New/updated h5ad columns:
   - banksy_cluster:  int   — raw BANKSY cluster ID
@@ -35,11 +35,9 @@ New/updated h5ad columns:
   - banksy_is_l1:    bool  — True if cell in L1 border cluster
   - spatial_domain:  str   — Cortical / Vascular / WM
   - layer:           str   — final spatially-smoothed layer assignment
-  - layer_unsmoothed: str  — pre-smoothing layer (depth bins + Vascular override)
-  - layer_depth_only: str  — depth-bin-only layers (no Vascular, no smoothing)
 
 Usage:
-    python3 -u 06_run_spatial_domains.py
+    python3 -u 05_run_spatial_domains.py
 """
 
 import os
@@ -157,12 +155,6 @@ def _process_one_sample(h5ad_path):
         full_layer = np.full(n_total, 'Unassigned', dtype=object)
         full_layer[qc_mask] = smoothed_layers
 
-        full_unsmoothed = np.full(n_total, 'Unassigned', dtype=object)
-        full_unsmoothed[qc_mask] = combined_layers
-
-        full_depth_layer = np.full(n_total, 'Unassigned', dtype=object)
-        full_depth_layer[qc_mask] = depth_layers
-
         # ── Impute layer/spatial_domain for QC-fail cells via KNN ──
         # Use spatial proximity to QC-pass neighbors so every cell
         # gets a layer assignment (needed for viewer rendering).
@@ -178,8 +170,6 @@ def _process_one_sample(h5ad_path):
             for col_full, col_pass in [
                 (full_spatial_domain, spatial_domain_compat),
                 (full_layer, smoothed_layers),
-                (full_unsmoothed, combined_layers),
-                (full_depth_layer, depth_layers),
             ]:
                 for j, fi in enumerate(fail_idx):
                     neighbors = nn_idx[j] if nn_idx.ndim > 1 else [nn_idx[j]]
@@ -193,14 +183,13 @@ def _process_one_sample(h5ad_path):
 
         adata.obs['spatial_domain'] = full_spatial_domain
         adata.obs['layer'] = full_layer
-        adata.obs['layer_unsmoothed'] = full_unsmoothed
-        adata.obs['layer_depth_only'] = full_depth_layer
 
         # ── Drop stale columns from archived exploration scripts ──
         stale_cols = [
             'cortical_strip_id', 'cortical_strip_tier', 'in_cortical_strip',
             'curved_strip_id', 'in_curved_strip', 'curved_strip_tier',
             'curved_strip_bank',
+            'layer_unsmoothed', 'layer_depth_only',
         ]
         dropped = []
         for col in stale_cols:

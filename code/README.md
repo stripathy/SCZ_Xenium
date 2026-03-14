@@ -12,12 +12,13 @@ The pipeline is modular — each step reads/updates per-sample h5ad files:
 | 01 | `pipeline/01_run_qc.py` | Cell-level QC (Kwon et al. approach), adds `qc_pass` column |
 | 02 | `pipeline/02_run_mapmycells.py` | MapMyCells hierarchical annotation → `class_label`, `subclass_label`, `supertype_label` |
 | 02b | `pipeline/02b_run_correlation_classifier.py` | Two-stage Pearson correlation reclassification + doublet detection |
-| 03 | `pipeline/03_export_transcripts.py` | Export per-gene transcript coordinates (for viewer + optional step 04) |
-| 04 | *(optional)* `nuclear_resolution/04_run_nuclear_doublet_resolution.py` | Nuclear doublet resolution (see `nuclear_resolution/README.md`) |
-| 05 | `pipeline/05_run_depth_prediction.py` | Retrain MERFISH depth model, predict cortical depth → `predicted_norm_depth` |
-| 06 | `pipeline/06_run_spatial_domains.py` | BANKSY spatial domain classification + layer assignment + spatial smoothing → `layer` column |
-| 07 | `pipeline/07_export_viewer.py` | Export JSON for interactive HTML viewer |
-| 08 | `pipeline/08_export_boundaries.py` | Export cell + nucleus boundary polygons for viewer |
+| 03 | `pipeline/03_export_transcripts.py` | Export per-gene transcript coordinates (for viewer) |
+| 04 | `pipeline/04_run_depth_prediction.py` | Retrain MERFISH depth model, predict cortical depth → `predicted_norm_depth` |
+| 05 | `pipeline/05_run_spatial_domains.py` | BANKSY spatial domain classification + layer assignment + spatial smoothing → `layer` column |
+| 06 | `pipeline/06_export_viewer.py` | Export JSON for interactive HTML viewer |
+| 07 | `pipeline/07_export_boundaries.py` | Export cell + nucleus boundary polygons for viewer |
+
+> **Note:** Nuclear doublet resolution is an optional side investigation and is not part of the main pipeline. See `nuclear_resolution/README.md` for details.
 
 ## Samples
 
@@ -37,7 +38,7 @@ BANKSY-based spatial domain classification (replaces older K-NN Leiden approach)
 - BANKSY clustering (λ=0.8, res=0.3) for spatially coherent domains
 - Classifies: Cortical, Vascular (>50% Endo+VLMC), WM (>40% Oligo + deep)
 - L1 border detection: shallow non-neuronal clusters correctly identified as L1 cortex
-- Used by pipeline step 06
+- Used by pipeline step 05
 
 ### `spatial_domains.py` (legacy)
 Original K-NN composition → PCA → Leiden domain classifier. Superseded by
@@ -89,11 +90,11 @@ Uses the SEA-AD MTG hierarchy (via MapMyCells):
 | Stratum | Depth Range | Description |
 |---------|------------|-------------|
 | L1 | < 0.10 | Molecular layer |
-| L2/3 | 0.10 - 0.30 | Upper cortical layers |
-| L4 | 0.30 - 0.45 | Granular layer |
-| L5 | 0.45 - 0.65 | Deep output layer |
-| L6 | 0.65 - 0.85 | Deep cortical layers |
-| WM | > 0.85 | White matter |
+| L2/3 | 0.10 - 0.40 | Upper cortical layers |
+| L4 | 0.40 - 0.55 | Granular layer |
+| L5 | 0.55 - 0.70 | Deep output layer |
+| L6 | 0.70 - 0.90 | Deep cortical layers |
+| WM | > 0.90 | White matter |
 
 ## Dependencies
 
@@ -101,13 +102,14 @@ Uses the SEA-AD MTG hierarchy (via MapMyCells):
 anndata, scanpy, numpy, scipy, scikit-learn,
 matplotlib, pandas, statsmodels, h5py, openpyxl,
 adjustText, cell_type_mapper
-# See environment.yml or requirements.txt for full list
+# See environment.yml for full list
 ```
 
 ## Data Requirements
 
 - Xenium data: `GSM*-cell_feature_matrix.h5` + `GSM*-cell_boundaries.csv.gz`
 - SEA-AD MERFISH: `SEAAD_MTG_MERFISH.2024-12-11.h5ad` (depth model training)
+- SEA-AD snRNAseq: `seaad_mtg_snrnaseq_reference.h5ad` (correlation classifier reference)
 - MapMyCells precomputed stats: `precomputed_stats.20231120.sea_ad.MTG.h5`
 - Subject metadata: `data/sample_metadata.xlsx`
 
@@ -118,7 +120,7 @@ Optional side investigation into using nuclear-only transcript counts to arbitra
 ## Archive
 
 Legacy code is preserved in `code/archive/` for reference:
-- `stale_analysis/` — Archived analysis scripts (diagnostic comparisons, edgepython DE, Harmony transfer, nsforest markers, calibration scripts)
+- `stale_analysis/` — Archived diagnostic and analysis scripts (harmony transfer, edgepython DE, nsforest markers, calibration, crumblr builders, proportion comparisons). Removed dependencies: harmonypy, edgepython, fitz, nsforest, markdown
 - `label_transfer.py` — Old kNN-based label transfer (superseded by MapMyCells)
 - `layers.py` — Old density-based layer segmentation (superseded by depth model)
 - `legacy_runners/` — Old monolithic pipeline runners

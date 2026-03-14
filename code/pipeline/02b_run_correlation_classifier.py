@@ -102,7 +102,7 @@ def main():
     sup_centroids, sup_counts = build_supertype_centroids(
         combined, top_n=top_n)
 
-    # ── Save centroids for reuse by step 04 ──
+    # ── Save centroids for optional nuclear resolution ──
     import pickle
     centroid_bundle = {
         'sub_centroids': sub_centroids,

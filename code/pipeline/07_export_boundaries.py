@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 8: Export cell and nucleus boundary polygons for the viewer.
+Step 7: Export cell and nucleus boundary polygons for the viewer.
 
 Reads the raw cell_boundaries.csv.gz and nucleus_boundaries.csv.gz files
 for ALL cells (including QC-fail) and writes compact JSON files that the

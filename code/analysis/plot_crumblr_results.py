@@ -178,9 +178,9 @@ def plot_depth_vs_effect(results, level, depth_file, out_dir):
     ax.axhline(0, color='grey', alpha=0.3, linewidth=1)
 
     # Depth region shading
-    for lname, d0, d1 in [('L1', 0, 0.10), ('L2/3', 0.10, 0.30),
-                           ('L4', 0.30, 0.45), ('L5', 0.45, 0.65),
-                           ('L6', 0.65, 0.85)]:
+    for lname, d0, d1 in [('L1', 0, 0.10), ('L2/3', 0.10, 0.40),
+                           ('L4', 0.40, 0.55), ('L5', 0.55, 0.70),
+                           ('L6', 0.70, 0.90)]:
         ax.axvspan(d0, d1, alpha=0.04, color='grey')
         ax.text((d0 + d1) / 2, ax.get_ylim()[0] if ax.get_ylim()[0] != 0 else -0.5,
                 lname, ha='center', va='bottom', fontsize=9, alpha=0.4, fontstyle='italic')

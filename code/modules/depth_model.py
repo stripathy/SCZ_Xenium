@@ -29,21 +29,27 @@ from scipy.stats import pearsonr
 
 
 # Default depth strata for downstream analyses
+# Boundaries derived from SEA-AD MERFISH manual layer annotations
+# (341K cells with "Normalized depth from pia" and "Layer annotation").
+# Each boundary is placed to best separate adjacent layers based on
+# the empirical depth distributions of manually-annotated cells.
+# Key fix: L4 IT cells have median depth ~0.51 in MERFISH, so the L4
+# bin must be centered there (not at 0.30-0.45 as originally set).
 DEPTH_STRATA = {
-    'L2/3': (0.10, 0.30),
-    'L4': (0.30, 0.45),
-    'L5': (0.45, 0.65),
-    'L6': (0.65, 0.85),
+    'L2/3': (0.10, 0.40),
+    'L4': (0.40, 0.55),
+    'L5': (0.55, 0.70),
+    'L6': (0.70, 0.90),
 }
 
 # Discrete layer bins (L1 through WM)
 LAYER_BINS = {
     'L1': (-np.inf, 0.10),
-    'L2/3': (0.10, 0.30),
-    'L4': (0.30, 0.45),
-    'L5': (0.45, 0.65),
-    'L6': (0.65, 0.85),
-    'WM': (0.85, np.inf),
+    'L2/3': (0.10, 0.40),
+    'L4': (0.40, 0.55),
+    'L5': (0.55, 0.70),
+    'L6': (0.70, 0.90),
+    'WM': (0.90, np.inf),
 }
 
 LAYER_COLORS = {

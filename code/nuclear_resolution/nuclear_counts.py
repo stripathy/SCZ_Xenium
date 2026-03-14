@@ -2,8 +2,8 @@
 Nuclear-only transcript counting via point-in-polygon spatial queries.
 
 Assigns each transcript molecule to the nucleus polygon it falls within,
-producing a nuclear-only count matrix. Used by pipeline step 04 for hybrid
-nuclear doublet resolution.
+producing a nuclear-only count matrix. Used by optional nuclear doublet
+resolution (see 04_run_nuclear_doublet_resolution.py).
 
 Key functions:
   load_nucleus_polygons()       — Parse boundary CSV → Shapely polygons

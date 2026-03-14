@@ -396,7 +396,7 @@ def main():
                         edgecolor="#555555", labelcolor="white")
 
     # Layer depth guides
-    layer_boundaries = [0.0, 0.08, 0.28, 0.45, 0.62, 0.82, 1.0]
+    layer_boundaries = [0.0, 0.10, 0.40, 0.55, 0.70, 0.90, 1.0]
     layer_names = ["L1", "L2/3", "L4", "L5", "L6", "WM"]
     for i, (lb, ln) in enumerate(zip(layer_boundaries[:-1], layer_names)):
         mid = (lb + layer_boundaries[i + 1]) / 2

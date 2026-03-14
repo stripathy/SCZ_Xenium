@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Step 4: Hybrid nuclear doublet resolution.
+Optional (unnumbered): Hybrid nuclear doublet resolution.
+
+This step is not part of the core numbered pipeline but can be run after
+step 03 (transcript export) for additional doublet filtering.
 
 For each sample with transcript data, builds a nuclear-only count matrix
 (transcripts within nucleus polygons), runs doublet detection on nuclear
@@ -461,7 +464,7 @@ def main():
     t_start = time.time()
 
     print("=" * 70)
-    print("Step 8: Hybrid Nuclear Doublet Resolution")
+    print("Optional: Hybrid Nuclear Doublet Resolution")
     print(f"  Workers: {N_WORKERS}")
     print(f"  Nuclear min UMI: {NUCLEAR_MIN_UMI}")
     print(f"  Chunk size: {NUCLEAR_CHUNK_SIZE:,}")

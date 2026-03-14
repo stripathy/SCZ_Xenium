@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Validation figures for the hybrid nuclear doublet resolution pipeline (step 04).
+Validation figures for the hybrid nuclear doublet resolution pipeline (optional, unnumbered).
 
 Loads all processed samples, computes aggregate statistics, and generates
 6 diagnostic figures plus a summary CSV.
 
-Requires: Step 04 (nuclear doublet resolution) must have been run.
+Requires: Nuclear doublet resolution (04_run_nuclear_doublet_resolution.py) must have been run.
 
 Output figures (saved to output/presentation/):
   1. nuclear_doublet_resolution_summary.png
@@ -84,7 +84,7 @@ def load_all_samples():
         loaded.append(sid)
 
     if not all_obs:
-        print("ERROR: No samples with hybrid_qc_pass found. Run step 04 first.")
+        print("ERROR: No samples with hybrid_qc_pass found. Run 04_run_nuclear_doublet_resolution.py first.")
         return None, []
 
     df = pd.concat(all_obs, axis=0)

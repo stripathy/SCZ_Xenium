@@ -24,14 +24,15 @@ import numpy as np
 import anndata as ad
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULES_DIR = os.path.join(os.path.dirname(SCRIPT_DIR), "modules")
+# Navigate from code/archive/one_time_utils/ up to project root
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR)))
+MODULES_DIR = os.path.join(BASE_DIR, "code", "modules")
 sys.path.insert(0, MODULES_DIR)
 
 from depth_model import (
     load_model, build_neighborhood_features, assign_discrete_layers
 )
 
-BASE_DIR = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                             "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
 MODEL_PATH = os.path.join(BASE_DIR, "output", "depth_model_normalized.pkl")

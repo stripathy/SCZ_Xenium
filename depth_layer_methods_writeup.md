@@ -39,11 +39,11 @@ Predictions are deliberately **not clamped** to [0, 1]. Cells in white matter re
 |-----------------|----------------|
 | < 0.00 | Above pia (meninges) |
 | 0.00 - 0.10 | Layer 1 |
-| 0.10 - 0.30 | Layer 2/3 |
-| 0.30 - 0.45 | Layer 4 |
-| 0.45 - 0.65 | Layer 5 |
-| 0.65 - 0.85 | Layer 6 |
-| > 0.85 | White matter |
+| 0.10 - 0.40 | Layer 2/3 |
+| 0.40 - 0.55 | Layer 4 |
+| 0.55 - 0.70 | Layer 5 |
+| 0.70 - 0.90 | Layer 6 |
+| > 0.90 | White matter |
 
 ![Depth comparison: MERFISH vs Xenium](output/presentation/slide_depth_comparison.png)
 *Figure 2. Spatial depth maps comparing MERFISH manual annotations and Xenium model predictions. Viridis colormap encodes normalized depth (dark = superficial, bright = deep).*
@@ -62,7 +62,7 @@ We use BANKSY (Singhal et al., Nature Genetics 2024) for spatial domain classifi
 
 **BANKSY parameters:** λ=0.8 (spatial weighting), Leiden resolution=0.3, k_geom=15 spatial neighbors, 20 PCA dimensions. Preprocessing: library-size normalization (target 10,000), log1p, z-scoring.
 
-Each resulting cluster is classified by its cell type composition and mean predicted depth (from step 05):
+Each resulting cluster is classified by its cell type composition and mean predicted depth (from step 04):
 
 | Domain | Rule |
 |--------|------|
@@ -105,11 +105,11 @@ Discrete layer labels are assigned by binning the continuous depth predictions:
 | Layer | Depth range |
 |-------|------------|
 | L1 | < 0.10 |
-| L2/3 | 0.10 - 0.30 |
-| L4 | 0.30 - 0.45 |
-| L5 | 0.45 - 0.65 |
-| L6 | 0.65 - 0.85 |
-| WM | > 0.85 |
+| L2/3 | 0.10 - 0.40 |
+| L4 | 0.40 - 0.55 |
+| L5 | 0.55 - 0.70 |
+| L6 | 0.70 - 0.90 |
+| WM | > 0.90 |
 
 Vascular-domain cells are overridden to "Vascular" regardless of predicted depth, since depth predictions are unreliable for spatially isolated vascular clusters. L1 border cells (identified by BANKSY with `banksy_is_l1=True`) retain their depth-bin layer, which is typically L1 given their shallow position.
 
