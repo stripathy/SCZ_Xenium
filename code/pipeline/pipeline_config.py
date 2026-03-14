@@ -21,16 +21,22 @@ RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
 METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
 
 # Reference data (SEA-AD)
-# MERFISH spatial reference — used ONLY for depth model training (has spatial coords)
+# MERFISH spatial reference — REQUIRED for depth model training (step 05)
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                             "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
-# Nicole's snRNAseq reference — primary cell type reference (137K cells, 36K genes)
+# snRNAseq reference — NOT required for core pipeline; used for validation only
 SNRNASEQ_REF_PATH = os.path.join(BASE_DIR, "data", "reference",
                                   "nicole_sea_ad_snrnaseq_reference.h5ad")
+# MapMyCells precomputed stats — REQUIRED for cell type annotation (step 02)
 PRECOMPUTED_STATS_PATH = os.path.join(
     BASE_DIR, "data", "reference",
     "precomputed_stats.20231120.sea_ad.MTG.h5"
 )
+
+# Reference availability flags
+HAS_MERFISH_REF = os.path.exists(MERFISH_PATH)
+HAS_SNRNASEQ_REF = os.path.exists(SNRNASEQ_REF_PATH)
+HAS_PRECOMPUTED_STATS = os.path.exists(PRECOMPUTED_STATS_PATH)
 GENE_MAPPING_PATH = os.path.join(
     BASE_DIR, "data", "reference",
     "gene_symbol_to_ensembl.json"

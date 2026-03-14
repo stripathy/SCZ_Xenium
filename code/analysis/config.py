@@ -35,13 +35,20 @@ from constants import (  # noqa: F401 — re-exported
 
 BASE_DIR = os.path.expanduser("~/Github/SCZ_Xenium")
 H5AD_DIR = os.path.join(BASE_DIR, "output", "h5ad")
-# Nicole's snRNAseq reference — primary cell type reference (137K cells, 36K genes)
+# Nicole's snRNAseq reference — validation only (137K cells, 36K genes)
+# NOT required for the core pipeline; used for proportion validation plots
 SNRNASEQ_REF_PATH = os.path.join(BASE_DIR, "data", "reference",
                                   "nicole_sea_ad_snrnaseq_reference.h5ad")
-# MERFISH spatial reference — used ONLY for depth model (has spatial coords + depth)
+# MERFISH spatial reference — required for depth model training (step 05)
+# Also used for validation plots (proportion comparison, depth comparison)
 MERFISH_PATH = os.path.join(BASE_DIR, "data", "reference",
                              "SEAAD_MTG_MERFISH.2024-12-11.h5ad")
 METADATA_PATH = os.path.join(BASE_DIR, "data", "sample_metadata.xlsx")
+
+# Reference availability flags — checked at import time so scripts can
+# skip validation plots gracefully when reference data isn't available
+HAS_MERFISH_REF = os.path.exists(MERFISH_PATH)
+HAS_SNRNASEQ_REF = os.path.exists(SNRNASEQ_REF_PATH)
 CRUMBLR_DIR = os.path.join(BASE_DIR, "output", "crumblr")
 PRESENTATION_DIR = os.path.join(BASE_DIR, "output", "presentation")
 MARKER_ANALYSIS_DIR = os.path.join(BASE_DIR, "output", "marker_analysis")
@@ -253,12 +260,20 @@ def load_merfish_cortical():
 
     NOTE: This uses the MERFISH spatial reference (not snRNAseq) because it
     has spatial coordinates and manual depth annotations. Used ONLY for
-    depth-related analyses.
+    depth-related analyses and validation plots.
 
     Returns DataFrame with columns: donor, subclass, supertype, depth,
     layer_annotation. Only includes cells with manual depth annotations
     in cortical layers (L1-L6).
+
+    Raises FileNotFoundError if the MERFISH reference is not available.
+    Check HAS_MERFISH_REF before calling if you want to skip gracefully.
     """
+    if not HAS_MERFISH_REF:
+        raise FileNotFoundError(
+            f"MERFISH reference not found at {MERFISH_PATH}. "
+            "See data/README.md for download instructions."
+        )
     adata = ad.read_h5ad(MERFISH_PATH, backed="r")
     obs = adata.obs[["Donor ID", "Subclass", "Supertype",
                       "Normalized depth from pia",
@@ -288,6 +303,7 @@ def load_snrnaseq_reference(level="Subclass", neurons_only=False):
 
     This is the primary cell type reference (137K cells, 36K genes, 5 donors).
     Provides ground-truth cell type proportions from dissociated tissue.
+    NOT required for the core pipeline — used only for validation/benchmarking.
 
     Parameters
     ----------
@@ -299,7 +315,16 @@ def load_snrnaseq_reference(level="Subclass", neurons_only=False):
     Returns
     -------
     DataFrame with columns: donor, celltype, class_label.
+
+    Raises FileNotFoundError if the snRNAseq reference is not available.
+    Check HAS_SNRNASEQ_REF before calling if you want to skip gracefully.
     """
+    if not HAS_SNRNASEQ_REF:
+        raise FileNotFoundError(
+            f"snRNAseq reference not found at {SNRNASEQ_REF_PATH}. "
+            "See data/README.md for download instructions. "
+            "This file is only needed for validation plots, not the core pipeline."
+        )
     adata = ad.read_h5ad(SNRNASEQ_REF_PATH, backed="r")
     obs = adata.obs[["donor_id", "Class", level]].copy()
     obs = obs.rename(columns={
