@@ -29,27 +29,28 @@ from scipy.stats import pearsonr
 
 
 # Default depth strata for downstream analyses
-# Boundaries derived from SEA-AD MERFISH manual layer annotations
-# (341K cells with "Normalized depth from pia" and "Layer annotation").
-# Each boundary is placed to best separate adjacent layers based on
-# the empirical depth distributions of manually-annotated cells.
-# Key fix: L4 IT cells have median depth ~0.51 in MERFISH, so the L4
-# bin must be centered there (not at 0.30-0.45 as originally set).
+# Boundaries derived from excitatory neuron marker crossovers in SEA-AD
+# MERFISH (341K cells) and validated against Xenium Control samples.
+# Method: for each pair of adjacent layers, compute the depth where the
+# smoothed pairwise fraction A/(A+B) = 0.5 using excitatory marker neurons
+# (L2/3 IT, L4 IT, L5 IT/ET/NP, L6 CT/IT/Car3/b). L1/L2-3 uses onset of
+# excitatory density (>25% of peak); L6/WM uses dropoff (<10% of peak).
+# See code/analysis/derive_layer_boundaries.py for derivation details.
 DEPTH_STRATA = {
-    'L2/3': (0.10, 0.40),
-    'L4': (0.40, 0.55),
-    'L5': (0.55, 0.70),
-    'L6': (0.70, 0.90),
+    'L2/3': (0.1225, 0.4696),
+    'L4': (0.4696, 0.5443),
+    'L5': (0.5443, 0.7079),
+    'L6': (0.7079, 0.9275),
 }
 
 # Discrete layer bins (L1 through WM)
 LAYER_BINS = {
-    'L1': (-np.inf, 0.10),
-    'L2/3': (0.10, 0.40),
-    'L4': (0.40, 0.55),
-    'L5': (0.55, 0.70),
-    'L6': (0.70, 0.90),
-    'WM': (0.90, np.inf),
+    'L1': (-np.inf, 0.1225),
+    'L2/3': (0.1225, 0.4696),
+    'L4': (0.4696, 0.5443),
+    'L5': (0.5443, 0.7079),
+    'L6': (0.7079, 0.9275),
+    'WM': (0.9275, np.inf),
 }
 
 LAYER_COLORS = {

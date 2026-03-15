@@ -23,7 +23,7 @@ BASE_DIR = os.path.expanduser("~/Github/SCZ_Xenium")
 OUT_DIR = os.path.join(BASE_DIR, "output", "plots")
 
 # Layer boundaries for vertical lines on depth plots
-LAYER_BOUNDS = [0.10, 0.40, 0.55, 0.70, 0.90]
+LAYER_BOUNDS = [0.1225, 0.4696, 0.5443, 0.7079, 0.9275]
 LAYER_NAMES = ["L1", "L2/3", "L4", "L5", "L6", "WM"]
 
 
@@ -90,15 +90,15 @@ def load_xenium_l6b():
 
 def assign_layer_from_depth(depth):
     """Convert continuous depth to discrete layer."""
-    if depth < 0.10:
+    if depth < 0.1225:
         return "L1"
-    elif depth < 0.40:
+    elif depth < 0.4696:
         return "L2/3"
-    elif depth < 0.55:
+    elif depth < 0.5443:
         return "L4"
-    elif depth < 0.70:
+    elif depth < 0.7079:
         return "L5"
-    elif depth < 0.90:
+    elif depth < 0.9275:
         return "L6"
     else:
         return "WM"

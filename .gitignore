@@ -111,3 +111,7 @@ GSE307404_series_matrix*
 # Local Netlify folder
 .netlify
 node_modules/
+
+# Large intermediate CSVs (>50MB)
+output/depth_proportions/cell_level_data.csv
+output/depth_proportions/cell_level_data_all_regions.csv
