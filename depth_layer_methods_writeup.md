@@ -38,12 +38,14 @@ Predictions are deliberately **not clamped** to [0, 1]. Cells in white matter re
 | Normalized depth | Cortical region |
 |-----------------|----------------|
 | < 0.00 | Above pia (meninges) |
-| 0.00 - 0.10 | Layer 1 |
-| 0.10 - 0.40 | Layer 2/3 |
-| 0.40 - 0.55 | Layer 4 |
-| 0.55 - 0.70 | Layer 5 |
-| 0.70 - 0.90 | Layer 6 |
-| > 0.90 | White matter |
+| 0.00 - 0.12 | Layer 1 |
+| 0.12 - 0.47 | Layer 2/3 |
+| 0.47 - 0.54 | Layer 4 |
+| 0.54 - 0.71 | Layer 5 |
+| 0.71 - 0.93 | Layer 6 |
+| > 0.93 | White matter |
+
+*Boundaries derived from pairwise excitatory neuron marker crossovers in SEA-AD MERFISH, validated against Xenium Control samples. See `code/analysis/derive_layer_boundaries.py` for derivation details.*
 
 ![Depth comparison: MERFISH vs Xenium](output/presentation/slide_depth_comparison.png)
 *Figure 2. Spatial depth maps comparing MERFISH manual annotations and Xenium model predictions. Viridis colormap encodes normalized depth (dark = superficial, bright = deep).*
@@ -104,12 +106,12 @@ Discrete layer labels are assigned by binning the continuous depth predictions:
 
 | Layer | Depth range |
 |-------|------------|
-| L1 | < 0.10 |
-| L2/3 | 0.10 - 0.40 |
-| L4 | 0.40 - 0.55 |
-| L5 | 0.55 - 0.70 |
-| L6 | 0.70 - 0.90 |
-| WM | > 0.90 |
+| L1 | < 0.12 |
+| L2/3 | 0.12 - 0.47 |
+| L4 | 0.47 - 0.54 |
+| L5 | 0.54 - 0.71 |
+| L6 | 0.71 - 0.93 |
+| WM | > 0.93 |
 
 Vascular-domain cells are overridden to "Vascular" regardless of predicted depth, since depth predictions are unreliable for spatially isolated vascular clusters. L1 border cells (identified by BANKSY with `banksy_is_l1=True`) retain their depth-bin layer, which is typically L1 given their shallow position.
 
@@ -129,13 +131,13 @@ The pre-smoothing layers are preserved as `layer_unsmoothed` (depth bins + Vascu
 
 | Layer | Cells | % |
 |-------|-------|---|
-| L1 | 64,119 | 5.2% |
-| L2/3 | 215,592 | 17.6% |
-| L4 | 146,614 | 12.0% |
-| L5 | 284,402 | 23.2% |
-| L6 | 124,079 | 10.1% |
-| WM | 306,926 | 25.1% |
-| Vascular | 83,305 | 6.8% |
+| L1 | 72,078 | 5.9% |
+| L2/3 | 375,019 | 30.7% |
+| L4 | 77,410 | 6.3% |
+| L5 | 210,910 | 17.3% |
+| L6 | 205,809 | 16.8% |
+| WM | 199,769 | 16.4% |
+| Vascular | 80,524 | 6.6% |
 
 ### Output columns
 

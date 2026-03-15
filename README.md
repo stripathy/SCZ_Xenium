@@ -112,17 +112,17 @@ Layers are assigned through a combined approach: BANKSY spatial domain classific
 
 | Layer | Depth Range | Description |
 |-------|-------------|-------------|
-| L1 | < 0.10 | Molecular layer (identified via BANKSY `banksy_is_l1` + depth) |
-| L2/3 | 0.10 -- 0.40 | Superficial layers |
-| L4 | 0.40 -- 0.55 | Granular layer (L4 IT median depth ~0.51 in MERFISH) |
-| L5 | 0.55 -- 0.70 | Deep pyramidal layer |
-| L6 | 0.70 -- 0.90 | Deep layer (includes L6 CT, L6 IT, L6b) |
-| WM | > 0.90 | White matter |
+| L1 | < 0.12 | Molecular layer (identified via BANKSY `banksy_is_l1` + depth) |
+| L2/3 | 0.12 -- 0.47 | Superficial layers |
+| L4 | 0.47 -- 0.54 | Granular layer (L4 IT median depth ~0.51 in MERFISH) |
+| L5 | 0.54 -- 0.71 | Deep pyramidal layer |
+| L6 | 0.71 -- 0.93 | Deep layer (includes L6 CT, L6 IT, L6b) |
+| WM | > 0.93 | White matter |
 | Vascular | -- | Vascular domain (from BANKSY, post-smoothing) |
 
-Final layer proportions: L1 (5.2%), L2/3 (17.6%), L4 (12.0%), L5 (23.2%), L6 (10.1%), WM (25.1%), Vascular (6.8%).
+Final layer proportions: L1 (5.9%), L2/3 (30.7%), L4 (6.3%), L5 (17.3%), L6 (16.8%), WM (16.4%), Vascular (6.6%).
 
-These depth bins are empirically-grounded anatomical ranges validated against MERFISH manual depth annotations (r=0.92). They are not from a specific published source.
+Layer boundaries are derived from pairwise excitatory neuron marker crossovers in SEA-AD MERFISH, validated against Xenium predicted depths (see `code/analysis/derive_layer_boundaries.py`).
 
 See **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** for full details, validation figures, and design decisions.
 

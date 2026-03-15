@@ -301,7 +301,7 @@ def plot_summary(adata, output_path, model_bundle=None, dpi=150):
         ax_h = axes[1, 2]
         ax_h.set_facecolor('white')
         ax_h.hist(pred_depth, bins=80, color='steelblue', edgecolor='none', alpha=0.8)
-        boundaries = [0.1, 0.40, 0.55, 0.70, 0.90]
+        boundaries = [0.1225, 0.4696, 0.5443, 0.7079, 0.9275]
         for b in boundaries:
             ax_h.axvline(b, color='red', linestyle='--', linewidth=2, alpha=0.8)
         for lname, (lo, hi) in LAYER_BINS.items():
