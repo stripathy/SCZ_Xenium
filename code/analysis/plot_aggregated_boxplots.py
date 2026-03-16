@@ -109,8 +109,8 @@ def main():
     data = data[~data["sample_id"].isin(EXCLUDE_SAMPLES)]
     print(f"Loaded {len(data)} rows from {DATA_CSV} (after excluding {EXCLUDE_SAMPLES})")
 
-    # Aggregate — subset of SST types for the aggregated figure
-    sst_agg_types = ["Sst_25", "Sst_22", "Sst_2"]
+    # Aggregate — vulnerable Sst subtypes (includes Sst_3/Sst_20 confusion pair)
+    sst_agg_types = SST_TYPES  # ["Sst_2", "Sst_22", "Sst_25", "Sst_20", "Sst_3"]
     sst_prop = aggregate_group(data, sst_agg_types, "proportion_pct")
     sst_dens = aggregate_group(data, sst_agg_types, "density_per_mm2")
     l6b_prop = aggregate_group(data, L6B_TYPES, "proportion_pct")

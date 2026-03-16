@@ -53,7 +53,8 @@ output/banksy/
 
 # Large generated analysis outputs (regenerate with analysis scripts)
 output/de/
-output/merfish_benchmark/
+output/merfish_benchmark/*
+!output/merfish_benchmark/subclass_confusion_matrix.png
 output/crumblr_seaad/
 
 # MERSCOPE annotated h5ad files (regenerate with merscope pipeline)
@@ -78,6 +79,11 @@ output/**/*.png
 output/*.png
 !output/presentation/*.png
 !output/crumblr/*.png
+!output/density_analysis/snrnaseq_vs_density_supertype.png
+!output/density_analysis/snrnaseq_vs_density_subclass.png
+!output/merfish_benchmark/subclass_confusion_matrix.png
+!output/xenium_vs_merfish_scatter.png
+!output/xenium_corr_control_vs_merfish_validation.png
 output/**/*.pptx
 output/**/*.pdf
 
