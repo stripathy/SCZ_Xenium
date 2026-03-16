@@ -242,6 +242,89 @@ open output/viewer/xenium_viewer_standalone.html
 
 The Br2039 sample (65% white matter, SCZ) is processed through the full pipeline but excluded from disease comparisons in analysis scripts via `EXCLUDE_SAMPLES` due to its atypical tissue composition.
 
+## Web Viewer & Deployment
+
+The interactive spatial viewer can be run locally or deployed to Netlify.
+
+### Local development
+
+```bash
+# Serve from the viewer directory (uses fetch-based data loading)
+python3 -m http.server 8080 --directory output/viewer
+
+# Or open the standalone HTML directly (all data embedded, no server needed)
+open output/viewer/xenium_viewer_standalone.html
+```
+
+### Netlify deployment
+
+The viewer is deployed to Netlify from the `output/deploy/` directory. This directory is gitignored — it is regenerated from `output/viewer/` before each deploy.
+
+**Prerequisites:** Install the [Netlify CLI](https://docs.netlify.com/cli/get-started/) (`npm install -g netlify-cli`) and authenticate (`netlify login`). The Netlify site ID is stored in `output/deploy/.netlify/state.json`.
+
+**Steps to deploy:**
+
+```bash
+# 1. Regenerate viewer data from h5ad files (if pipeline outputs changed)
+python3 -u code/pipeline/06_export_viewer.py    # exports JSON + standalone HTML
+python3 -u code/pipeline/07_export_boundaries.py  # exports cell/nucleus boundary polygons
+
+# 2. Sync viewer files to the deploy directory
+rsync -av --delete \
+  --exclude='.netlify' \
+  --exclude='xenium_viewer_standalone.html' \
+  output/viewer/ output/deploy/
+
+# 3. Trim transcript data for deploy size
+#    - Remove mitochondrial transcripts (MT-*, MTRNR*) — large files, not useful for viewer
+#    - Optionally remove transcript directories for samples you don't need molecule overlay for
+#    Full transcripts for all 24 samples is ~50 GB; 5-6 samples is ~3-4 GB
+
+# Remove MT transcripts from all samples
+find output/deploy/transcripts/ \( -name "MT-*.json" -o -name "MTRNR*.json" \) -delete
+
+# Update gene_index.json files to exclude MT genes
+python3 -c "
+import json, glob
+for idx_path in glob.glob('output/deploy/transcripts/*/gene_index.json'):
+    with open(idx_path) as f:
+        d = json.load(f)
+    d['genes'] = [g for g in d['genes']
+                  if not g['gene'].startswith('MT-') and not g['gene'].startswith('MTRNR')]
+    d['n_genes'] = len(d['genes'])
+    with open(idx_path, 'w') as f:
+        json.dump(d, f)
+"
+
+# (Optional) Keep transcripts for only a subset of samples to reduce deploy size
+# The viewer gracefully hides the Transcripts panel for samples without data
+KEEP_TRANSCRIPTS="Br8667 Br6432 Br2039 Br5746 Br5973"
+for dir in output/deploy/transcripts/*/; do
+    sample=$(basename "$dir")
+    echo "$KEEP_TRANSCRIPTS" | grep -qw "$sample" || rm -rf "$dir"
+done
+
+# 4. Verify deploy size (Netlify free tier limit: ~15 GB; aim for <10 GB)
+du -sh output/deploy/
+
+# 5. Deploy to Netlify
+cd output/deploy && netlify deploy --prod --dir=.
+```
+
+**What gets deployed:**
+- `index.html` — the viewer app (vanilla HTML/CSS/JS, no build step)
+- `index.json` — global metadata (sample list, color palettes, taxonomy)
+- `{sample_id}.json` (×24) — per-sample cell data (coordinates, labels, depth, layer, QC)
+- `boundaries/{sample_id}.json` + `_nucleus.json` (×24) — cell/nucleus boundary polygons
+- `transcripts/{sample_id}/{gene}.json` — per-gene molecule coordinates (subset of samples)
+
+**Size breakdown:** ~98 MB (cell JSONs + HTML) + ~740 MB (boundaries) + ~600 MB per sample with transcripts. Without any transcripts, the deploy is under 1 GB.
+
+**Notes:**
+- All 24 samples are always viewable (cell dots, all color modes, layer overlay, etc.) regardless of which samples have transcript data
+- The standalone HTML (`xenium_viewer_standalone.html`, ~26 MB) is excluded from deploy — it's for offline/local use only
+- If layer boundaries change, re-run `update_layer_boundaries.py` → `06_export_viewer.py` → rsync → deploy
+
 ## Nuclear Doublet Resolution (optional)
 
 An optional nuclear doublet resolution module lives in `code/nuclear_resolution/`. It uses nuclear-only count matrices to arbitrate doublet calls, producing a `hybrid_qc_pass` column. Empirical testing showed this has negligible impact on downstream compositional analyses (see `docs/pipeline_qc_audit.md`), so it is not part of the standard pipeline. The `corr_qc_pass` column from step 02b is the default QC gate.

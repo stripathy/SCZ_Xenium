@@ -7,6 +7,7 @@ data/raw/
 
 # Reference datasets (download from Allen Brain Cell Atlas)
 data/reference/*.h5ad
+data/reference/*.h5ad.bak
 data/reference/*.h5
 data/reference/nicole_sea_ad_reference/
 
