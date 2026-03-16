@@ -9,6 +9,8 @@ To answer this, we reanalyzed data from [Kwon et al. (2026)](https://doi.org/10.
 The pipeline uses a two-stage classification approach: initial labels come from MapMyCells (Allen Institute's tool implementing HANN — Hierarchical Approximate Nearest Neighbor — a bootstrapped hierarchical mapping algorithm), followed by a self-referencing Pearson correlation classifier that improves accuracy by building centroids directly from the Xenium data itself. Disease comparisons use crumblr (compositional regression using linear mixed models on centered log-ratio transformed proportions), which properly accounts for the compositional nature of cell type proportions and the repeated-measures structure of the experimental design.
 
 **Key documents:**
+- **[Cross-Platform Validation](cross_platform_concordance.md)** — Xenium vs MERFISH measurement validation (subclass r = 0.84, depth r = 0.96)
+- **[SCZ Compositional Findings](scz_compositional_findings.md)** — Disease effects, snRNA-seq concordance, depth-stratified results, confidence tiers
 - **[Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md)** — Detailed methods writeup with figures
 - **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** — Cortical depth model, spatial domains, validation
 - **[Data Download Instructions](data/README.md)** — How to obtain all input datasets
