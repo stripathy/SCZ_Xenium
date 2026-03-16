@@ -62,32 +62,19 @@ The correlation classifier achieves r = 0.81 against MERFISH proportions (Contro
 
 The critical question is not just whether Xenium measures cell types accurately, but whether the SCZ vs Control compositional differences it detects are real. We compared Xenium SCZ effect sizes against an independent snRNA-seq meta-analysis of schizophrenia (multiple cohorts, dissociation-based single-nucleus profiling).
 
-### 2.1 Subclass-level SCZ effect concordance (density)
-
-At the subclass level, aggregated snRNAseq meta-analysis betas (inverse-variance weighted across supertypes) and Xenium density logFC correlate at **r = 0.37** (p = 0.079) across all 24 subclasses. Restricting to neuronal subclasses yields **r = 0.65** (p = 0.003, n = 18), indicating strong directional agreement for neurons:
-
-![snRNAseq vs Xenium density — subclass](output/density_analysis/snrnaseq_vs_density_subclass.png)
-*Figure 7: SCZ subclass effects — snRNAseq meta-analysis (x) vs Xenium density logFC (y). r = 0.37 overall, r = 0.65 neuronal (n = 24 subclasses). L6b, L6 CT, L5/6 NP, and L6 IT show the strongest concordant increases. Non-neuronal types (Endo, Micro-PVM, Astro, Oligo) are the main outliers, suggesting platform-specific biases in non-neuronal detection.*
-
-Notable observations:
-- **Deep-layer glutamatergic subclasses** (L6b, L6 CT, L6 IT, L5/6 NP) cluster in the upper-right quadrant — both platforms agree on their increase in SCZ
-- **Oligodendrocyte** shows a density decrease in Xenium (logFC = −0.24) despite a near-zero snRNAseq beta (+0.015), consistent with a spatial/structural effect not captured by dissociation-based profiling
-- **Endothelial** is the largest outlier — increased density in Xenium but near-zero snRNAseq effect — likely reflecting a vascular/structural change visible only in intact tissue
-- **Micro-PVM** shows a large density decrease in Xenium not reflected in snRNAseq, possibly due to Xenium detection biases for immune markers
-
-### 2.2 Supertype-level SCZ effect concordance
+### 2.1 Supertype-level SCZ effect concordance
 
 Across 106 shared supertypes, Xenium spatial logFC and snRNA-seq meta-analysis beta values correlate at **r = 0.47** (p = 4.3 × 10⁻⁷) for all supertypes, and **r = 0.48** (p = 8.4 × 10⁻⁷) for neuronal supertypes only:
 
 ![snRNAseq vs Xenium composition](output/presentation/slide_snrnaseq_vs_xenium.png)
-*Figure 8: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.47 across 106 supertypes. Labeled points highlight the largest concordant and discordant effects.*
+*Figure 7: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.47 across 106 supertypes. Labeled points highlight the largest concordant and discordant effects.*
 
 When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.54** (p = 3.3 × 10⁻⁹), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
 
 ![snRNAseq vs Xenium density](output/density_analysis/snrnaseq_vs_density_supertype.png)
-*Figure 9: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.54, n = 106 supertypes. Density-based effects show stronger agreement than compositional effects.*
+*Figure 8: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.54, n = 106 supertypes. Density-based effects show stronger agreement than compositional effects.*
 
-### 2.3 Concordant findings across platforms
+### 2.2 Concordant findings across platforms
 
 The following SCZ effects are detected independently by both Xenium spatial and snRNA-seq meta-analysis, providing the strongest evidence:
 
@@ -99,7 +86,7 @@ The following SCZ effects are detected independently by both Xenium spatial and 
 | L6b_1, L6b_2 | ↑ | ↑↑ | Concordant L6b increase |
 | L6 CT_1 | ↑ (β = +0.35) | ↑↑ (logFC = +0.63) | Concordant deep-layer increase |
 
-### 2.4 Discordant findings: classification artifacts
+### 2.3 Discordant findings: classification artifacts
 
 Some supertypes show **discordant** SCZ effects between platforms — where one shows an increase and the other a decrease. These are red flags for classification artifacts:
 
@@ -154,7 +141,7 @@ These show consistent trends but do not reach FDR significance in all analyses:
 - But L6b classification has known issues (7.2% still misplaced in upper layers)
 
 ![Aggregated supertype effects](output/presentation/slide_aggregated_boxplots.png)
-*Figure 10: Aggregated supertype effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and L6b subtypes (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 6 × 10⁻⁴, density p = 3.3 × 10⁻⁴.*
+*Figure 9: Aggregated supertype effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and L6b subtypes (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 6 × 10⁻⁴, density p = 3.3 × 10⁻⁴.*
 
 ### 3.3 Findings that require caution (supertype level)
 
@@ -175,10 +162,10 @@ These should be interpreted carefully due to classification limitations:
 - Subclass-level conclusions (Oligodendrocyte depleted, Astrocyte trending) are safer than supertype-level ones
 
 ![Xenium SCZ effects — proportion boxplots](output/presentation/slide_xenium_proportion_boxplots.png)
-*Figure 11: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
+*Figure 10: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
 
 ![Xenium SCZ effects — density boxplots](output/presentation/slide_xenium_density_boxplots.png)
-*Figure 12: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
+*Figure 11: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
 
 ---
 
