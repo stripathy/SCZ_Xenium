@@ -30,9 +30,10 @@ The following SCZ effects are detected independently by both Xenium spatial and 
 |-----------|-------------------|------------------|----------------|
 | Sst_25 | ↓↓ (β = −0.30, FDR = 0.04) | ↓↓ (logFC = −0.69, p = 0.004) | Strong concordance — both platforms detect Sst_25 depletion |
 | Sst_2 | ↓↓ (β = −0.27, FDR = 0.006) | ↓ (logFC = −0.33, p = 0.025) | Concordant Sst depletion |
-| L6b_4 | ↑↑ (β = +0.27) | ↑↑ (logFC = +0.90) | Strong concordance — L6b increase |
-| L6b_1, L6b_2 | ↑ | ↑↑ | Concordant L6b increase |
-| L6 CT_1 | ↑ (β = +0.35) | ↑↑ (logFC = +0.63) | Concordant deep-layer increase |
+| L6b_4 | ↑↑ (β = +0.32, FDR = 0.009) | ↑↑ (logFC = +0.90, p = 0.008) | Strong concordance — L6b increase |
+| L6b_1 | ↑↑ (β = +0.46, FDR = 0.004) | ↑↑ (logFC = +0.68, p = 0.025) | Concordant L6b increase |
+| L6b_2 | ↑ (β = +0.22, p = 0.023) | ↑↑ (logFC = +0.58, p = 0.021) | Concordant L6b increase |
+| L6 CT_1 | ↑ (β = +0.37, FDR = 0.009) | ↑ (logFC = +0.62, p = 0.084) | Concordant deep-layer increase |
 
 ### 1.3 Discordant findings: classification artifacts
 
