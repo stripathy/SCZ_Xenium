@@ -58,8 +58,8 @@ The Sst subclass is particularly vulnerable because the 300-gene panel contains 
 ![Aggregated supertype effects](output/presentation/slide_aggregated_boxplots.png)
 *Figure 5: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top, n=12/group) and all L6b cells at subclass level (bottom, n=10/group). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.009, density p = 0.005. For L6b, 4 samples with insufficient deep cortex coverage (<3% L6 cells: Br2039, Br5973, Br2719, Br5314) were excluded.*
 
-![Sst spatial distribution](output/presentation/slide_sst_spatial_layershading.png)
-*Figure 6: Spatial distribution of vulnerable Sst subtypes in median-representative Control (top) and SCZ (bottom) sections. Samples chosen as closest to group median Sst proportion (Control: Br1113, Br2719; SCZ: Br5373, Br6032). Layer boundaries shown as colored bands.*
+![Sst_25 spatial distribution](output/presentation/slide_sst25_spatial_layershading.png)
+*Figure 6: Spatial distribution of Sst_25 cells in median-representative Control (top) and SCZ (bottom) sections. Samples chosen as closest to group median Sst_25 proportion (Control: Br5400, Br5314; SCZ: Br6496, Br6437). Control median = 0.199%, SCZ median = 0.083%. Layer boundaries shown as colored bands.*
 
 ---
 
