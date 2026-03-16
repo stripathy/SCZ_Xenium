@@ -71,13 +71,9 @@ This directory contains scripts for:
 - `cross_platform_marker_coverage.csv` — Coverage of top-N markers across 6 panels
 - `supertype_classification_confidence.csv` — Per-supertype confidence rating
 
-**Probe design (original SST/L6b-focused):**
-- `probe_recommendations_xenium_v1.csv` / `probe_recommendations_xenium_5k.csv` — Ranked add-on probe lists
-- `hierarchical_markers_round*.csv` — Selected markers per round
-
-**Calibration:**
-- `snrnaseq_vs_merscope4k_detection.csv` — Per-gene detection efficiency
-- `gene_properties_vs_correlation.csv` — Gene properties predicting cross-platform performance
+**Supplementary:**
+- `addon_gap_analysis.csv` — Per-supertype deficit analysis
+- `addon_gene_merfish_validation.csv` — MERFISH validation of add-on gene detectability
 
 ## Dependencies
 

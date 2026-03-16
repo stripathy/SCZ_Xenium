@@ -226,9 +226,7 @@ All files in `output/marker_analysis/`:
 | `v1_addon_100_spatial_validated.csv` | **Recommended: 100-gene spatial-validated add-on list with panel provenance** |
 | `v1_addon_100_unrestricted.csv` | 100-gene unrestricted add-on list (68% spatial-validated) |
 | `v1_addon_spatial_only_curve.csv` | Greedy add-on progression (spatial-restricted) |
-| `v1_addon_coverage_curve.csv` | Greedy add-on progression (unrestricted) |
 | `addon_gap_analysis.csv` | Per-supertype deficit and genes needed to match MERSCOPE 250 |
+| `addon_gene_merfish_validation.csv` | MERFISH validation of add-on gene detectability |
 | `cross_platform_marker_coverage_heatmap.png` | Heatmap: supertypes × panels |
 | `cross_platform_marker_coverage_bars.png` | Mean coverage by subclass across panels |
-| `sst_neighborhood_cell_results.csv` | Cell-level results from neighborhood smoothing experiment |
-| `sst_neighborhood_sweep.csv` | Parameter sweep results for neighborhood smoothing |
