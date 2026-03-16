@@ -8,19 +8,19 @@ This document presents the schizophrenia-related compositional differences detec
 
 ## 1. Xenium vs snRNA-seq Meta-Analysis: SCZ Effects
 
-The critical question is not just whether Xenium measures cell types accurately, but whether the SCZ vs Control compositional differences it detects are real. We compared Xenium SCZ effect sizes against an independent snRNA-seq meta-analysis of schizophrenia (multiple cohorts, dissociation-based single-nucleus profiling).
+The critical question is not just whether Xenium measures cell types accurately, but whether the SCZ vs Control compositional differences it detects are real. We compared Xenium SCZ effect sizes against an independent snRNA-seq meta-analysis of schizophrenia (7 cohorts, dissociation-based single-nucleus profiling, stratified crumblr analysis with neuronal and non-neuronal supertypes analyzed separately).
 
 ### 1.1 Supertype-level SCZ effect concordance
 
-Across 106 shared supertypes, Xenium spatial logFC and snRNA-seq meta-analysis beta values correlate at **r = 0.47** (p = 4.3 × 10⁻⁷) for all supertypes, and **r = 0.48** (p = 8.4 × 10⁻⁷) for neuronal supertypes only:
+Across 120 shared supertypes, Xenium spatial logFC and snRNA-seq meta-analysis beta values correlate at **r = 0.49** (p = 1.6 × 10⁻⁸) for all supertypes, and **r = 0.47** (p = 3.1 × 10⁻⁷) for neuronal supertypes only:
 
 ![snRNAseq vs Xenium composition](output/presentation/slide_snrnaseq_vs_xenium.png)
-*Figure 1: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.47 across 106 supertypes. Labeled points highlight the largest concordant and discordant effects.*
+*Figure 1: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.49 across 120 supertypes. snRNA-seq betas from stratified crumblr analysis (neuronal and non-neuronal analyzed separately, 7 cohorts). Labeled points highlight the largest concordant and discordant effects.*
 
-When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.55** (p = 8.0 × 10⁻¹⁰), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
+When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.57** (p = 1.9 × 10⁻¹¹), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
 
 ![snRNAseq vs Xenium density](output/density_analysis/snrnaseq_vs_density_supertype.png)
-*Figure 2: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.55, n = 106 supertypes. Density-based effects show stronger agreement than compositional effects.*
+*Figure 2: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.57, n = 120 supertypes. Density-based effects show stronger agreement than compositional effects.*
 
 ### 1.2 Concordant findings across platforms
 
@@ -28,12 +28,12 @@ The following SCZ effects are detected independently by both Xenium spatial and 
 
 | Supertype | snRNAseq direction | Xenium direction | Interpretation |
 |-----------|-------------------|------------------|----------------|
-| Sst_25 | ↓↓ (β = −0.30, FDR = 0.04) | ↓↓ (logFC = −0.69, p = 0.004) | Strong concordance — both platforms detect Sst_25 depletion |
-| Sst_2 | ↓↓ (β = −0.27, FDR = 0.006) | ↓ (logFC = −0.33, p = 0.025) | Concordant Sst depletion |
-| L6b_4 | ↑↑ (β = +0.32, FDR = 0.009) | ↑↑ (logFC = +0.90, p = 0.008) | Strong concordance — L6b increase |
-| L6b_1 | ↑↑ (β = +0.46, FDR = 0.004) | ↑↑ (logFC = +0.68, p = 0.025) | Concordant L6b increase |
-| L6b_2 | ↑ (β = +0.22, p = 0.023) | ↑↑ (logFC = +0.58, p = 0.021) | Concordant L6b increase |
-| L6 CT_1 | ↑ (β = +0.37, FDR = 0.009) | ↑ (logFC = +0.62, p = 0.084) | Concordant deep-layer increase |
+| Sst_25 | ↓↓ (β = −0.26, FDR = 0.037) | ↓↓ (logFC = −0.69, p = 0.004) | Strong concordance — both platforms detect Sst_25 depletion |
+| Sst_2 | ↓↓ (β = −0.25, FDR = 0.001) | ↓ (logFC = −0.33, p = 0.025) | Concordant Sst depletion |
+| L6b_1 | ↑↑ (β = +0.48, FDR < 0.001) | ↑↑ (logFC = +0.68, p = 0.025) | Strong concordance — L6b increase |
+| L6b_4 | ↑↑ (β = +0.26, FDR = 0.022) | ↑↑ (logFC = +0.90, p = 0.008) | Strong concordance — L6b increase |
+| L6b_2 | ↑ (β = +0.17, p = 0.055) | ↑↑ (logFC = +0.58, p = 0.021) | Concordant L6b increase |
+| L6 CT_1 | ↑ (β = +0.23, p = 0.014) | ↑ (logFC = +0.62, p = 0.084) | Concordant deep-layer increase |
 
 ### 1.3 Discordant findings: classification artifacts
 
@@ -41,9 +41,9 @@ Some supertypes show **discordant** SCZ effects between platforms — where one 
 
 | Supertype | snRNAseq | Xenium | Likely explanation |
 |-----------|----------|--------|-------------------|
-| Sst_22 | ↓↓ (β = −0.36, FDR = 0.007) | ≈0 (logFC = −0.07, p = 0.54) | Strong snRNAseq depletion not replicated in Xenium; only 0–1 within-subclass markers for Sst supertypes in the 300-gene panel |
-| Sst_20 | ↓ (β = −0.23, p = 0.009) | ↑ (logFC = +0.08, p = 0.51) | Classification confusion with Sst_3; margin drops significantly in SCZ (p = 2.3 × 10⁻¹⁶). See [Supertype Classification Confidence Report](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) |
-| Sst_3 | ↓ (β = −0.15, p = 0.013) | ↓↓ (logFC = −0.59, p = 0.003) | Xenium effect ~4× larger than snRNAseq; possible misclassification spillover absorbing Sst_20 cells in SCZ |
+| Sst_22 | ↓↓ (β = −0.27, FDR = 0.022) | ≈0 (logFC = −0.07, p = 0.54) | Strong snRNAseq depletion not replicated in Xenium; only 0–1 within-subclass markers for Sst supertypes in the 300-gene panel |
+| Sst_20 | ↓ (β = −0.17, p = 0.019) | ↑ (logFC = +0.08, p = 0.51) | Classification confusion with Sst_3; margin drops significantly in SCZ (p = 2.3 × 10⁻¹⁶). See [Supertype Classification Confidence Report](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) |
+| Sst_3 | ↓ (β = −0.19, FDR = 0.046) | ↓↓ (logFC = −0.59, p = 0.003) | Xenium effect ~3× larger than snRNAseq; possible misclassification spillover absorbing Sst_20 cells in SCZ |
 
 The Sst subclass is particularly vulnerable because the 300-gene panel contains **0–1 discriminating markers** for most Sst supertypes (see [Panel Design Report](output/marker_analysis/XENIUM_PANEL_DESIGN_AND_SUPERTYPE_CLASSIFICATION.md)). The aggregate Sst depletion signal is real (both platforms agree on overall Sst reduction), but the allocation of that signal across specific supertypes is unreliable.
 
@@ -149,8 +149,8 @@ These should be interpreted carefully due to classification limitations:
 
 | Level | What | Concordance | Confidence |
 |-------|------|-------------|------------|
-| **SCZ effects (density)** | Xenium vs snRNAseq | r = 0.55 | Moderate — independent platforms, different cohorts, different tissue regions |
-| **SCZ effects (composition)** | Xenium vs snRNAseq | r = 0.47 | Moderate — compositional constraint attenuates some effects |
+| **SCZ effects (density)** | Xenium vs snRNAseq | r = 0.57 | Moderate — independent platforms, different cohorts, different tissue regions |
+| **SCZ effects (composition)** | Xenium vs snRNAseq | r = 0.49 | Moderate — compositional constraint attenuates some effects |
 | **Supertype SCZ effects** | Xenium vs snRNAseq | variable | Type-dependent — check [confidence ratings](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) |
 | **Subclass proportions** | Xenium vs MERFISH | r = 0.84 | High — see [Cross-Platform Validation](cross_platform_concordance.md) |
 | **Subclass depth** | Xenium vs MERFISH | r = 0.96 | High — see [Cross-Platform Validation](cross_platform_concordance.md) |
@@ -165,7 +165,7 @@ These should be interpreted carefully due to classification limitations:
 
 3. **Always check the supertype confidence rating** before interpreting a supertype-level result. The [Supertype Classification Confidence Report](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) provides HIGH/MEDIUM/LOW ratings for each supertype based on within-subclass marker coverage in the Xenium panel.
 
-4. **Prefer density over composition for SCZ comparisons.** Density-based effects (cells/mm²) are not subject to the compositional zero-sum constraint and show stronger concordance with snRNA-seq (r = 0.55 vs r = 0.47).
+4. **Prefer density over composition for SCZ comparisons.** Density-based effects (cells/mm²) are not subject to the compositional zero-sum constraint and show stronger concordance with snRNA-seq (r = 0.57 vs r = 0.49).
 
 5. **Be skeptical of Sst supertype allocations.** The aggregate Sst reduction is likely real, but the specific supertypes driving it cannot be determined from this panel. The Sst_20/Sst_3 discordance with snRNA-seq is a documented classification artifact.
 

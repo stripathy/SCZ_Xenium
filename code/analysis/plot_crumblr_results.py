@@ -217,15 +217,40 @@ def plot_depth_vs_effect(results, level, depth_file, out_dir):
     print(f"  Saved {fname}")
 
 
-def plot_snrnaseq_comparison(results, nicole_path, out_dir):
-    """Scatter: snRNAseq meta-analysis betas vs Xenium logFC at cluster level."""
-    if not os.path.exists(nicole_path):
-        print(f"  Skipping snRNAseq comparison: {nicole_path} not found")
-        return
+def load_nicole_stratified(neuronal_path, nonneuronal_path):
+    """Load Nicole's stratified snRNAseq meta-analysis results (neuronal + non-neuronal).
 
-    nicole = pd.read_excel(nicole_path)
-    nicole = nicole.rename(columns={'CellType': 'celltype', 'estimate': 'beta_snrnaseq',
-                                     'pval': 'pval_snrnaseq', 'padj': 'padj_snrnaseq'})
+    Returns combined DataFrame with columns: celltype, beta_snrnaseq, se, pval_snrnaseq, padj_snrnaseq, analysis_stratum.
+    Excludes _1-SEAAD suffixed types (alternative taxonomy definitions that don't match Xenium types).
+    """
+    dfs = []
+    for path, stratum in [(neuronal_path, 'neuronal'), (nonneuronal_path, 'non-neuronal')]:
+        if not os.path.exists(path):
+            print(f"  WARNING: {path} not found, skipping {stratum}")
+            continue
+        df = pd.read_csv(path)
+        df = df[~df['CellType'].str.contains('SEAAD', na=False)]  # exclude alt taxonomy types
+        df['analysis_stratum'] = stratum
+        dfs.append(df)
+
+    if not dfs:
+        return None
+
+    combined = pd.concat(dfs, ignore_index=True)
+    combined = combined.rename(columns={'CellType': 'celltype', 'estimate': 'beta_snrnaseq',
+                                         'pval': 'pval_snrnaseq', 'padj': 'padj_snrnaseq'})
+    print(f"  Loaded Nicole stratified data: {len(combined)} types "
+          f"({sum(combined['analysis_stratum']=='neuronal')} neuronal, "
+          f"{sum(combined['analysis_stratum']=='non-neuronal')} non-neuronal)")
+    return combined
+
+
+def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_path, out_dir):
+    """Scatter: snRNAseq meta-analysis betas vs Xenium logFC at cluster level."""
+    nicole = load_nicole_stratified(nicole_neuronal_path, nicole_nonneuronal_path)
+    if nicole is None:
+        print("  Skipping snRNAseq comparison: no Nicole data found")
+        return
 
     xen = results.rename(columns={'logFC': 'logFC_xenium', 'P.Value': 'pval_xenium',
                                    'FDR': 'FDR_xenium'})
@@ -324,7 +349,10 @@ def plot_snrnaseq_comparison(results, nicole_path, out_dir):
                   f"snRNA={row['beta_snrnaseq']:+.3f}  Xen={row['logFC_xenium']:+.3f}{flags}")
 
 
-NICOLE_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas", "scz_coefs.xlsx")
+NICOLE_NEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                     "final_results_crumblr_7_cohorts.csv")
+NICOLE_NONNEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                        "final_results_crumblr_7_nonN_cohorts.csv")
 
 
 def main():
@@ -357,7 +385,8 @@ def main():
     if os.path.exists(supertype_path):
         print(f"\n  --- snRNAseq meta-analysis comparison ---")
         supertype_results = pd.read_csv(supertype_path)
-        plot_snrnaseq_comparison(supertype_results, NICOLE_PATH, RESULTS_DIR)
+        plot_snrnaseq_comparison(supertype_results, NICOLE_NEURONAL_PATH,
+                                NICOLE_NONNEURONAL_PATH, RESULTS_DIR)
 
     print("\nDone!")
 

@@ -7,7 +7,8 @@ logFC and correlates with aggregated snRNAseq betas (inverse-variance weighted).
 
 Input:
   output/density_analysis/density_per_sample_supertype.csv
-  data/nicole_scz_snrnaseq_betas/scz_coefs.xlsx
+  data/nicole_scz_snrnaseq_betas/final_results_crumblr_7_cohorts.csv (neuronal)
+  data/nicole_scz_snrnaseq_betas/final_results_crumblr_7_nonN_cohorts.csv (non-neuronal)
 
 Output:
   output/density_analysis/snrnaseq_vs_density_subclass.png
@@ -29,8 +30,10 @@ from config import (
 
 DENSITY_RAW = os.path.join(BASE_DIR, "output", "density_analysis",
                             "density_per_sample_supertype.csv")
-NICOLE_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
-                            "scz_coefs.xlsx")
+NICOLE_NEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                     "final_results_crumblr_7_cohorts.csv")
+NICOLE_NONNEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                        "final_results_crumblr_7_nonN_cohorts.csv")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output", "density_analysis")
 
 
@@ -97,7 +100,13 @@ def main():
     print(f"Density results: {len(density_df)} subclasses")
 
     # ── Aggregate snRNAseq betas to subclass (inverse-variance weighted mean) ──
-    nicole = pd.read_excel(NICOLE_PATH)
+    # Load stratified results (neuronal + non-neuronal)
+    dfs = []
+    for path in [NICOLE_NEURONAL_PATH, NICOLE_NONNEURONAL_PATH]:
+        df = pd.read_csv(path)
+        df = df[~df["CellType"].str.contains("SEAAD", na=False)]
+        dfs.append(df)
+    nicole = pd.concat(dfs, ignore_index=True)
     nicole["subclass"] = nicole["CellType"].apply(supertype_to_subclass)
     nicole["w"] = 1 / (nicole["se"] ** 2)
 

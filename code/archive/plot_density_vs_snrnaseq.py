@@ -7,7 +7,8 @@ adjustText labels, tiered labeling by significance, correlation stats box).
 
 Input:
   output/density_analysis/density_results_supertype_cortical.csv
-  data/nicole_scz_snrnaseq_betas/scz_coefs.xlsx
+  data/nicole_scz_snrnaseq_betas/final_results_crumblr_7_cohorts.csv (neuronal)
+  data/nicole_scz_snrnaseq_betas/final_results_crumblr_7_nonN_cohorts.csv (non-neuronal)
 
 Output:
   output/density_analysis/snrnaseq_vs_density_supertype.png
@@ -33,8 +34,10 @@ from config import BASE_DIR, infer_class, BG_COLOR
 
 DENSITY_PATH = os.path.join(BASE_DIR, "output", "density_analysis",
                              "density_results_supertype_cortical.csv")
-NICOLE_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
-                            "scz_coefs.xlsx")
+NICOLE_NEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                     "final_results_crumblr_7_cohorts.csv")
+NICOLE_NONNEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                        "final_results_crumblr_7_nonN_cohorts.csv")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output", "density_analysis")
 
 BG = BG_COLOR
@@ -52,14 +55,24 @@ def main():
         "se": "se_density",
     })
 
-    # Load Nicole snRNAseq betas
-    nicole = pd.read_excel(NICOLE_PATH)
+    # Load Nicole snRNAseq betas (stratified: neuronal + non-neuronal)
+    dfs = []
+    for path, stratum in [(NICOLE_NEURONAL_PATH, "neuronal"),
+                           (NICOLE_NONNEURONAL_PATH, "non-neuronal")]:
+        df = pd.read_csv(path)
+        df = df[~df["CellType"].str.contains("SEAAD", na=False)]
+        df["analysis_stratum"] = stratum
+        dfs.append(df)
+    nicole = pd.concat(dfs, ignore_index=True)
     nicole = nicole.rename(columns={
         "CellType": "celltype",
         "estimate": "beta_snrnaseq",
         "pval": "pval_snrnaseq",
         "padj": "padj_snrnaseq",
     })
+    print(f"Loaded Nicole stratified data: {len(nicole)} types "
+          f"({sum(nicole['analysis_stratum']=='neuronal')} neuronal, "
+          f"{sum(nicole['analysis_stratum']=='non-neuronal')} non-neuronal)")
 
     # Merge
     merged = pd.merge(
