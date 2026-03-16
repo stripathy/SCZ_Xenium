@@ -90,10 +90,18 @@ The depth-stratified analysis reveals that oligodendrocyte depletion is not unif
 - 22/23 subclasses have significant depth main effects (FDR < 0.05)
 - Whatever drives SCZ compositional changes operates on the non-neuronal compartment
 
+The neuronal depth profiles confirm this — SCZ and Control curves largely overlap across all neuronal subclasses, with only scattered nominally significant bins that do not survive correction:
+
+![Neuronal depth profiles — proportion](output/depth_proportions/depth_profiles_neuronal.png)
+*Figure 10: Neuronal subclass depth profiles (% of neuronal class). SCZ (red) vs Control (blue). No neuronal subclass shows systematic SCZ–Control separation, in contrast to the non-neuronal compartment.*
+
+![Neuronal depth profiles — density](output/depth_proportions/depth_density_neuronal.png)
+*Figure 11: Neuronal subclass density profiles (cells/mm²). Scattered nominal significance (Pvalb, Sst, L6 CT) but no subclass shows the sustained multi-bin separation seen for oligodendrocytes or endothelial cells.*
+
 The layer-specific density heatmap shows the full pattern of SCZ effects across all subclasses and layers:
 
 ![Layer heatmap — density](output/depth_proportions/layer_heatmap_density_per_mm2_vertical.png)
-*Figure 10: Layer-specific density changes (log₂FC, SCZ vs Control). Layers on y-axis, pia at top. Oligodendrocyte depletion strongest in L2/3. Endothelial increases across multiple layers. See [Depth-Stratified Analysis Report](output/depth_proportions/DEPTH_STRATIFIED_ANALYSIS_REPORT.md) for full per-layer model results.*
+*Figure 12: Layer-specific density changes (log₂FC, SCZ vs Control). Layers on y-axis, pia at top. Oligodendrocyte depletion strongest in L2/3. Endothelial increases across multiple layers. See [Depth-Stratified Analysis Report](output/depth_proportions/DEPTH_STRATIFIED_ANALYSIS_REPORT.md) for full per-layer model results.*
 
 ### 2.2 Moderate-confidence findings (subclass/supertype level)
 
@@ -106,7 +114,7 @@ These show consistent trends but do not reach FDR significance in all analyses:
 
 **Endothelial density increase:**
 - Widespread density increases across L2/3–L5 (multiple nominal p < 0.01)
-- Consistent direction across layers (visible in Figures 9 and 10), but no individual test survives FDR
+- Consistent direction across layers (visible in Figures 9 and 12), but no individual test survives FDR
 
 **L6b subclass increase:**
 - All L6b supertypes (L6b_1–L6b_6) aggregated at subclass level show increased proportion and density in SCZ

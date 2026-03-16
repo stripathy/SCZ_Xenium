@@ -248,20 +248,19 @@ def make_figure(depth_df, celltypes, class_label, class_filter, filename,
                         class_filter=class_filter,
                         metric=metric)
 
-    # Legend
+    # Legend + significance key combined
     legend_elements = [
         Line2D([0], [0], color=CTRL_COLOR, lw=2.5, label="Control (n=12)"),
         Line2D([0], [0], color=SCZ_COLOR, lw=2.5, label="SCZ (n=12)"),
+        Line2D([0], [0], color="none", label=""),  # spacer
+        Line2D([0], [0], color="none",
+               label="Wilcoxon per bin:"),
+        Line2D([0], [0], color="none",
+               label="* p<.05  ** p<.01  *** p<.005"),
     ]
     fig.legend(handles=legend_elements, loc="upper right",
-              fontsize=14, framealpha=0.95, edgecolor="#cccccc",
+              fontsize=12, framealpha=0.95, edgecolor="#cccccc",
               bbox_to_anchor=(0.97, 0.99))
-
-    # Significance key as text annotation
-    fig.text(0.97, 0.91,
-             "Wilcoxon per bin:\n* p<0.05  ** p<0.01  *** p<0.005",
-             fontsize=11, ha="right", va="top", color="#555555",
-             fontstyle="italic")
 
     title_suffix = "Proportion" if metric == "pct" else "Density"
     fig.suptitle(f"{class_label} — {title_suffix}",
