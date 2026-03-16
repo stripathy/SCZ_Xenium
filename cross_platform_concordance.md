@@ -21,40 +21,24 @@ Median subclass proportions correlate at **r = 0.84** between Xenium Control sam
 ![Subclass proportions: MERFISH vs Xenium](output/presentation/slide_proportion_scatter.png)
 *Figure 1: Subclass proportions — Xenium Control median vs SEA-AD MERFISH median. r = 0.84, n = 24 subclasses. Dashed line = perfect agreement.*
 
-The per-layer concordance is also strong. Within each cortical layer (L2/3, L4, L5, L6), Xenium and MERFISH subclass proportions correlate at r = 0.70–0.92, confirming that the depth model and layer assignments produce biologically accurate laminar distributions:
-
-![Per-layer proportion scatter](output/xenium_vs_merfish_scatter.png)
-*Figure 2: Per-layer subclass proportion agreement. Each panel shows one cortical layer; each point is one subclass. Red = deviation > 1.5%. Pearson r = 0.70–0.92 across layers.*
+The per-layer concordance is also strong. Within each cortical layer (L2/3, L4, L5, L6), Xenium and MERFISH subclass proportions correlate at r = 0.70–0.92, confirming that the depth model and layer assignments produce biologically accurate laminar distributions.
 
 ### 1.2 Supertype-level concordance
 
-At the supertype level (131 types), the concordance is necessarily weaker — the 300-gene Xenium panel lacks discriminating markers for many within-subclass distinctions. Overall accuracy against MERFISH ground truth is **84.9%** at the subclass level when the correlation classifier is applied to MERFISH data directly:
-
-![Subclass confusion matrix](output/merfish_benchmark/subclass_confusion_matrix.png)
-*Figure 3: Confusion matrix — correlation classifier applied to MERFISH data. Row-normalized. Overall accuracy 84.9% across 1.9M cells. Diagonal elements show per-subclass recall.*
-
-Most subclasses achieve >80% accuracy (Astrocyte 95%, Oligodendrocyte 96%, L2/3 IT 90%, Pvalb 90%). Notable exceptions include **L6 IT Car3** (69%), **Lamp5** (55%), **Lamp5 Lhx6** (55%), and **Sst** (69%) — types where the 300-gene panel lacks sufficient within-subclass markers to resolve supertypes cleanly.
+At the supertype level (131 types), the concordance is necessarily weaker — the 300-gene Xenium panel lacks discriminating markers for many within-subclass distinctions. Overall accuracy against MERFISH ground truth is **84.9%** at the subclass level when the correlation classifier is applied to MERFISH data directly. Most subclasses achieve >80% accuracy (Astrocyte 95%, Oligodendrocyte 96%, L2/3 IT 90%, Pvalb 90%). Notable exceptions include **L6 IT Car3** (69%), **Lamp5** (55%), **Lamp5 Lhx6** (55%), and **Sst** (69%) — types where the 300-gene panel lacks sufficient within-subclass markers to resolve supertypes cleanly.
 
 ### 1.3 Depth profile concordance
 
 Median cortical depth per subclass correlates at **r = 0.96** (subclass) and **r = 0.95** (supertype) between Xenium predicted depth and MERFISH manual annotations, confirming the depth model is well-calibrated:
 
 ![Median depth comparison](output/presentation/slide_median_depth_by_celltype.png)
-*Figure 4: Median depth from pia — Xenium vs MERFISH. Left: subclass level (r = 0.96, n = 23). Right: supertype level (r = 0.95, n = 131). Near-perfect agreement confirms spatially coherent laminar assignments.*
+*Figure 2: Median depth from pia — Xenium vs MERFISH. Left: subclass level (r = 0.96, n = 23). Right: supertype level (r = 0.95, n = 131). Near-perfect agreement confirms spatially coherent laminar assignments.*
 
 Full depth profile comparisons (proportion vs depth curves for all subclasses) show strong agreement between Xenium Control samples and MERFISH reference, with minor divergences only at the WM boundary. See Figures 9–10 in the [Depth-Stratified Analysis Report](output/depth_proportions/DEPTH_STRATIFIED_ANALYSIS_REPORT.md).
 
 ### 1.4 Classifier validation summary
 
-The correlation classifier (step 02b) substantially outperforms alternative approaches:
-
-![Classifier validation](output/presentation/slide_corr_classifier_validation.png)
-*Figure 5: Correlation classifier vs HANN (MapMyCells). (A) L6b misplacement reduced from 38.5% to 7.2%. (B–C) Per-sample improvement and reclassification targets. (D–F) Margin distribution, spatial example, and depth shift correction.*
-
-The correlation classifier achieves r = 0.81 against MERFISH proportions (Controls only), compared to r = 0.73 for Harmony-based integration. Critically, Harmony misclassified non-neuronal types into GABAergic categories (e.g., VLMC classified as OPC 82% of the time) and inflated Sst proportions to 12.1% vs the expected 2.5%.
-
-![Correlation method validation](output/xenium_corr_control_vs_merfish_validation.png)
-*Figure 6: Xenium correlation classifier vs MERFISH reference. Left: subclass proportion scatter (r = 0.81). Center: enrichment ratios (blue = within 0.5–2x of MERFISH). Right: per-sample distributions with MERFISH reference (red diamonds).*
+The correlation classifier (step 02b) achieves r = 0.81 against MERFISH proportions (Controls only), compared to r = 0.73 for Harmony-based integration. Critically, Harmony misclassified non-neuronal types into GABAergic categories (e.g., VLMC classified as OPC 82% of the time) and inflated Sst proportions to 12.1% vs the expected 2.5%. See [Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md) for the full comparison.
 
 ---
 
@@ -67,12 +51,12 @@ The critical question is not just whether Xenium measures cell types accurately,
 Across 106 shared supertypes, Xenium spatial logFC and snRNA-seq meta-analysis beta values correlate at **r = 0.47** (p = 4.3 × 10⁻⁷) for all supertypes, and **r = 0.48** (p = 8.4 × 10⁻⁷) for neuronal supertypes only:
 
 ![snRNAseq vs Xenium composition](output/presentation/slide_snrnaseq_vs_xenium.png)
-*Figure 7: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.47 across 106 supertypes. Labeled points highlight the largest concordant and discordant effects.*
+*Figure 3: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.47 across 106 supertypes. Labeled points highlight the largest concordant and discordant effects.*
 
-When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.54** (p = 3.3 × 10⁻⁹), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
+When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.55** (p = 3.3 × 10⁻⁹), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
 
 ![snRNAseq vs Xenium density](output/density_analysis/snrnaseq_vs_density_supertype.png)
-*Figure 8: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.54, n = 106 supertypes. Density-based effects show stronger agreement than compositional effects.*
+*Figure 4: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.55, n = 106 supertypes. Density-based effects show stronger agreement than compositional effects.*
 
 ### 2.2 Concordant findings across platforms
 
@@ -142,13 +126,13 @@ These show consistent trends but do not reach FDR significance in all analyses:
 - But L6b classification has known issues (7.2% still misplaced in upper layers)
 
 ![Aggregated supertype effects](output/presentation/slide_aggregated_boxplots.png)
-*Figure 9: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and all L6b cells at subclass level (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.10, density p = 0.08.*
+*Figure 5: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and all L6b cells at subclass level (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.10, density p = 0.08.*
 
 ![Sst spatial distribution](output/presentation/slide_sst_spatial_layershading.png)
-*Figure 10: Spatial distribution of vulnerable Sst subtypes in representative Control (top) and SCZ (bottom) sections. Each dot is one cell, colored by supertype. Layer boundaries shown as colored bands. Cell counts and proportions per sample shown in insets.*
+*Figure 6: Spatial distribution of vulnerable Sst subtypes in representative Control (top) and SCZ (bottom) sections. Each dot is one cell, colored by supertype. Layer boundaries shown as colored bands. Cell counts and proportions per sample shown in insets.*
 
 ![L6b spatial distribution](output/presentation/slide_l6b_spatial_layershading.png)
-*Figure 11: Spatial distribution of L6b subtypes in the same representative sections. L6b cells concentrate near the L6/WM boundary as expected. SCZ samples show increased L6b counts.*
+*Figure 7: Spatial distribution of L6b subtypes in the same representative sections. L6b cells concentrate near the L6/WM boundary as expected. SCZ samples show increased L6b counts.*
 
 ### 3.3 Findings that require caution (supertype level)
 
@@ -169,10 +153,10 @@ These should be interpreted carefully due to classification limitations:
 - Subclass-level conclusions (Oligodendrocyte depleted, Astrocyte trending) are safer than supertype-level ones
 
 ![Xenium SCZ effects — proportion boxplots](output/presentation/slide_xenium_proportion_boxplots.png)
-*Figure 12: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
+*Figure 8: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
 
 ![Xenium SCZ effects — density boxplots](output/presentation/slide_xenium_density_boxplots.png)
-*Figure 13: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
+*Figure 9: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
 
 ---
 
@@ -182,7 +166,7 @@ These should be interpreted carefully due to classification limitations:
 |-------|------|-------------|------------|
 | **Subclass proportions** | Xenium vs MERFISH | r = 0.84 | High — both are spatial platforms measuring same tissue types |
 | **Subclass depth** | Xenium vs MERFISH | r = 0.96 | High — near-perfect laminar agreement |
-| **SCZ effects (density)** | Xenium vs snRNAseq | r = 0.54 | Moderate — independent platforms, different cohorts, different tissue regions |
+| **SCZ effects (density)** | Xenium vs snRNAseq | r = 0.55 | Moderate — independent platforms, different cohorts, different tissue regions |
 | **SCZ effects (composition)** | Xenium vs snRNAseq | r = 0.47 | Moderate — compositional constraint attenuates some effects |
 | **Per-layer proportions** | Xenium vs MERFISH | r = 0.70–0.92 | High within layers, lower for sparse types |
 | **Supertype proportions** | Xenium vs MERFISH | r = 0.35 (per-donor) | Low — insufficient markers for many supertype distinctions |
@@ -198,7 +182,7 @@ These should be interpreted carefully due to classification limitations:
 
 3. **Always check the supertype confidence rating** before interpreting a supertype-level result. The [Supertype Classification Confidence Report](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) provides HIGH/MEDIUM/LOW ratings for each supertype based on within-subclass marker coverage in the Xenium panel.
 
-4. **Prefer density over composition for SCZ comparisons.** Density-based effects (cells/mm²) are not subject to the compositional zero-sum constraint and show stronger concordance with snRNA-seq (r = 0.54 vs r = 0.47).
+4. **Prefer density over composition for SCZ comparisons.** Density-based effects (cells/mm²) are not subject to the compositional zero-sum constraint and show stronger concordance with snRNA-seq (r = 0.55 vs r = 0.47).
 
 5. **Be skeptical of Sst supertype allocations.** The aggregate Sst reduction is likely real, but the specific supertypes driving it cannot be determined from this panel. The Sst_20/Sst_3 discordance with snRNA-seq is a documented classification artifact.
 
