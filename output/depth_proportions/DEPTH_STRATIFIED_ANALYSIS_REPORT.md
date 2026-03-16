@@ -28,6 +28,12 @@ Normalized depth from pia (0 = pia, 1 = white matter) was predicted for every Xe
 
 These boundaries closely match the MERFISH ground truth crossovers (within ±0.03 for all boundaries), confirming the depth model predictions are well-calibrated.
 
+![Layer boundary derivation](layer_boundary_comparison.png)
+*Figure S1: Layer boundary derivation from excitatory neuron marker crossovers. Left: MERFISH reference (n=27 donors). Center: Xenium Control samples (n=12). Right: Comparison of current vs proposed boundaries, showing the L2-3/L4 shift (+0.070) as the largest correction.*
+
+![Layer size comparison](layer_size_comparison.png)
+*Figure S2: Layer size comparison between SCZ and Control. Panels show total cells, convex hull area, cell density, layer share, total cortical cells per sample, and a log₂FC summary heatmap. No systematic layer-size confound between groups.*
+
 ### 2.2 Per-layer models
 
 For each (subclass × layer × outcome) combination:
@@ -79,6 +85,12 @@ Nominally significant trends (p < 0.05 but FDR > 0.05): L6b ↑ in L5 (p=0.002),
 ![Layer volcano](layer_volcano.png)
 *Figure 3: Volcano plots for per-layer proportion and density tests.*
 
+![Top hits detail](top_hits_detail.png)
+*Figure 4: Per-sample dot plots for the top 8 per-layer hits (Oligodendrocyte L2/3, L6b L5, Sncg L4, Endothelial L4/L5). Each dot is one sample; bars show group means.*
+
+![Oligo L2/3 detail](oligo_L23_detail.png)
+*Figure 5: Deep dive on the Oligodendrocyte L2/3 finding. (A) Depth profile by diagnosis. (B-C) L2/3-specific proportion and density. (D) Proportion across all layers. (E) Per-sample ranked comparison. (F) Oligodendrocyte count vs L2/3 size (confound check).*
+
 ### 3.2 CLR depth × diagnosis interaction results
 
 23 subclasses tested with density-adaptive quantile bins.
@@ -107,22 +119,22 @@ With the updated MERFISH-derived layer boundaries, the Oligodendrocyte depth × 
 **Positive interaction** means the SCZ depth profile is *flatter* than Control — the normal deep-layer concentration is reduced, with relatively more cells in superficial layers.
 
 ![Depth profiles - neuronal proportion](depth_profiles_neuronal.png)
-*Figure 4a: Neuronal subclass depth profiles (% of neuronal class). Stars indicate per-bin significance (Wilcoxon rank-sum, * p<0.05, ** p<0.01, *** p<0.005).*
+*Figure 6a: Neuronal subclass depth profiles (% of neuronal class). Stars indicate per-bin significance (Wilcoxon rank-sum, \* p<0.05, \*\* p<0.01, \*\*\* p<0.005).*
 
 ![Depth profiles - non-neuronal proportion](depth_profiles_nonneuronal.png)
-*Figure 4b: Non-neuronal subclass depth profiles (% of non-neuronal class). Oligodendrocyte and OPC show clear separation between SCZ and Control curves.*
+*Figure 6b: Non-neuronal subclass depth profiles (% of non-neuronal class). Oligodendrocyte and OPC show clear separation between SCZ and Control curves.*
 
 ![Depth profiles - neuronal density](depth_density_neuronal.png)
-*Figure 4c: Neuronal subclass density profiles (cells/mm²).*
+*Figure 6c: Neuronal subclass density profiles (cells/mm²).*
 
 ![Depth profiles - non-neuronal density](depth_density_nonneuronal.png)
-*Figure 4d: Non-neuronal subclass density profiles (cells/mm²). Endothelial cells show increased density across nearly all depth bins in SCZ.*
+*Figure 6d: Non-neuronal subclass density profiles (cells/mm²). Endothelial cells show increased density across nearly all depth bins in SCZ.*
 
 ![Significant hits detail](depth_interaction_significant_hits.png)
-*Figure 5: Detailed depth profiles for the top 4 interaction hits.*
+*Figure 7: Detailed depth profiles for the top 4 interaction hits.*
 
 ![Interaction bar chart](depth_interaction_bar.png)
-*Figure 6: Depth × diagnosis interaction effect sizes. Positive = SCZ depth profile flatter.*
+*Figure 8: Depth × diagnosis interaction effect sizes. Positive = SCZ depth profile flatter.*
 
 ### 3.3 Convergence of the two approaches
 
@@ -137,6 +149,12 @@ The per-layer and CLR interaction analyses are methodologically independent but 
 ### 3.4 Depth model validation
 
 22/23 subclasses show highly significant depth main effects (FDR < 0.05), confirming the predicted depth values faithfully capture known laminar architecture. With updated boundaries, even Chandelier now reaches significance (FDR=0.048). Sst is the only subclass without a significant depth effect, consistent with its known broad distribution across cortical layers.
+
+![Xenium vs MERFISH - neuronal](xenium_vs_merfish_neuronal.png)
+*Figure 9: Neuronal subclass depth profiles — Xenium Control (blue, n=12) vs SEA-AD MERFISH reference (red, n=27). Strong concordance validates the depth model.*
+
+![Xenium vs MERFISH - non-neuronal](xenium_vs_merfish_nonneuronal.png)
+*Figure 10: Non-neuronal subclass depth profiles — Xenium Control vs MERFISH reference. Profiles are well-calibrated, with minor divergences at the WM boundary.*
 
 ### 3.5 Layer boundary validation
 
