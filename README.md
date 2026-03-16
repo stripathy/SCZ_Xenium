@@ -241,8 +241,6 @@ open output/viewer/xenium_viewer_standalone.html
 
 **Note:** Steps 04-05 use multiprocessing (4 workers by default, configurable in `pipeline_config.py`). The full pipeline processes ~1.34M cells across 24 samples. Step 04 (depth model training) is the most time-intensive (~80 min). Total pipeline runtime is approximately 2-3 hours.
 
-The Br2039 sample (65% white matter, SCZ) is processed through the full pipeline but excluded from disease comparisons in analysis scripts via `EXCLUDE_SAMPLES` due to its atypical tissue composition.
-
 ## Web Viewer & Deployment
 
 The interactive spatial viewer can be run locally or deployed to Netlify.

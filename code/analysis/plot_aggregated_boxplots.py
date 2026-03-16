@@ -128,9 +128,14 @@ def main():
     sst_label = " + ".join(sst_agg_types)
 
     # ── L6b data from density CSV (all L6b supertypes at subclass level) ──
+    # Exclude samples with very low L6 representation (<3% L6 cells),
+    # which lack sufficient deep cortex tissue coverage for meaningful
+    # L6b comparisons: Br2039 (2.0%), Br5973 (2.4%), Br2719 (3.4%), Br5314 (2.3%)
+    L6B_EXCLUDE = {"Br2039", "Br5973", "Br2719", "Br5314"}
+
     raw = pd.read_csv(DENSITY_RAW)
     raw = raw[raw["region"] == "cortical"]
-    raw = raw[~raw["sample_id"].isin(EXCLUDE_SAMPLES)]
+    raw = raw[~raw["sample_id"].isin(EXCLUDE_SAMPLES | L6B_EXCLUDE)]
 
     # Rename to match expected columns
     raw = raw.rename(columns={"supertype": "celltype"})
@@ -140,10 +145,11 @@ def main():
 
     l6b_types_found = sorted(raw[raw["celltype"].str.startswith("L6b_")]["celltype"].unique())
     print(f"L6b supertypes found: {l6b_types_found}")
+    print(f"L6b samples excluded (low L6 coverage): {sorted(L6B_EXCLUDE)}")
 
     l6b_prop = aggregate_by_prefix(raw, "L6b", "proportion_pct")
     l6b_dens = aggregate_by_prefix(raw, "L6b", "density_per_mm2")
-    l6b_label = "All L6b cells (subclass)"
+    l6b_label = "All L6b cells (subclass, excl. 4 low-L6 samples)"
 
     # --- Figure ---
     fig, axes = plt.subplots(2, 2, figsize=(12, 11), facecolor=BG)

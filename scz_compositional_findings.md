@@ -56,7 +56,7 @@ The Sst subclass is particularly vulnerable because the 300-gene panel contains 
 *Figure 4: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
 
 ![Aggregated supertype effects](output/presentation/slide_aggregated_boxplots.png)
-*Figure 5: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and all L6b cells at subclass level (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.10, density p = 0.08.*
+*Figure 5: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top, n=12/group) and all L6b cells at subclass level (bottom, n=10/group). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.009, density p = 0.005. For L6b, 4 samples with insufficient deep cortex coverage (<3% L6 cells: Br2039, Br5973, Br2719, Br5314) were excluded.*
 
 ![Sst spatial distribution](output/presentation/slide_sst_spatial_layershading.png)
 *Figure 6: Spatial distribution of vulnerable Sst subtypes in median-representative Control (top) and SCZ (bottom) sections. Samples chosen as closest to group median Sst proportion (Control: Br1113, Br2719; SCZ: Br5373, Br6032). Layer boundaries shown as colored bands.*
@@ -120,7 +120,8 @@ These show consistent trends but do not reach FDR significance in all analyses:
 
 **L6b subclass increase:**
 - All L6b supertypes (L6b_1–L6b_6) aggregated at subclass level show increased proportion and density in SCZ
-- Aggregated L6b effect: p = 0.10 (proportion), p = 0.08 (density) — see Figure 5
+- Aggregated L6b effect (excluding 4 samples with <3% L6 cells): p = 0.009 (proportion), p = 0.005 (density) — see Figure 5
+- Effect is attenuated (p ~ 0.07) when including samples with insufficient deep cortex coverage, which contribute near-zero L6b counts
 - Concordant with snRNA-seq meta-analysis direction
 - But L6b classification has known issues (7.2% still misplaced in upper layers)
 
