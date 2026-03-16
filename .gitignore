@@ -84,6 +84,7 @@ output/*.png
 !output/merfish_benchmark/subclass_confusion_matrix.png
 !output/xenium_vs_merfish_scatter.png
 !output/xenium_corr_control_vs_merfish_validation.png
+!output/depth_proportions/*.png
 output/**/*.pptx
 output/**/*.pdf
 

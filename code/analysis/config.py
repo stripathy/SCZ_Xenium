@@ -114,14 +114,17 @@ L6B_COLORS = {
 }
 
 # ──────────────────────────────────────────────────────────────────────
-# Representative samples (median for both SST and L6b, good cortical coverage)
+# Representative samples — closest to group medians for vulnerable Sst
+# proportion, with good cortical coverage (>27K cells).
+# Control median=1.59%: Br1113=1.66% (d=0.06), Br2719=1.53% (d=0.06)
+# SCZ median=1.33%: Br5373=1.32% (d=0.008), Br6032=1.34% (d=0.008)
 # ──────────────────────────────────────────────────────────────────────
 
 REPRESENTATIVE_SAMPLES = [
-    ("Br6389", "Control"),
-    ("Br8433", "Control"),
-    ("Br6437", "SCZ"),
-    ("Br2421", "SCZ"),
+    ("Br1113", "Control"),
+    ("Br2719", "Control"),
+    ("Br5373", "SCZ"),
+    ("Br6032", "SCZ"),
 ]
 
 # ──────────────────────────────────────────────────────────────────────

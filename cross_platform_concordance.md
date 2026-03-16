@@ -53,7 +53,7 @@ Across 106 shared supertypes, Xenium spatial logFC and snRNA-seq meta-analysis b
 ![snRNAseq vs Xenium composition](output/presentation/slide_snrnaseq_vs_xenium.png)
 *Figure 3: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.47 across 106 supertypes. Labeled points highlight the largest concordant and discordant effects.*
 
-When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.55** (p = 3.3 × 10⁻⁹), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
+When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.55** (p = 8.0 × 10⁻¹⁰), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
 
 ![snRNAseq vs Xenium density](output/density_analysis/snrnaseq_vs_density_supertype.png)
 *Figure 4: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.55, n = 106 supertypes. Density-based effects show stronger agreement than compositional effects.*
@@ -81,6 +81,20 @@ Some supertypes show **discordant** SCZ effects between platforms — where one 
 
 The Sst subclass is particularly vulnerable because the 300-gene panel contains **0–1 discriminating markers** for most Sst supertypes (see [Panel Design Report](output/marker_analysis/XENIUM_PANEL_DESIGN_AND_SUPERTYPE_CLASSIFICATION.md)). The aggregate Sst depletion signal is real (both platforms agree on overall Sst reduction), but the allocation of that signal across specific supertypes is unreliable.
 
+### 2.4 Supertype-level SCZ effects in Xenium
+
+![Xenium SCZ effects — proportion boxplots](output/presentation/slide_xenium_proportion_boxplots.png)
+*Figure 5: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
+
+![Xenium SCZ effects — density boxplots](output/presentation/slide_xenium_density_boxplots.png)
+*Figure 6: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
+
+![Aggregated supertype effects](output/presentation/slide_aggregated_boxplots.png)
+*Figure 7: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and all L6b cells at subclass level (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.10, density p = 0.08.*
+
+![Sst spatial distribution](output/presentation/slide_sst_spatial_layershading.png)
+*Figure 8: Spatial distribution of vulnerable Sst subtypes in median-representative Control (top) and SCZ (bottom) sections. Samples chosen as closest to group median Sst proportion (Control: Br1113, Br2719; SCZ: Br5373, Br6032). Layer boundaries shown as colored bands.*
+
 ---
 
 ## 3. What Can Be Safely Concluded
@@ -96,6 +110,17 @@ These findings survive multiple independent validations and should be considered
 - Consistent across compositional (crumblr) and density-based analyses
 - Not driven by a single sample or tissue geometry confound
 
+![Oligodendrocyte L2/3 detail](output/depth_proportions/oligo_L23_detail.png)
+*Figure 9: Deep dive on the Oligodendrocyte L2/3 finding. (A) Depth profile by diagnosis. (B–C) L2/3-specific proportion and density. (D) Proportion across all layers. (E) Per-sample ranked comparison. (F) Oligodendrocyte count vs L2/3 size (confound check).*
+
+The depth-stratified analysis reveals that oligodendrocyte depletion is not uniform across cortex — the non-neuronal depth profiles show clear SCZ–Control separation for oligodendrocytes, with the effect concentrated in superficial layers where oligodendrocytes are normally sparse:
+
+![Non-neuronal depth profiles — proportion](output/depth_proportions/depth_profiles_nonneuronal.png)
+*Figure 10: Non-neuronal subclass depth profiles (% of non-neuronal class). SCZ (red) vs Control (blue). Oligodendrocyte and OPC show clear separation between SCZ and Control curves. Stars indicate per-bin significance.*
+
+![Non-neuronal depth profiles — density](output/depth_proportions/depth_density_nonneuronal.png)
+*Figure 11: Non-neuronal subclass density profiles (cells/mm²). Endothelial cells show increased density across nearly all depth bins in SCZ.*
+
 **Neuronal laminar architecture is preserved:**
 - No neuronal subclass shows a significant depth × diagnosis interaction
 - 22/23 subclasses have significant depth main effects (FDR < 0.05)
@@ -105,6 +130,11 @@ These findings survive multiple independent validations and should be considered
 - Subclass depth concordance with MERFISH: r = 0.96
 - Supertype depth concordance: r = 0.95
 - All MERFISH-derived layer boundaries validated within ±0.03
+
+The layer-specific density heatmap shows the full pattern of SCZ effects across all subclasses and layers:
+
+![Layer heatmap — density](output/depth_proportions/layer_heatmap_density_per_mm2_vertical.png)
+*Figure 12: Layer-specific density changes (log₂FC, SCZ vs Control). Layers on y-axis, pia at top. Oligodendrocyte depletion strongest in L2/3. Endothelial increases across multiple layers. See [Depth-Stratified Analysis Report](output/depth_proportions/DEPTH_STRATIFIED_ANALYSIS_REPORT.md) for full per-layer model results.*
 
 ### 3.2 Moderate-confidence findings (subclass/supertype level)
 
@@ -117,22 +147,13 @@ These show consistent trends but do not reach FDR significance in all analyses:
 
 **Endothelial density increase:**
 - Widespread density increases across L2/3–L5 (multiple nominal p < 0.01)
-- Consistent direction across layers, but no individual test survives FDR
+- Consistent direction across layers (visible in Figure 11 and 12), but no individual test survives FDR
 
 **L6b subclass increase:**
 - All L6b supertypes (L6b_1–L6b_6) aggregated at subclass level show increased proportion and density in SCZ
-- Aggregated L6b effect: p = 0.10 (proportion), p = 0.08 (density)
+- Aggregated L6b effect: p = 0.10 (proportion), p = 0.08 (density) — see Figure 7
 - Concordant with snRNA-seq meta-analysis direction
 - But L6b classification has known issues (7.2% still misplaced in upper layers)
-
-![Aggregated supertype effects](output/presentation/slide_aggregated_boxplots.png)
-*Figure 5: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and all L6b cells at subclass level (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.10, density p = 0.08.*
-
-![Sst spatial distribution](output/presentation/slide_sst_spatial_layershading.png)
-*Figure 6: Spatial distribution of vulnerable Sst subtypes in representative Control (top) and SCZ (bottom) sections. Each dot is one cell, colored by supertype. Layer boundaries shown as colored bands. Cell counts and proportions per sample shown in insets.*
-
-![L6b spatial distribution](output/presentation/slide_l6b_spatial_layershading.png)
-*Figure 7: Spatial distribution of L6b subtypes in the same representative sections. L6b cells concentrate near the L6/WM boundary as expected. SCZ samples show increased L6b counts.*
 
 ### 3.3 Findings that require caution (supertype level)
 
@@ -151,12 +172,6 @@ These should be interpreted carefully due to classification limitations:
 **Non-neuronal supertype distinctions:**
 - Astro_3, Oligo_1 vs Oligo_2, Micro-PVM_2 — these show interesting effects but the supertype boundaries are defined by markers largely absent from the Xenium panel
 - Subclass-level conclusions (Oligodendrocyte depleted, Astrocyte trending) are safer than supertype-level ones
-
-![Xenium SCZ effects — proportion boxplots](output/presentation/slide_xenium_proportion_boxplots.png)
-*Figure 8: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
-
-![Xenium SCZ effects — density boxplots](output/presentation/slide_xenium_density_boxplots.png)
-*Figure 9: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
 
 ---
 
