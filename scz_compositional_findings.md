@@ -165,8 +165,7 @@ These should be interpreted carefully due to classification limitations:
 | Document | Focus |
 |----------|-------|
 | [Cross-Platform Validation](cross_platform_concordance.md) | Xenium vs MERFISH measurement validation |
-| [Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md) | Pipeline methods, classifier validation, QC calibration |
-| [Depth & Layer Inference Methods](depth_layer_methods_writeup.md) | Depth model, BANKSY domains, layer boundary derivation |
+| [Methods: Cell Typing, Depth Inference, and Validation](methods_writeup.md) | Pipeline methods, classifier validation, depth model, QC calibration |
 | [Depth-Stratified Analysis Report](output/depth_proportions/DEPTH_STRATIFIED_ANALYSIS_REPORT.md) | Per-layer and CLR depth × diagnosis results with figures |
 | [Supertype Classification Confidence](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) | Per-supertype confidence ratings and Sst fragility analysis |
 | [Panel Design & Supertype Classification](output/marker_analysis/XENIUM_PANEL_DESIGN_AND_SUPERTYPE_CLASSIFICATION.md) | Cross-platform marker adequacy, add-on gene recommendations |

@@ -11,8 +11,7 @@ The pipeline uses a two-stage classification approach: initial labels come from 
 **Key documents:**
 - **[Cross-Platform Validation](cross_platform_concordance.md)** — Xenium vs MERFISH measurement validation (subclass r = 0.84, depth r = 0.96)
 - **[SCZ Compositional Findings](scz_compositional_findings.md)** — Disease effects, snRNA-seq concordance, depth-stratified results, confidence tiers
-- **[Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md)** — Detailed methods writeup with figures
-- **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** — Cortical depth model, spatial domains, validation
+- **[Methods: Cell Typing, Depth, and Validation](methods_writeup.md)** — Classifier, depth model, BANKSY domains, MERFISH validation
 - **[Data Download Instructions](data/README.md)** — How to obtain all input datasets
 
 ## Datasets & References
@@ -74,7 +73,7 @@ Raw .h5 + boundaries --> [00] --> initial h5ad
 
 ### Two-stage cell typing: MapMyCells followed by correlation classifier
 
-The initial HANN labels from MapMyCells provide a reasonable starting point, but the bootstrapped hierarchical mapping can misclassify cells — for example, placing L6b cells in upper cortical layers. To address this, step 02b builds Pearson correlation centroids from the top-100 highest-confidence HANN exemplars per cell type, using only Xenium expression data. Because these centroids are constructed from Xenium itself, they capture platform-specific expression characteristics without requiring cross-platform normalization (which we found introduces systematic artifacts — e.g., Harmony misclassified non-neuronal types into GABAergic categories and achieved only 69% agreement with our final classifier). The correlation classifier achieves Pearson r = 0.80 against independent MERFISH proportions, compared to r = 0.73 for Harmony-based approaches. See the [cell typing methods writeup](cell_typing_methods_writeup.md) for full benchmarking.
+The initial HANN labels from MapMyCells provide a reasonable starting point, but the bootstrapped hierarchical mapping can misclassify cells — for example, placing L6b cells in upper cortical layers. To address this, step 02b builds Pearson correlation centroids from the top-100 highest-confidence HANN exemplars per cell type, using only Xenium expression data. Because these centroids are constructed from Xenium itself, they capture platform-specific expression characteristics without requiring cross-platform normalization (which we found introduces systematic artifacts — e.g., Harmony misclassified non-neuronal types into GABAergic categories and achieved only 69% agreement with our final classifier). The correlation classifier achieves Pearson r = 0.80 against independent MERFISH proportions, compared to r = 0.73 for Harmony-based approaches. See the [methods writeup](methods_writeup.md) for full benchmarking.
 
 ### Depth from spatial neighbors, not expression
 
@@ -126,7 +125,7 @@ Final layer proportions: L1 (5.9%), L2/3 (30.7%), L4 (6.3%), L5 (17.3%), L6 (16.
 
 Layer boundaries are derived from pairwise excitatory neuron marker crossovers in SEA-AD MERFISH, validated against Xenium predicted depths (see `code/analysis/derive_layer_boundaries.py`).
 
-See **[Depth & Layer Inference Methods](depth_layer_methods_writeup.md)** for full details, validation figures, and design decisions.
+See the **[methods writeup](methods_writeup.md)** for full details, validation figures, and design decisions.
 
 ## Directory Structure
 

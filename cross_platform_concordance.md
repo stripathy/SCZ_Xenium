@@ -38,7 +38,7 @@ Full depth profile comparisons (proportion vs depth curves for all subclasses) s
 
 ### 1.4 Classifier validation summary
 
-The correlation classifier (step 02b) achieves r = 0.81 against MERFISH proportions (Controls only), compared to r = 0.73 for Harmony-based integration. Critically, Harmony misclassified non-neuronal types into GABAergic categories (e.g., VLMC classified as OPC 82% of the time) and inflated Sst proportions to 12.1% vs the expected 2.5%. See [Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md) for the full comparison.
+The correlation classifier (step 02b) achieves r = 0.81 against MERFISH proportions (Controls only), compared to r = 0.73 for Harmony-based integration. Critically, Harmony misclassified non-neuronal types into GABAergic categories (e.g., VLMC classified as OPC 82% of the time) and inflated Sst proportions to 12.1% vs the expected 2.5%. See [Methods Writeup](methods_writeup.md) for the full comparison.
 
 ---
 
@@ -58,8 +58,7 @@ The correlation classifier (step 02b) achieves r = 0.81 against MERFISH proporti
 | Document | Focus |
 |----------|-------|
 | [SCZ Compositional Findings](scz_compositional_findings.md) | Disease effects, snRNAseq concordance, confidence tiers |
-| [Cell Typing Methods & Benchmarking](cell_typing_methods_writeup.md) | Pipeline methods, classifier validation, QC calibration |
-| [Depth & Layer Inference Methods](depth_layer_methods_writeup.md) | Depth model, BANKSY domains, layer boundary derivation |
+| [Methods: Cell Typing, Depth Inference, and Validation](methods_writeup.md) | Pipeline methods, classifier validation, depth model, QC calibration |
 | [Depth-Stratified Analysis Report](output/depth_proportions/DEPTH_STRATIFIED_ANALYSIS_REPORT.md) | Per-layer and CLR depth × diagnosis results with figures |
 | [Supertype Classification Confidence](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) | Per-supertype confidence ratings and Sst fragility analysis |
 | [Panel Design & Supertype Classification](output/marker_analysis/XENIUM_PANEL_DESIGN_AND_SUPERTYPE_CLASSIFICATION.md) | Cross-platform marker adequacy, add-on gene recommendations |
