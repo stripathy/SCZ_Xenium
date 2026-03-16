@@ -2,6 +2,7 @@
 """
 Presentation-quality scatter: snRNAseq meta-analysis betas vs Xenium density logFC.
 
+Two-panel layout: Neuronal supertypes (left) | Non-neuronal supertypes (right).
 Matches the aesthetic style of slide_snrnaseq_vs_xenium.png (dark background,
 adjustText labels, tiered labeling by significance, correlation stats box).
 
@@ -44,6 +45,104 @@ BG = BG_COLOR
 CLASS_COLORS = {'Glut': '#00ADF8', 'GABA': '#F05A28', 'NN': '#808080', 'Other': '#999999'}
 
 
+def plot_panel(ax, panel_df, snrna_sig, snrna_nom, title, show_ylabel=True):
+    """Plot a single density scatter panel with error bars, labels, and regression line."""
+    ax.set_facecolor(BG)
+
+    # Error bars first (behind dots)
+    for _, row in panel_df.iterrows():
+        c = CLASS_COLORS.get(row["class"], '#999999')
+        # Horizontal: snRNAseq SE
+        if pd.notna(row.get("se")):
+            ax.plot([row["beta_snrnaseq"] - row["se"], row["beta_snrnaseq"] + row["se"]],
+                    [row["logFC_density"], row["logFC_density"]],
+                    color=c, alpha=0.15, linewidth=1.2, zorder=2, solid_capstyle='round')
+        # Vertical: density SE
+        if pd.notna(row.get("se_density")) and pd.notna(row["logFC_density"]):
+            ax.plot([row["beta_snrnaseq"], row["beta_snrnaseq"]],
+                    [row["logFC_density"] - row["se_density"],
+                     row["logFC_density"] + row["se_density"]],
+                    color=c, alpha=0.15, linewidth=1.2, zorder=2, solid_capstyle='round')
+
+    # Scatter dots
+    for cls in ['Glut', 'GABA', 'NN', 'Other']:
+        mask = panel_df['class'] == cls
+        if mask.sum() == 0:
+            continue
+        sub = panel_df[mask]
+        ax.scatter(sub["beta_snrnaseq"], sub["logFC_density"],
+                   c=CLASS_COLORS[cls], s=70, alpha=0.8,
+                   edgecolors="white", linewidth=0.5, zorder=5,
+                   label=f"{cls} (n={mask.sum()})")
+
+    # Regression line
+    valid = panel_df["beta_snrnaseq"].notna() & panel_df["logFC_density"].notna()
+    m = panel_df[valid]
+    if len(m) > 2:
+        z = np.polyfit(m["beta_snrnaseq"], m["logFC_density"], 1)
+        lim_x = max(abs(m["beta_snrnaseq"]).max(), 0.3) * 1.3
+        x_line = np.linspace(-lim_x, lim_x, 100)
+        ax.plot(x_line, np.polyval(z, x_line), color="#888888", alpha=0.5,
+                linewidth=1.5, linestyle="-", zorder=1)
+
+    # Reference lines
+    ax.axhline(0, color="#555555", alpha=0.4, linewidth=0.8, zorder=1)
+    ax.axvline(0, color="#555555", alpha=0.4, linewidth=0.8, zorder=1)
+
+    # Labels: two tiers
+    texts = []
+    for _, row in panel_df.iterrows():
+        ct = row["celltype"]
+        if ct in snrna_sig:
+            txt = ax.text(row["beta_snrnaseq"], row["logFC_density"],
+                          f"  {ct}",
+                          fontsize=11, fontweight="bold",
+                          color="white", alpha=0.95, zorder=10)
+            texts.append(txt)
+        elif ct in snrna_nom:
+            txt = ax.text(row["beta_snrnaseq"], row["logFC_density"],
+                          f"  {ct}",
+                          fontsize=9, fontweight="normal",
+                          color="#bbbbbb", alpha=0.85, zorder=10)
+            texts.append(txt)
+
+    if texts:
+        adjust_text(texts, ax=ax,
+                    arrowprops=dict(arrowstyle="-", color="#aaaaaa",
+                                   alpha=0.5, linewidth=0.7),
+                    force_text=(0.9, 0.9),
+                    force_points=(0.6, 0.6),
+                    expand_text=(1.3, 1.3),
+                    expand_points=(1.5, 1.5))
+
+    # Correlation annotation
+    if len(m) > 2:
+        r_val, p_val = pearsonr(m["beta_snrnaseq"], m["logFC_density"])
+        ax.text(0.97, 0.04,
+                f"r = {r_val:.2f} (p = {p_val:.1e})\nn = {len(m)} supertypes",
+                transform=ax.transAxes, ha="right", va="bottom",
+                fontsize=13, color="#dddddd",
+                bbox=dict(boxstyle="round,pad=0.4", facecolor="#222222",
+                          edgecolor="#555555", alpha=0.9))
+
+    ax.set_xlabel("snRNAseq meta-analysis beta", fontsize=16, color="white")
+    if show_ylabel:
+        ax.set_ylabel("Xenium density logFC (SCZ vs Control)\n(cells/mm²)",
+                      fontsize=16, color="white")
+    ax.set_title(title, fontsize=18, fontweight="bold", color="white", pad=10)
+
+    ax.tick_params(colors="white", labelsize=12)
+    for spine in ax.spines.values():
+        spine.set_color("#555555")
+    ax.grid(True, alpha=0.15, color="#555555")
+
+    # Note about labeled types
+    ax.text(0.03, 0.04,
+            "Bold = FDR < 0.1  |  Light = nom. p < 0.05 or |logFC| > 0.8",
+            transform=ax.transAxes, ha="left", va="bottom",
+            fontsize=10, color="#aaaaaa", fontstyle="italic")
+
+
 def main():
     # Load density results
     density = pd.read_csv(DENSITY_PATH)
@@ -83,13 +182,20 @@ def main():
     merged["class"] = merged["celltype"].apply(infer_class)
     print(f"Merged: {len(merged)} shared supertypes")
 
+    # Split into neuronal and non-neuronal
+    neuronal = merged[merged["class"].isin(["Glut", "GABA"])].copy()
+    nonneuronal = merged[merged["class"] == "NN"].copy()
+    print(f"Neuronal: {len(neuronal)}, Non-neuronal: {len(nonneuronal)}")
+
     # Correlations
     valid = merged["logFC_density"].notna() & merged["beta_snrnaseq"].notna()
     m = merged[valid]
     r_all, p_all = pearsonr(m["beta_snrnaseq"], m["logFC_density"])
-    neur = m[m["class"].isin(["Glut", "GABA"])]
-    r_neur, p_neur = pearsonr(neur["beta_snrnaseq"], neur["logFC_density"]) if len(neur) > 3 else (np.nan, np.nan)
-    print(f"All: r={r_all:.3f} (p={p_all:.1e}), Neuronal: r={r_neur:.3f} (p={p_neur:.1e})")
+    r_neur, p_neur = pearsonr(neuronal["beta_snrnaseq"], neuronal["logFC_density"]) if len(neuronal) > 3 else (np.nan, np.nan)
+    r_nn, p_nn = pearsonr(nonneuronal["beta_snrnaseq"], nonneuronal["logFC_density"]) if len(nonneuronal) > 2 else (np.nan, np.nan)
+    print(f"All: r={r_all:.3f} (p={p_all:.1e})")
+    print(f"Neuronal: r={r_neur:.3f} (p={p_neur:.1e})")
+    print(f"Non-neuronal: r={r_nn:.3f} (p={p_nn:.1e})")
 
     # Identify snRNAseq FDR < 0.1 cell types (bold labels)
     snrna_sig = set(merged[merged["padj_snrnaseq"] < 0.1]["celltype"].values)
@@ -103,116 +209,36 @@ def main():
     snrna_nom = snrna_nom | large_density
     print(f"snRNAseq nom p < 0.05 or large density: {len(snrna_nom)} types")
 
-    # ── Plot ──
-    fig, ax = plt.subplots(figsize=(11, 9), facecolor=BG)
-    ax.set_facecolor(BG)
+    # --- Two-panel figure ---
+    fig, (ax_n, ax_nn) = plt.subplots(1, 2, figsize=(20, 9), facecolor=BG)
 
-    # Error bars first (behind dots)
-    for _, row in merged.iterrows():
-        c = CLASS_COLORS[row["class"]]
-        # Horizontal: snRNAseq SE
-        ax.plot([row["beta_snrnaseq"] - row["se"], row["beta_snrnaseq"] + row["se"]],
-                [row["logFC_density"], row["logFC_density"]],
-                color=c, alpha=0.15, linewidth=1.2, zorder=2, solid_capstyle='round')
-        # Vertical: density SE
-        if pd.notna(row.get("se_density")) and pd.notna(row["logFC_density"]):
-            ax.plot([row["beta_snrnaseq"], row["beta_snrnaseq"]],
-                    [row["logFC_density"] - row["se_density"],
-                     row["logFC_density"] + row["se_density"]],
-                    color=c, alpha=0.15, linewidth=1.2, zorder=2, solid_capstyle='round')
+    plot_panel(ax_n, neuronal, snrna_sig, snrna_nom,
+              title=f'Neuronal supertypes (n={len(neuronal)})',
+              show_ylabel=True)
 
-    # Scatter dots
-    for cls in ["Glut", "GABA", "NN", "Other"]:
-        mask = merged["class"] == cls
-        if mask.sum() == 0:
-            continue
-        sub = merged[mask]
-        ax.scatter(sub["beta_snrnaseq"], sub["logFC_density"],
-                   c=CLASS_COLORS[cls], s=70, alpha=0.8,
-                   edgecolors="white", linewidth=0.5, zorder=5,
-                   label=f"{cls} (n={mask.sum()})")
+    # For non-neuronal, label all points (there are few)
+    nn_all_labels = set(nonneuronal['celltype'].values)
+    plot_panel(ax_nn, nonneuronal, snrna_sig, nn_all_labels,
+              title=f'Non-neuronal supertypes (n={len(nonneuronal)})',
+              show_ylabel=False)
 
-    # Regression line
-    z = np.polyfit(m["beta_snrnaseq"], m["logFC_density"], 1)
-    lim_x = max(abs(m["beta_snrnaseq"]).max(), 0.3) * 1.3
-    x_line = np.linspace(-lim_x, lim_x, 100)
-    ax.plot(x_line, np.polyval(z, x_line), color="#888888", alpha=0.5,
-            linewidth=1.5, linestyle="-", zorder=1)
-
-    # Reference lines
-    ax.axhline(0, color="#555555", alpha=0.4, linewidth=0.8, zorder=1)
-    ax.axvline(0, color="#555555", alpha=0.4, linewidth=0.8, zorder=1)
-
-    # --- Labels: two tiers ---
-    texts = []
-    for _, row in merged.iterrows():
-        ct = row["celltype"]
-        if ct in snrna_sig:
-            txt = ax.text(row["beta_snrnaseq"], row["logFC_density"],
-                          f"  {ct}",
-                          fontsize=13, fontweight="bold",
-                          color="white", alpha=0.95, zorder=10)
-            texts.append(txt)
-        elif ct in snrna_nom:
-            txt = ax.text(row["beta_snrnaseq"], row["logFC_density"],
-                          f"  {ct}",
-                          fontsize=11, fontweight="normal",
-                          color="#bbbbbb", alpha=0.85, zorder=10)
-            texts.append(txt)
-
-    # Use adjustText to prevent overlapping labels
-    if texts:
-        adjust_text(texts, ax=ax,
-                    arrowprops=dict(arrowstyle="-", color="#aaaaaa",
-                                   alpha=0.5, linewidth=0.7),
-                    force_text=(0.9, 0.9),
-                    force_points=(0.6, 0.6),
-                    expand_text=(1.4, 1.4),
-                    expand_points=(1.6, 1.6))
-
-    # Correlation annotation (bottom-right)
-    ax.text(0.97, 0.04,
-            f"All: r = {r_all:.2f} (p = {p_all:.1e})\n"
-            f"Neuronal: r = {r_neur:.2f} (p = {p_neur:.1e})\n"
-            f"n = {len(m)} shared supertypes",
-            transform=ax.transAxes, ha="right", va="bottom",
-            fontsize=14, color="#dddddd",
-            bbox=dict(boxstyle="round,pad=0.5", facecolor="#222222",
-                      edgecolor="#555555", alpha=0.9))
-
-    # Axis labels and title
-    ax.set_xlabel("snRNAseq meta-analysis beta (SCZ effect)", fontsize=18, color="white")
-    ax.set_ylabel("Xenium density logFC (SCZ vs Control)\n(cells/mm², cortical)",
-                  fontsize=18, color="white")
-    ax.set_title("SCZ density effects: snRNAseq vs Xenium spatial",
-                 fontsize=22, fontweight="bold", color="white", pad=12)
-
-    ax.tick_params(colors="white", labelsize=14)
-    for spine in ax.spines.values():
-        spine.set_color("#555555")
-    ax.grid(True, alpha=0.15, color="#555555")
-
-    # Legend — upper-left
+    # Legend on left panel
     legend_elements = [
         Line2D([0], [0], marker="o", color=BG, markerfacecolor=CLASS_COLORS["Glut"],
-               markersize=10, label=f"Glutamatergic (n={(merged['class']=='Glut').sum()})", linewidth=0),
+               markersize=10, label=f"Glutamatergic (n={(neuronal['class']=='Glut').sum()})", linewidth=0),
         Line2D([0], [0], marker="o", color=BG, markerfacecolor=CLASS_COLORS["GABA"],
-               markersize=10, label=f"GABAergic (n={(merged['class']=='GABA').sum()})", linewidth=0),
-        Line2D([0], [0], marker="o", color=BG, markerfacecolor=CLASS_COLORS["NN"],
-               markersize=10, label=f"Non-neuronal (n={(merged['class']=='NN').sum()})", linewidth=0),
+               markersize=10, label=f"GABAergic (n={(neuronal['class']=='GABA').sum()})", linewidth=0),
     ]
-    leg = ax.legend(handles=legend_elements, loc="upper left", fontsize=13,
-                    frameon=True, fancybox=True, framealpha=0.85,
-                    edgecolor="#555555", labelcolor="white")
+    leg = ax_n.legend(handles=legend_elements, loc="upper left", fontsize=12,
+                      frameon=True, fancybox=True, framealpha=0.85,
+                      edgecolor="#555555", labelcolor="white")
     leg.get_frame().set_facecolor("#222222")
 
-    # Note about labeled types
-    ax.text(0.03, 0.04,
-            "Bold = snRNAseq FDR < 0.1  |  Light = nom. p < 0.05 or |density logFC| > 0.8",
-            transform=ax.transAxes, ha="left", va="bottom",
-            fontsize=12, color="#aaaaaa", fontstyle="italic")
+    # Suptitle
+    fig.suptitle("SCZ density effects: snRNAseq meta-analysis vs Xenium spatial",
+                 fontsize=22, fontweight="bold", color="white", y=1.02)
 
-    plt.tight_layout(pad=1.5)
+    plt.tight_layout(pad=2.0)
     out_png = os.path.join(OUTPUT_DIR, "snrnaseq_vs_density_supertype.png")
     plt.savefig(out_png, dpi=200, facecolor=BG, bbox_inches="tight")
     plt.close()

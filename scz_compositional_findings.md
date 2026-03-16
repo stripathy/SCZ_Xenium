@@ -15,12 +15,12 @@ The critical question is not just whether Xenium measures cell types accurately,
 Across 120 shared supertypes, Xenium spatial logFC and snRNA-seq meta-analysis beta values correlate at **r = 0.51** (p = 2.5 × 10⁻⁹) overall, **r = 0.50** (p = 4.2 × 10⁻⁸) for neuronal supertypes (n = 106), and **r = 0.61** (p = 0.02) for non-neuronal supertypes (n = 14):
 
 ![snRNAseq vs Xenium composition](output/presentation/slide_snrnaseq_vs_xenium.png)
-*Figure 1: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). r = 0.51 across 120 supertypes. Both platforms use stratified crumblr (neuronal and non-neuronal analyzed separately). Labeled points highlight the largest concordant and discordant effects.*
+*Figure 1: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial compositional logFC (y). Left: neuronal supertypes (r = 0.50, n = 106). Right: non-neuronal supertypes (r = 0.61, n = 14). Both platforms use stratified crumblr (neuronal and non-neuronal analyzed separately). Bold labels = snRNAseq FDR < 0.1.*
 
-When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.57** (p = 1.9 × 10⁻¹¹), suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
+When using cell density (cells/mm²) rather than compositional proportions, the concordance improves to **r = 0.57** (p = 1.9 × 10⁻¹¹) overall, **r = 0.55** (p = 1.1 × 10⁻⁹) for neuronal supertypes, and **r = 0.66** (p = 9.8 × 10⁻³) for non-neuronal supertypes, suggesting that absolute density captures SCZ effects more faithfully than compositional analysis (which is subject to the zero-sum constraint):
 
 ![snRNAseq vs Xenium density](output/density_analysis/snrnaseq_vs_density_supertype.png)
-*Figure 2: SCZ effect sizes — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). r = 0.57, n = 120 supertypes. Density-based effects show stronger agreement than compositional effects.*
+*Figure 2: SCZ density effects — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). Left: neuronal supertypes (r = 0.55, n = 106). Right: non-neuronal supertypes (r = 0.66, n = 14). Density-based effects show stronger agreement than compositional effects.*
 
 ### 1.2 Concordant findings across platforms
 
@@ -150,7 +150,7 @@ These should be interpreted carefully due to classification limitations:
 
 | Level | What | Concordance | Confidence |
 |-------|------|-------------|------------|
-| **SCZ effects (density)** | Xenium vs snRNAseq | r = 0.57 | Moderate — independent platforms, different cohorts, different tissue regions |
+| **SCZ effects (density)** | Xenium vs snRNAseq | r = 0.57 (neuronal r = 0.55, non-neuronal r = 0.66) | Moderate — independent platforms, different cohorts, different tissue regions |
 | **SCZ effects (composition, stratified)** | Xenium vs snRNAseq | r = 0.51 (neuronal r = 0.50, non-neuronal r = 0.61) | Moderate — stratified analysis improves concordance |
 | **Supertype SCZ effects** | Xenium vs snRNAseq | variable | Type-dependent — check [confidence ratings](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) |
 | **Subclass proportions** | Xenium vs MERFISH | r = 0.84 | High — see [Cross-Platform Validation](cross_platform_concordance.md) |
