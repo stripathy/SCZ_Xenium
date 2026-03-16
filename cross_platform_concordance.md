@@ -135,13 +135,20 @@ These show consistent trends but do not reach FDR significance in all analyses:
 - Widespread density increases across L2/3–L5 (multiple nominal p < 0.01)
 - Consistent direction across layers, but no individual test survives FDR
 
-**L6b supertype increases:**
-- L6b_1, L6b_2, L6b_4 all show increases concordant with snRNA-seq
-- Aggregated L6b effect reaches p = 6.0 × 10⁻⁴ (proportion) and p = 3.3 × 10⁻⁴ (density)
+**L6b subclass increase:**
+- All L6b supertypes (L6b_1–L6b_6) aggregated at subclass level show increased proportion and density in SCZ
+- Aggregated L6b effect: p = 0.10 (proportion), p = 0.08 (density)
+- Concordant with snRNA-seq meta-analysis direction
 - But L6b classification has known issues (7.2% still misplaced in upper layers)
 
 ![Aggregated supertype effects](output/presentation/slide_aggregated_boxplots.png)
-*Figure 9: Aggregated supertype effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and L6b subtypes (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 6 × 10⁻⁴, density p = 3.3 × 10⁻⁴.*
+*Figure 9: Aggregated effects for vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3, top) and all L6b cells at subclass level (bottom). Sst depletion: proportion p = 0.02, density p = 0.17. L6b increase: proportion p = 0.10, density p = 0.08.*
+
+![Sst spatial distribution](output/presentation/slide_sst_spatial_layershading.png)
+*Figure 10: Spatial distribution of vulnerable Sst subtypes in representative Control (top) and SCZ (bottom) sections. Each dot is one cell, colored by supertype. Layer boundaries shown as colored bands. Cell counts and proportions per sample shown in insets.*
+
+![L6b spatial distribution](output/presentation/slide_l6b_spatial_layershading.png)
+*Figure 11: Spatial distribution of L6b subtypes in the same representative sections. L6b cells concentrate near the L6/WM boundary as expected. SCZ samples show increased L6b counts.*
 
 ### 3.3 Findings that require caution (supertype level)
 
@@ -162,10 +169,10 @@ These should be interpreted carefully due to classification limitations:
 - Subclass-level conclusions (Oligodendrocyte depleted, Astrocyte trending) are safer than supertype-level ones
 
 ![Xenium SCZ effects — proportion boxplots](output/presentation/slide_xenium_proportion_boxplots.png)
-*Figure 10: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
+*Figure 12: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
 
 ![Xenium SCZ effects — density boxplots](output/presentation/slide_xenium_density_boxplots.png)
-*Figure 11: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
+*Figure 13: Same supertypes, density (cells/mm²). Density effects tend to be larger and more consistent than compositional effects.*
 
 ---
 

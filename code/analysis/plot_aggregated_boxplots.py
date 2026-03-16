@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """
 Aggregated boxplots: summed proportions and densities for vulnerable
-Sst subtypes and L6b subtypes, SCZ vs Control.
+Sst subtypes and all L6b cells (subclass), SCZ vs Control.
 
 Layout (2x2):
-  Row 1: Sst (Sst_25 + Sst_22 + Sst_2)
-  Row 2: L6b (L6b_1 + L6b_2 + L6b_4)
+  Row 1: Vulnerable Sst subtypes (Sst_2 + Sst_22 + Sst_25 + Sst_20 + Sst_3)
+  Row 2: All L6b cells (subclass level)
   Col 1: Proportion (% of cortical cells)
   Col 2: Density (cells / mm²)
 
 T-test p-values reported on each panel.
 
-Input: output/presentation/xenium_composition_by_sample.csv
+Input:
+  output/presentation/xenium_composition_by_sample.csv  (Sst supertypes)
+  output/density_analysis/density_per_sample_supertype.csv  (all L6b supertypes)
+
 Output: output/presentation/slide_aggregated_boxplots.png
 """
 
@@ -24,12 +27,14 @@ from scipy.stats import ttest_ind
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (
-    PRESENTATION_DIR, DX_COLORS, BG_COLOR, SST_TYPES, L6B_TYPES,
+    BASE_DIR, PRESENTATION_DIR, DX_COLORS, BG_COLOR, SST_TYPES,
     EXCLUDE_SAMPLES, format_pval,
 )
 
 OUT_DIR = PRESENTATION_DIR
 DATA_CSV = os.path.join(OUT_DIR, "xenium_composition_by_sample.csv")
+DENSITY_RAW = os.path.join(BASE_DIR, "output", "density_analysis",
+                            "density_per_sample_supertype.csv")
 
 BG = BG_COLOR
 
@@ -37,6 +42,13 @@ BG = BG_COLOR
 def aggregate_group(data, cell_types, metric):
     """Sum metric across cell types for each sample, return per-sample Series."""
     sub = data[data["celltype"].isin(cell_types)]
+    agg = sub.groupby(["sample_id", "diagnosis"])[metric].sum().reset_index()
+    return agg
+
+
+def aggregate_by_prefix(data, prefix, metric):
+    """Sum metric across all supertypes matching prefix for each sample."""
+    sub = data[data["celltype"].str.startswith(prefix + "_")]
     agg = sub.groupby(["sample_id", "diagnosis"])[metric].sum().reset_index()
     return agg
 
@@ -105,19 +117,33 @@ def make_panel(ax, agg, metric_col, ylabel, title, subtitle):
 
 
 def main():
+    # ── Sst data from composition CSV ──
     data = pd.read_csv(DATA_CSV)
     data = data[~data["sample_id"].isin(EXCLUDE_SAMPLES)]
-    print(f"Loaded {len(data)} rows from {DATA_CSV} (after excluding {EXCLUDE_SAMPLES})")
+    print(f"Loaded {len(data)} rows from composition CSV")
 
-    # Aggregate — vulnerable Sst subtypes (includes Sst_3/Sst_20 confusion pair)
     sst_agg_types = SST_TYPES  # ["Sst_2", "Sst_22", "Sst_25", "Sst_20", "Sst_3"]
     sst_prop = aggregate_group(data, sst_agg_types, "proportion_pct")
     sst_dens = aggregate_group(data, sst_agg_types, "density_per_mm2")
-    l6b_prop = aggregate_group(data, L6B_TYPES, "proportion_pct")
-    l6b_dens = aggregate_group(data, L6B_TYPES, "density_per_mm2")
-
     sst_label = " + ".join(sst_agg_types)
-    l6b_label = " + ".join(L6B_TYPES)
+
+    # ── L6b data from density CSV (all L6b supertypes at subclass level) ──
+    raw = pd.read_csv(DENSITY_RAW)
+    raw = raw[raw["region"] == "cortical"]
+    raw = raw[~raw["sample_id"].isin(EXCLUDE_SAMPLES)]
+
+    # Rename to match expected columns
+    raw = raw.rename(columns={"supertype": "celltype"})
+
+    # Compute proportion_pct from count / total
+    raw["proportion_pct"] = (raw["count"] / raw["total_cells"]) * 100
+
+    l6b_types_found = sorted(raw[raw["celltype"].str.startswith("L6b_")]["celltype"].unique())
+    print(f"L6b supertypes found: {l6b_types_found}")
+
+    l6b_prop = aggregate_by_prefix(raw, "L6b", "proportion_pct")
+    l6b_dens = aggregate_by_prefix(raw, "L6b", "density_per_mm2")
+    l6b_label = "All L6b cells (subclass)"
 
     # --- Figure ---
     fig, axes = plt.subplots(2, 2, figsize=(12, 11), facecolor=BG)
@@ -128,7 +154,7 @@ def main():
     p2 = make_panel(axes[0, 1], sst_dens, "density_per_mm2",
                      "cells / mm²", "", sst_label)
 
-    # Row 2: L6b
+    # Row 2: L6b (all subtypes)
     p3 = make_panel(axes[1, 0], l6b_prop, "proportion_pct",
                      "% of cortical cells", "", l6b_label)
     p4 = make_panel(axes[1, 1], l6b_dens, "density_per_mm2",
@@ -145,7 +171,7 @@ def main():
     fig.text(0.02, 0.73, "Vulnerable\nSst subtypes",
              ha="center", va="center", fontsize=18, fontweight="bold",
              color="white", rotation=90, transform=fig.transFigure)
-    fig.text(0.02, 0.28, "L6b\nsubtypes",
+    fig.text(0.02, 0.28, "L6b\n(subclass)",
              ha="center", va="center", fontsize=18, fontweight="bold",
              color="white", rotation=90, transform=fig.transFigure)
 
