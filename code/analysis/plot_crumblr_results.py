@@ -246,15 +246,35 @@ def load_nicole_stratified(neuronal_path, nonneuronal_path):
 
 
 def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_path, out_dir):
-    """Scatter: snRNAseq meta-analysis betas vs Xenium logFC at cluster level."""
+    """Scatter: snRNAseq meta-analysis betas vs Xenium logFC at cluster level.
+
+    Uses stratified Xenium results (neuronal and non-neuronal analyzed
+    separately) to match Nicole's stratified snRNAseq meta-analysis.
+    Falls back to whole-composition Xenium results if stratified files
+    are not available.
+    """
     nicole = load_nicole_stratified(nicole_neuronal_path, nicole_nonneuronal_path)
     if nicole is None:
         print("  Skipping snRNAseq comparison: no Nicole data found")
         return
 
-    xen = results.rename(columns={'logFC': 'logFC_xenium', 'P.Value': 'pval_xenium',
+    # Try to load stratified Xenium results
+    xen_neuronal_path = os.path.join(out_dir, 'crumblr_results_supertype_neuronal.csv')
+    xen_nonneuronal_path = os.path.join(out_dir, 'crumblr_results_supertype_nonneuronal.csv')
+
+    if os.path.exists(xen_neuronal_path) and os.path.exists(xen_nonneuronal_path):
+        print("  Using stratified Xenium crumblr results (neuronal + non-neuronal)")
+        xen_n = pd.read_csv(xen_neuronal_path)
+        xen_nn = pd.read_csv(xen_nonneuronal_path)
+        xen = pd.concat([xen_n, xen_nn], ignore_index=True)
+        stratified = True
+    else:
+        print("  Using whole-composition Xenium crumblr results (stratified not found)")
+        xen = results
+        stratified = False
+
+    xen = xen.rename(columns={'logFC': 'logFC_xenium', 'P.Value': 'pval_xenium',
                                    'FDR': 'FDR_xenium'})
-    # Use SE if available
     se_col_xen = 'SE' if 'SE' in xen.columns else None
 
     merged = pd.merge(
@@ -273,6 +293,8 @@ def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_p
     r_all, p_all = pearsonr(merged['beta_snrnaseq'], merged['logFC_xenium'])
     neur = merged[merged['class'].isin(['Glut', 'GABA'])]
     r_neur, p_neur = pearsonr(neur['beta_snrnaseq'], neur['logFC_xenium']) if len(neur) > 3 else (np.nan, np.nan)
+    nn = merged[merged['class'] == 'NN']
+    r_nn, p_nn = pearsonr(nn['beta_snrnaseq'], nn['logFC_xenium']) if len(nn) > 3 else (np.nan, np.nan)
 
     fig, ax = plt.subplots(figsize=(9, 8))
 
@@ -318,11 +340,16 @@ def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_p
     x_line = np.linspace(-lim_x, lim_x, 100)
     ax.plot(x_line, np.polyval(z, x_line), 'k-', alpha=0.3, linewidth=1.5)
 
+    ylabel = ('Xenium spatial logFC (SCZ vs Control)\n'
+              '(stratified: neuronal and non-neuronal analyzed separately)'
+              if stratified else
+              'Xenium spatial logFC (SCZ vs Control)\n(whole composition)')
     ax.set_xlabel('snRNAseq meta-analysis beta (SCZ effect)', fontsize=13)
-    ax.set_ylabel('Xenium spatial logFC (SCZ vs Control)\n(cropped cortical, whole composition)', fontsize=13)
-    ax.set_title(f'SCZ Cluster Effects: snRNAseq Meta-Analysis vs Xenium Spatial\n'
-                 f'r = {r_all:.3f} (p = {p_all:.1e}) | '
-                 f'Neuronal: r = {r_neur:.3f} (p = {p_neur:.1e}) | n = {len(merged)}',
+    ax.set_ylabel(ylabel, fontsize=13)
+    ax.set_title(f'SCZ Cluster Effects: snRNAseq vs Xenium (stratified)\n'
+                 f'All: r = {r_all:.3f} (p = {p_all:.1e}) | '
+                 f'Neuronal: r = {r_neur:.3f} | '
+                 f'Non-neuronal: r = {r_nn:.3f} | n = {len(merged)}',
                  fontsize=13, fontweight='bold')
     ax.legend(fontsize=10, loc='lower right')
 
