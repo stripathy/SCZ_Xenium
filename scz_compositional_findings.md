@@ -28,8 +28,8 @@ The following SCZ effects are detected independently by both Xenium spatial and 
 
 | Supertype | snRNAseq direction | Xenium direction | Interpretation |
 |-----------|-------------------|------------------|----------------|
-| Sst_25 | ↓↓ (β = −0.38) | ↓↓ (logFC = −0.67) | Strong concordance — both platforms detect Sst_25 depletion |
-| Sst_22 | ↓ (β = −0.27) | ↓ (logFC = −0.29) | Concordant Sst depletion |
+| Sst_25 | ↓↓ (β = −0.30, FDR = 0.04) | ↓↓ (logFC = −0.69, p = 0.004) | Strong concordance — both platforms detect Sst_25 depletion |
+| Sst_2 | ↓↓ (β = −0.27, FDR = 0.006) | ↓ (logFC = −0.33, p = 0.025) | Concordant Sst depletion |
 | L6b_4 | ↑↑ (β = +0.27) | ↑↑ (logFC = +0.90) | Strong concordance — L6b increase |
 | L6b_1, L6b_2 | ↑ | ↑↑ | Concordant L6b increase |
 | L6 CT_1 | ↑ (β = +0.35) | ↑↑ (logFC = +0.63) | Concordant deep-layer increase |
@@ -40,8 +40,9 @@ Some supertypes show **discordant** SCZ effects between platforms — where one 
 
 | Supertype | snRNAseq | Xenium | Likely explanation |
 |-----------|----------|--------|-------------------|
-| Sst_20 | ↓ (β = −0.08) | ↑ (logFC = +0.10) | Classification confusion with Sst_3; margin drops significantly in SCZ (p = 2.3 × 10⁻¹⁶). See [Supertype Classification Confidence Report](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) |
-| Sst_2, Sst_3 | ↓ | ↓↓ (exaggerated) | Xenium effects larger than expected; possible misclassification spillover from Sst subtypes with low-confidence boundaries |
+| Sst_22 | ↓↓ (β = −0.36, FDR = 0.007) | ≈0 (logFC = −0.07, p = 0.54) | Strong snRNAseq depletion not replicated in Xenium; only 0–1 within-subclass markers for Sst supertypes in the 300-gene panel |
+| Sst_20 | ↓ (β = −0.23, p = 0.009) | ↑ (logFC = +0.08, p = 0.51) | Classification confusion with Sst_3; margin drops significantly in SCZ (p = 2.3 × 10⁻¹⁶). See [Supertype Classification Confidence Report](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) |
+| Sst_3 | ↓ (β = −0.15, p = 0.013) | ↓↓ (logFC = −0.59, p = 0.003) | Xenium effect ~4× larger than snRNAseq; possible misclassification spillover absorbing Sst_20 cells in SCZ |
 
 The Sst subclass is particularly vulnerable because the 300-gene panel contains **0–1 discriminating markers** for most Sst supertypes (see [Panel Design Report](output/marker_analysis/XENIUM_PANEL_DESIGN_AND_SUPERTYPE_CLASSIFICATION.md)). The aggregate Sst depletion signal is real (both platforms agree on overall Sst reduction), but the allocation of that signal across specific supertypes is unreliable.
 
