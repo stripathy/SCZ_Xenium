@@ -28,43 +28,26 @@ Using cell density (cells/mm²) instead of proportions, neuronal concordance rem
 
 ### 1.3 Subclass-level concordant and discordant effects
 
-**Neuronal subclasses — concordant (14/17 = 82%):**
+Overall, 14/17 neuronal subclasses (82%) show concordant direction of effect across platforms. The strongest concordant and discordant effects are highlighted below:
+
+**Strongest neuronal concordances:**
 
 | Subclass | snRNAseq β | Xenium logFC | Direction | Note |
 |----------|-----------|-------------|-----------|------|
-| **L6b** | +0.145 (padj = 0.32) | +0.330 (FDR = 0.47) | ↑↑ | Largest concordant effect; concordant in both composition and density |
-| **L6 CT** | +0.126 (padj = 0.32) | +0.265 (FDR = 0.37) | ↑↑ | Deep-layer excitatory increase |
-| **L6 IT** | +0.101 (padj = 0.49) | +0.134 (FDR = 0.48) | ↑↑ | Deep-layer excitatory increase |
-| **L6 IT Car3** | +0.069 (padj = 0.49) | +0.230 (FDR = 0.48) | ↑↑ | Deep-layer excitatory increase |
-| **L5/6 NP** | +0.050 (padj = 0.56) | +0.145 (FDR = 0.47) | ↑↑ | Deep-layer increase |
-| **Sst** | −0.169 (padj = 0.009) | −0.038 (FDR = 0.81) | ↓↓ | FDR-significant in snRNAseq; small but concordant Xenium effect |
-| **Pvalb** | −0.049 (padj = 0.49) | −0.208 (FDR = 0.37) | ↓↓ | Concordant inhibitory decrease |
-| **Vip** | −0.055 (padj = 0.49) | −0.141 (FDR = 0.47) | ↓↓ | Concordant inhibitory decrease |
-| **Pax6** | −0.032 (padj = 0.90) | −0.198 (FDR = 0.47) | ↓↓ | Concordant inhibitory decrease |
-| **L2/3 IT** | −0.074 (padj = 0.49) | −0.116 (FDR = 0.47) | ↓↓ | Concordant superficial decrease |
-| **L5 IT** | −0.007 (padj = 0.97) | −0.095 (FDR = 0.52) | ↓↓ | Small concordant decrease |
-| **L4 IT** | −0.019 (padj = 0.90) | −0.034 (FDR = 0.89) | ↓↓ | Negligible effects, concordant |
-| **Chandelier** | −0.013 (padj = 0.97) | −0.014 (FDR = 0.89) | ↓↓ | Negligible effects, concordant |
-| **Sst Chodl** | −0.007 (padj = 0.97) | +0.022 (FDR = 0.89) | ≈0 | Both near zero |
+| **Sst** | −0.169 (FDR = 0.009) | −0.038 (FDR = 0.81) | ↓↓ | FDR-significant in snRNAseq; concordant Xenium effect |
+| **L6b** | +0.145 (FDR = 0.32) | +0.330 (FDR = 0.47) | ↑↑ | Largest concordant effect; concordant in composition and density |
+| **L6 CT** | +0.126 (FDR = 0.32) | +0.265 (FDR = 0.37) | ↑↑ | Deep-layer excitatory increase |
+| **L6 IT** | +0.101 (FDR = 0.49) | +0.134 (FDR = 0.48) | ↑↑ | Deep-layer excitatory increase |
+| **Pvalb** | −0.049 (FDR = 0.49) | −0.208 (FDR = 0.37) | ↓↓ | Concordant inhibitory decrease |
+| **Vip** | −0.055 (FDR = 0.49) | −0.141 (FDR = 0.47) | ↓↓ | Concordant inhibitory decrease |
 
-**Neuronal subclasses — discordant (3/17):**
-
-| Subclass | snRNAseq β | Xenium logFC | Note |
-|----------|-----------|-------------|------|
-| **L5 ET** | +0.055 (padj = 0.75) | −0.159 (FDR = 0.53) | Opposite directions; neither significant |
-| **Sncg** | −0.069 (padj = 0.56) | +0.023 (FDR = 0.89) | Opposite but Xenium ≈ 0 |
-| **Lamp5** | +0.002 (padj = 0.97) | −0.105 (FDR = 0.49) | snRNAseq ≈ 0; small Xenium decrease |
-
-**Non-neuronal subclasses:**
+**Notable non-neuronal effects:**
 
 | Subclass | snRNAseq β | Xenium logFC | Direction | Note |
 |----------|-----------|-------------|-----------|------|
-| **Endothelial** | −0.011 (padj = 0.87) | +0.634 (FDR = 0.024) | **Discordant** | FDR-significant Xenium increase; snRNAseq ≈ 0. Spatial advantage? Endothelial cells may be under-sampled in dissociation-based snRNAseq |
-| **Oligodendrocyte** | +0.029 (padj = 0.83) | −0.283 (FDR = 0.16) | **Discordant** | Xenium shows depletion (consistent with depth-stratified findings); snRNAseq ≈ 0 |
-| **Astrocyte** | +0.151 (padj = 0.11) | −0.150 (FDR = 0.17) | **Discordant** | Opposite directions, neither FDR-significant |
-| **Microglia-PVM** | −0.050 (padj = 0.65) | −0.130 (FDR = 0.29) | Concordant ↓ | Both show decrease |
-| **OPC** | +0.049 (padj = 0.60) | −0.121 (FDR = 0.20) | Discordant | Opposite directions; Xenium decrease consistent with oligo-lineage effect |
-| **VLMC** | +0.062 (padj = 0.60) | +0.425 (FDR = 0.16) | Concordant ↑ | Both show increase |
+| **Endothelial** | −0.011 (FDR = 0.87) | +0.634 (FDR = 0.024) | **Discordant** | FDR-significant Xenium increase; snRNAseq ≈ 0. Endothelial cells may be under-sampled in dissociation-based snRNAseq |
+| **Oligodendrocyte** | +0.029 (FDR = 0.83) | −0.283 (FDR = 0.16) | **Discordant** | Xenium shows depletion (consistent with depth-stratified L2/3 finding); snRNAseq ≈ 0 |
+| **Astrocyte** | +0.151 (FDR = 0.11) | −0.150 (FDR = 0.17) | **Discordant** | Opposite directions, neither FDR-significant |
 
 The non-neuronal discordance (overall r = −0.20) is notable. Two possible interpretations: (1) dissociation-based snRNAseq under-samples endothelial and vascular cells, so spatial platforms may detect effects invisible to snRNAseq; (2) the Xenium non-neuronal composition is influenced by tissue geometry confounds (e.g., white matter inclusion) that don't affect snRNAseq. The oligodendrocyte discordance is particularly interesting — Xenium detects a depletion (consistent with depth-stratified findings showing L2/3 oligodendrocyte loss) that snRNAseq misses.
 
@@ -139,7 +122,7 @@ The Sst subclass is particularly vulnerable because the 300-gene panel contains 
 - Per-layer analysis localizes to L2/3: FDR = 0.086 (proportion and density)
 - Consistent across compositional (crumblr) and density-based analyses
 - Not driven by a single sample or tissue geometry confound
-- Notably, snRNAseq meta-analysis does not detect this effect (β = +0.029, padj = 0.83), suggesting the spatial component (L2/3-specific depletion) is key
+- Notably, snRNAseq meta-analysis does not detect this effect (β = +0.029, FDR = 0.83), suggesting the spatial component (L2/3-specific depletion) is key
 
 ![Oligodendrocyte L2/3 detail](output/depth_proportions/oligo_L23_detail.png)
 *Figure 9: Deep dive on the Oligodendrocyte L2/3 finding. (A) Depth profile by diagnosis. (B–C) L2/3-specific proportion and density. (D) Proportion across all layers. (E) Per-sample ranked comparison. (F) Oligodendrocyte count vs L2/3 size (confound check).*
@@ -173,7 +156,7 @@ The Sst subclass is particularly vulnerable because the 300-gene panel contains 
 ### 4.1 High confidence (subclass level, cross-platform validated)
 
 - **L6b increase**: concordant across platforms (snRNAseq β = +0.145, Xenium logFC = +0.330 composition, +0.412 density); largest neuronal concordant effect at subclass level
-- **Sst decrease**: FDR-significant in snRNAseq (padj = 0.009); concordant in Xenium; aggregate Sst depletion is real
+- **Sst decrease**: FDR-significant in snRNAseq (FDR = 0.009); concordant in Xenium; aggregate Sst depletion is real
 - **Deep-layer excitatory increase**: L6 CT, L6 IT, L6 IT Car3, L5/6 NP all concordantly increased — a systematic pattern, not a single-type artifact
 - **Inhibitory decrease**: Pvalb, Vip concordantly decreased — a systematic pattern
 
