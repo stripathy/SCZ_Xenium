@@ -245,7 +245,8 @@ def load_nicole_stratified(neuronal_path, nonneuronal_path):
     return combined
 
 
-def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_path, out_dir):
+def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_path, out_dir,
+                             level='supertype'):
     """Scatter: snRNAseq meta-analysis betas vs Xenium logFC at cluster level.
 
     Uses stratified Xenium results (neuronal and non-neuronal analyzed
@@ -255,12 +256,12 @@ def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_p
     """
     nicole = load_nicole_stratified(nicole_neuronal_path, nicole_nonneuronal_path)
     if nicole is None:
-        print("  Skipping snRNAseq comparison: no Nicole data found")
+        print(f"  Skipping snRNAseq comparison ({level}): no Nicole data found")
         return
 
     # Try to load stratified Xenium results
-    xen_neuronal_path = os.path.join(out_dir, 'crumblr_results_supertype_neuronal.csv')
-    xen_nonneuronal_path = os.path.join(out_dir, 'crumblr_results_supertype_nonneuronal.csv')
+    xen_neuronal_path = os.path.join(out_dir, f'crumblr_results_{level}_neuronal.csv')
+    xen_nonneuronal_path = os.path.join(out_dir, f'crumblr_results_{level}_nonneuronal.csv')
 
     if os.path.exists(xen_neuronal_path) and os.path.exists(xen_nonneuronal_path):
         print("  Using stratified Xenium crumblr results (neuronal + non-neuronal)")
@@ -354,14 +355,15 @@ def plot_snrnaseq_comparison(results, nicole_neuronal_path, nicole_nonneuronal_p
     ax.legend(fontsize=10, loc='lower right')
 
     plt.tight_layout()
-    fname = 'snrnaseq_vs_xenium_supertype.png'
+    fname = f'snrnaseq_vs_xenium_{level}.png'
     plt.savefig(os.path.join(out_dir, fname), dpi=100)
     plt.close()
     print(f"  Saved {fname}")
 
     # Save comparison table
-    merged.to_csv(os.path.join(out_dir, 'snrnaseq_vs_xenium_comparison.csv'), index=False)
-    print(f"  Saved snrnaseq_vs_xenium_comparison.csv")
+    csv_name = f'snrnaseq_vs_xenium_comparison{"_subclass" if level == "subclass" else ""}.csv'
+    merged.to_csv(os.path.join(out_dir, csv_name), index=False)
+    print(f"  Saved {csv_name}")
 
     # Print notable concordances
     sig_either = merged[(merged['padj_snrnaseq'] < 0.05) | (merged['FDR_xenium'] < 0.05)]
@@ -380,6 +382,10 @@ NICOLE_NEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas
                                      "final_results_crumblr_7_cohorts.csv")
 NICOLE_NONNEURONAL_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
                                         "final_results_crumblr_7_nonN_cohorts.csv")
+NICOLE_NEURONAL_SUBCLASS_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                              "final_results_crumblr_7_cohorts_subclass.csv")
+NICOLE_NONNEURONAL_SUBCLASS_PATH = os.path.join(BASE_DIR, "data", "nicole_scz_snrnaseq_betas",
+                                                  "final_results_crumblr_7_nonN_cohorts_subclass.csv")
 
 
 def main():
@@ -410,10 +416,19 @@ def main():
     # snRNAseq meta-analysis comparison (supertype level)
     supertype_path = os.path.join(RESULTS_DIR, 'crumblr_results_supertype.csv')
     if os.path.exists(supertype_path):
-        print(f"\n  --- snRNAseq meta-analysis comparison ---")
+        print(f"\n  --- snRNAseq meta-analysis comparison (supertype) ---")
         supertype_results = pd.read_csv(supertype_path)
         plot_snrnaseq_comparison(supertype_results, NICOLE_NEURONAL_PATH,
                                 NICOLE_NONNEURONAL_PATH, RESULTS_DIR)
+
+    # snRNAseq meta-analysis comparison (subclass level)
+    subclass_path = os.path.join(RESULTS_DIR, 'crumblr_results_subclass.csv')
+    if os.path.exists(subclass_path) and os.path.exists(NICOLE_NEURONAL_SUBCLASS_PATH):
+        print(f"\n  --- snRNAseq meta-analysis comparison (subclass) ---")
+        subclass_results = pd.read_csv(subclass_path)
+        plot_snrnaseq_comparison(subclass_results, NICOLE_NEURONAL_SUBCLASS_PATH,
+                                NICOLE_NONNEURONAL_SUBCLASS_PATH, RESULTS_DIR,
+                                level='subclass')
 
     print("\nDone!")
 

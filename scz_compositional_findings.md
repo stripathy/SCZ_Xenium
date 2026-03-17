@@ -22,7 +22,19 @@ When using cell density (cells/mm²) rather than compositional proportions, the 
 ![snRNAseq vs Xenium density](output/density_analysis/snrnaseq_vs_density_supertype.png)
 *Figure 2: SCZ density effects — snRNA-seq meta-analysis (x) vs Xenium spatial density logFC (y). Left: neuronal supertypes (r = 0.55, n = 106). Right: non-neuronal supertypes (r = 0.66, n = 14). Density-based effects show stronger agreement than compositional effects.*
 
-### 1.2 Concordant findings across platforms
+### 1.2 Subclass-level SCZ effect concordance
+
+At the subclass level (23 shared subclasses), the overall correlation is weaker (**r = 0.34**, p = 0.11) because the non-neuronal subclasses show no agreement (r = −0.20). However, **neuronal subclasses show strong concordance: r = 0.70** (p = 1.9 × 10⁻³, n = 17), with deep-layer excitatory types (L6b, L6 CT, L6 IT) consistently increased and inhibitory types (Sst, Pvalb, Vip) consistently decreased in SCZ:
+
+![snRNAseq vs Xenium composition subclass](output/presentation/slide_snrnaseq_vs_xenium_subclass.png)
+*Figure 1b: Subclass-level SCZ compositional effects. Left: neuronal subclasses (r = 0.70, n = 17) — strong concordance with deep-layer excitatory increase and inhibitory decrease. Right: non-neuronal subclasses (r = −0.20, n = 6) — Endothelial is discordant between composition (Xenium ↑) and snRNAseq (≈0).*
+
+For density, the subclass-level concordance is also strong for neuronal subclasses: **r = 0.68** (p = 2.6 × 10⁻³, n = 17) overall and **r = 0.34** (p = 0.11, n = 23) across all subclasses:
+
+![snRNAseq vs Xenium density subclass](output/density_analysis/snrnaseq_vs_density_subclass.png)
+*Figure 2b: Subclass-level SCZ density effects. Left: neuronal subclasses (r = 0.68, n = 17). Right: non-neuronal subclasses (r = 0.07, n = 6). L6b shows the largest concordant effect across both platforms.*
+
+### 1.3 Concordant findings across platforms
 
 The following SCZ effects are detected independently by both Xenium spatial and snRNA-seq meta-analysis, providing the strongest evidence:
 
@@ -36,7 +48,7 @@ The following SCZ effects are detected independently by both Xenium spatial and 
 | L6b_2 | ↑ (β = +0.17, p = 0.055) | ↑↑ (logFC = +0.70, FDR = 0.028) | Concordant L6b increase; FDR-significant in Xenium |
 | L6 CT_1 | ↑ (β = +0.23, p = 0.014) | ↑ (logFC = +0.78, p = 0.039) | Concordant deep-layer increase |
 
-### 1.3 Discordant findings: classification artifacts
+### 1.4 Discordant findings: classification artifacts
 
 Some supertypes show **discordant** SCZ effects between platforms — where one shows an increase and the other a decrease. These are red flags for classification artifacts:
 
@@ -47,7 +59,7 @@ Some supertypes show **discordant** SCZ effects between platforms — where one 
 
 The Sst subclass is particularly vulnerable because the 300-gene panel contains **0–1 discriminating markers** for most Sst supertypes (see [Panel Design Report](output/marker_analysis/XENIUM_PANEL_DESIGN_AND_SUPERTYPE_CLASSIFICATION.md)). The aggregate Sst depletion signal is real (both platforms agree on overall Sst reduction), but the allocation of that signal across specific supertypes is unreliable.
 
-### 1.4 Supertype-level SCZ effects in Xenium
+### 1.5 Supertype-level SCZ effects in Xenium
 
 ![Xenium SCZ effects — proportion boxplots](output/presentation/slide_xenium_proportion_boxplots.png)
 *Figure 3: Top supertype SCZ effects (proportions). Top row: Sst subtypes. Bottom row: L6b and deep-layer subtypes. Crumblr p-values adjusted for age and sex.*
@@ -150,8 +162,10 @@ These should be interpreted carefully due to classification limitations:
 
 | Level | What | Concordance | Confidence |
 |-------|------|-------------|------------|
-| **SCZ effects (density)** | Xenium vs snRNAseq | r = 0.57 (neuronal r = 0.55, non-neuronal r = 0.66) | Moderate — independent platforms, different cohorts, different tissue regions |
-| **SCZ effects (composition, stratified)** | Xenium vs snRNAseq | r = 0.51 (neuronal r = 0.50, non-neuronal r = 0.61) | Moderate — stratified analysis improves concordance |
+| **Supertype SCZ effects (density)** | Xenium vs snRNAseq | r = 0.57 (neuronal r = 0.55, non-neuronal r = 0.66) | Moderate — independent platforms, different cohorts, different tissue regions |
+| **Supertype SCZ effects (composition)** | Xenium vs snRNAseq | r = 0.51 (neuronal r = 0.50, non-neuronal r = 0.61) | Moderate — stratified analysis |
+| **Subclass SCZ effects (density)** | Xenium vs snRNAseq | neuronal r = 0.68 (p = 0.003), overall r = 0.34 | Moderate — strong neuronal agreement, weak non-neuronal |
+| **Subclass SCZ effects (composition)** | Xenium vs snRNAseq | neuronal r = 0.70 (p = 0.002), overall r = 0.34 | Moderate — strong neuronal agreement, weak non-neuronal |
 | **Supertype SCZ effects** | Xenium vs snRNAseq | variable | Type-dependent — check [confidence ratings](output/marker_analysis/SUPERTYPE_CLASSIFICATION_CONFIDENCE_REPORT.md) |
 | **Subclass proportions** | Xenium vs MERFISH | r = 0.84 | High — see [Cross-Platform Validation](cross_platform_concordance.md) |
 | **Subclass depth** | Xenium vs MERFISH | r = 0.96 | High — see [Cross-Platform Validation](cross_platform_concordance.md) |
