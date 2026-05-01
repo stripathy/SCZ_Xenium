@@ -49,9 +49,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 input[type="checkbox"] { accent-color: #e94560; }
 
 /* Filter controls */
-.filter-bar { display: flex; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
+.filter-bar { display: flex; gap: 4px; margin-bottom: 6px; flex-shrink: 0; flex-wrap: wrap; }
 .filter-bar button { padding: 3px 8px; font-size: 11px; border: 1px solid #333; border-radius: 3px; cursor: pointer; background: #1a1a2e; color: #aaa; }
 .filter-bar button:hover { background: #333; }
+.filter-bar button.solo-active { background: #e94560; color: white; border-color: #e94560; }
+
+/* Cell-type search input (matches gene-search style) */
+#celltype-search { width: 100%; padding: 5px 8px; font-size: 12px; border: 1px solid #333; border-radius: 4px; background: #1a1a2e; color: #e0e0e0; margin-bottom: 6px; }
+#celltype-search::placeholder { color: #666; }
+.ct-row.solo-target { background: rgba(233, 69, 96, 0.15); border-left: 2px solid #e94560; padding-left: 4px; }
 
 /* Info panel */
 #info { font-size: 12px; color: #aaa; line-height: 1.6; }
@@ -80,6 +86,13 @@ canvas { position: absolute; top: 0; left: 0; }
 #legend-overlay .leg-title { font-weight: 700; color: #e94560; margin-bottom: 4px; }
 .leg-row { display: flex; align-items: center; gap: 5px; padding: 1px 0; }
 .leg-swatch { width: 10px; height: 10px; border-radius: 2px; }
+/* Color-picker swatch in legend (active transcripts — click to change) */
+input.leg-swatch { padding: 0; border: none; background: transparent;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  cursor: pointer; }
+input.leg-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+input.leg-swatch::-webkit-color-swatch { border: none; border-radius: 2px; }
+input.leg-swatch::-moz-color-swatch { border: none; border-radius: 2px; }
 
 /* Transcript panel */
 #transcript-section { display: none; flex-shrink: 0; }
@@ -92,6 +105,13 @@ canvas { position: absolute; top: 0; left: 0; }
 .gene-row.active { background: rgba(255,255,255,0.08); }
 .gene-row.loading .gene-label { color: #e94560; font-style: italic; }
 .gene-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+/* Color-picker swatch (active genes — click to change color) */
+input.gene-swatch { padding: 0; border: none; background: transparent;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  cursor: pointer; }
+input.gene-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+input.gene-swatch::-webkit-color-swatch { border: none; border-radius: 3px; }
+input.gene-swatch::-moz-color-swatch { border: none; border-radius: 3px; }
 .gene-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gene-count { font-size: 10px; color: #888; }
 #transcript-info { font-size: 11px; color: #666; margin-top: 4px; flex-shrink: 0; }
@@ -148,11 +168,13 @@ canvas { position: absolute; top: 0; left: 0; }
       <span class="collapse-icon">▼</span>
     </div>
     <div class="section-body">
+      <input type="text" id="celltype-search" placeholder="Search cell types... (e.g. Astro, Pvalb)">
       <div class="filter-bar">
         <button onclick="selectAllTypes()">All</button>
         <button onclick="selectNoneTypes()">None</button>
         <button onclick="selectNeurons()">Neurons</button>
         <button onclick="selectGlia()">Glia</button>
+        <button id="solo-btn" onclick="toggleSoloMode()" title="Solo mode: when on, clicking a type shows only that one. Click again to exit.">Solo</button>
       </div>
       <div id="celltype-filter"></div>
     </div>
@@ -255,6 +277,9 @@ let sampleData = null;
 let indexData = null;
 let colorMode = 'subclass';
 let activeTypes = new Set();
+let cellTypeSearchFilter = '';
+let soloMode = false;
+let soloType = null;
 let pointSize = 2;
 let pointOpacity = 0.8;
 let showLayerOverlay = false;
@@ -284,6 +309,7 @@ const BOUNDARY_ZOOM_THRESHOLD = 3.0; // only show when zoomed in this much
 let transcriptIndex = null;
 let transcriptGenes = {};
 let activeGenes = new Set();
+let customGeneColors = {};   // gene -> custom hex color set by user
 let moleculeSize = 1;
 let moleculeOpacity = 0.6;
 const MAX_ACTIVE_GENES = 5;
@@ -367,6 +393,12 @@ async function loadSample(sampleId) {
   activeGenes.clear();
   transcriptGenes = {};
   transcriptIndex = null;
+  // Reset cell-type search + solo mode (type set is sample-scoped)
+  cellTypeSearchFilter = '';
+  soloMode = false; soloType = null;
+  const ctSearch = document.getElementById('celltype-search');
+  if (ctSearch) ctSearch.value = '';
+  document.getElementById('solo-btn')?.classList.remove('solo-active');
   const resp = await fetch(`${sampleId}.json`);
   sampleData = await resp.json();
   precomputeColors();
@@ -513,11 +545,31 @@ function buildGeneList(filter = '') {
     cb.type = 'checkbox';
     cb.checked = activeGenes.has(g.gene);
     cb.onchange = () => toggleGene(g.gene, cb.checked, row);
-    const colorIdx = getGeneColorIndex(g.gene);
-    const color = activeGenes.has(g.gene) ? GENE_COLORS[colorIdx] : '#444';
-    const swatch = document.createElement('div');
-    swatch.className = 'gene-swatch';
-    swatch.style.background = color;
+    const isActive = activeGenes.has(g.gene);
+    const liveColor = transcriptGenes[g.gene]?.color
+      || customGeneColors[g.gene]
+      || GENE_COLORS[getGeneColorIndex(g.gene)];
+    let swatch;
+    if (isActive) {
+      // Color-picker swatch — click opens native color picker
+      swatch = document.createElement('input');
+      swatch.type = 'color';
+      swatch.className = 'gene-swatch';
+      swatch.value = liveColor;
+      swatch.title = "Click to change this gene's overlay color";
+      swatch.onclick = (e) => e.stopPropagation();   // don't toggle the row
+      swatch.oninput = (e) => {
+        const newColor = e.target.value;
+        customGeneColors[g.gene] = newColor;
+        if (transcriptGenes[g.gene]) transcriptGenes[g.gene].color = newColor;
+        render();
+        updateLegend();
+      };
+    } else {
+      swatch = document.createElement('div');
+      swatch.className = 'gene-swatch';
+      swatch.style.background = '#444';
+    }
     const label = document.createElement('span');
     label.className = 'gene-label';
     label.textContent = g.gene;
@@ -528,7 +580,10 @@ function buildGeneList(filter = '') {
     row.appendChild(swatch);
     row.appendChild(label);
     row.appendChild(count);
-    row.onclick = (e) => { if (e.target !== cb) { cb.checked = !cb.checked; cb.onchange(); } };
+    row.onclick = (e) => {
+      if (e.target === cb || e.target === swatch) return;
+      cb.checked = !cb.checked; cb.onchange();
+    };
     el.appendChild(row);
   });
   if (genes.length > 50) {
@@ -586,7 +641,8 @@ async function loadGene(gene, row) {
       y[i] = data.y[i] * ySc + yOff;
     }
     const colorIdx = activeGenes.size % GENE_COLORS.length;
-    transcriptGenes[gene] = { x, y, n, color: GENE_COLORS[colorIdx] };
+    const color = customGeneColors[gene] || GENE_COLORS[colorIdx];
+    transcriptGenes[gene] = { x, y, n, color };
     activeGenes.add(gene);
     buildGeneList(document.getElementById('gene-search').value);
     render();
@@ -730,23 +786,59 @@ function buildCellTypeFilter() {
   for (let i = 0; i < indices.length; i++) counts[indices[i]]++;
   if (activeTypes.size === 0 && !activeTypes._explicitEmpty) cats.forEach(c => activeTypes.add(c));
   const sorted = cats.map((c,i) => ({name:c, count:counts[i], idx:i})).sort((a,b) => a.name.localeCompare(b.name));
-  sorted.forEach(({name, count}) => {
+
+  // Apply search filter (selection state unchanged)
+  const q = cellTypeSearchFilter.toLowerCase();
+  const visible = q ? sorted.filter(({name}) => name.toLowerCase().includes(q)) : sorted;
+
+  // Show solo-mode hint banner when waiting for user to pick a target
+  if (soloMode && !soloType) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:11px;color:#e94560;padding:4px 6px;'
+      + 'border:1px dashed #e94560;border-radius:4px;margin-bottom:6px;';
+    hint.textContent = 'Solo mode on — click a type to show only that one.';
+    el.appendChild(hint);
+  }
+
+  if (visible.length === 0) {
+    el.innerHTML += `<div style="font-size:11px;color:#888;padding:6px 0;">`
+      + `No types match "${cellTypeSearchFilter}".</div>`;
+    return;
+  }
+
+  let palette;
+  if (colorMode === 'layer') palette = indexData.layer_colors;
+  else if (colorMode === 'class') palette = indexData.class_colors;
+  else if (colorMode === 'supertype') palette = (indexData.supertype_colors||{});
+  else palette = indexData.subclass_colors; // subclass, depth, confidence
+
+  visible.forEach(({name, count}) => {
     const row = document.createElement('div');
-    row.className = 'ct-row' + (activeTypes.has(name) ? '' : ' dimmed');
+    const isSoloTarget = soloMode && soloType === name;
+    row.className = 'ct-row'
+      + (activeTypes.has(name) ? '' : ' dimmed')
+      + (isSoloTarget ? ' solo-target' : '');
     const cb = document.createElement('input');
     cb.type = 'checkbox'; cb.checked = activeTypes.has(name);
-    cb.onchange = () => { if (cb.checked) activeTypes.add(name); else activeTypes.delete(name); row.classList.toggle('dimmed',!cb.checked); render(); };
-    let palette;
-    if (colorMode === 'layer') palette = indexData.layer_colors;
-    else if (colorMode === 'class') palette = indexData.class_colors;
-    else if (colorMode === 'supertype') palette = (indexData.supertype_colors||{});
-    else palette = indexData.subclass_colors; // subclass, depth, confidence
+    cb.onchange = () => {
+      if (soloMode) {
+        // In solo mode, any click = make THAT row the only active
+        soloRow(name);
+        return;
+      }
+      if (cb.checked) activeTypes.add(name); else activeTypes.delete(name);
+      row.classList.toggle('dimmed',!cb.checked); render();
+    };
     const color = palette[name] || '#666';
     const swatch = document.createElement('div'); swatch.className='ct-swatch'; swatch.style.background=color;
     const label = document.createElement('span'); label.className='ct-label'; label.textContent=name;
     const countEl = document.createElement('span'); countEl.className='ct-count'; countEl.textContent=count.toLocaleString();
     row.appendChild(cb); row.appendChild(swatch); row.appendChild(label); row.appendChild(countEl);
-    row.onclick = (e) => { if (e.target===cb) return; cb.checked=!cb.checked; cb.onchange(); };
+    row.onclick = (e) => {
+      if (e.target===cb) return;
+      if (soloMode) { soloRow(name); return; }
+      cb.checked=!cb.checked; cb.onchange();
+    };
     el.appendChild(row);
   });
 }
@@ -757,17 +849,51 @@ function getFilterCats() {
   if (colorMode==='class') return sampleData.class_cats;
   return sampleData.subclass_cats; // subclass, depth, confidence
 }
-function selectAllTypes() { activeTypes = new Set(getFilterCats()); buildCellTypeFilter(); render(); }
-function selectNoneTypes() { activeTypes = new Set(); activeTypes._explicitEmpty = true; buildCellTypeFilter(); render(); }
+function _exitSoloMode() {
+  soloMode = false; soloType = null;
+  document.getElementById('solo-btn')?.classList.remove('solo-active');
+}
+function selectAllTypes() { _exitSoloMode(); activeTypes = new Set(getFilterCats()); buildCellTypeFilter(); render(); }
+function selectNoneTypes() { _exitSoloMode(); activeTypes = new Set(); activeTypes._explicitEmpty = true; buildCellTypeFilter(); render(); }
 function selectNeurons() {
+  _exitSoloMode();
   activeTypes = new Set(); activeTypes._explicitEmpty = true;
   getFilterCats().forEach(c => { const p=c.replace(/_\d+$/,''); if (NEURON_TYPES.has(p)||NEURON_TYPES.has(c)) activeTypes.add(c); });
   if (activeTypes.size>0) delete activeTypes._explicitEmpty; buildCellTypeFilter(); render();
 }
 function selectGlia() {
+  _exitSoloMode();
   activeTypes = new Set(); activeTypes._explicitEmpty = true;
   getFilterCats().forEach(c => { const p=c.replace(/_\d+$/,''); if (GLIA_TYPES.has(p)||GLIA_TYPES.has(c)) activeTypes.add(c); });
   if (activeTypes.size>0) delete activeTypes._explicitEmpty; buildCellTypeFilter(); render();
+}
+
+function soloRow(name) {
+  // Set the solo target (only this type active). soloMode stays on.
+  activeTypes = new Set([name]);
+  delete activeTypes._explicitEmpty;
+  soloType = name;
+  buildCellTypeFilter(); render();
+}
+
+function toggleSoloMode() {
+  if (!sampleData) return;
+  const btn = document.getElementById('solo-btn');
+  if (soloMode) {
+    // Exit solo mode: restore All
+    soloMode = false; soloType = null;
+    activeTypes = new Set(getFilterCats());
+    delete activeTypes._explicitEmpty;
+    btn?.classList.remove('solo-active');
+  } else {
+    // Enter solo mode. If exactly one type is currently active, lock that as
+    // the solo target; otherwise wait for the user to click a row.
+    soloMode = true;
+    if (activeTypes.size === 1) soloType = [...activeTypes][0];
+    else soloType = null;
+    btn?.classList.add('solo-active');
+  }
+  buildCellTypeFilter(); render();
 }
 
 // ── View ──
@@ -1040,11 +1166,54 @@ function render() {
 function updateLegend() {
   const el = document.getElementById('legend-overlay');
   let html = '';
+
+  // Cell-type legend — only when in a categorical mode and a small number
+  // of types are active, otherwise the overlay would be unreadable.
+  const CELL_TYPE_LEGEND_MAX = 10;
+  const CONTINUOUS_MODES = new Set(['depth', 'confidence', 'margin']);
+  if (!CONTINUOUS_MODES.has(colorMode)
+      && sampleData
+      && activeTypes.size > 0
+      && activeTypes.size <= CELL_TYPE_LEGEND_MAX) {
+    let cats, indices;
+    if (colorMode === 'supertype') { cats = sampleData.supertype_cats; indices = sampleData.supertype; }
+    else if (colorMode === 'layer') { cats = sampleData.layer_cats; indices = sampleData.layer; }
+    else if (colorMode === 'class') { cats = sampleData.class_cats; indices = sampleData.class; }
+    else { cats = sampleData.subclass_cats; indices = sampleData.subclass; }
+    if (cats && indices) {
+      let palette;
+      if (colorMode === 'layer') palette = indexData.layer_colors;
+      else if (colorMode === 'class') palette = indexData.class_colors;
+      else if (colorMode === 'supertype') palette = (indexData.supertype_colors || {});
+      else palette = indexData.subclass_colors;
+      // Per-active-type cell counts on this sample
+      const counts = {};
+      for (let i = 0; i < indices.length; i++) {
+        const name = cats[indices[i]];
+        if (activeTypes.has(name)) counts[name] = (counts[name] || 0) + 1;
+      }
+      const sorted = [...activeTypes].sort((a, b) => a.localeCompare(b));
+      html += '<div class="leg-title">Active cell types</div>';
+      for (const name of sorted) {
+        const swatch = palette[name] || '#666';
+        const count = counts[name] || 0;
+        html += `<div class="leg-row"><div class="leg-swatch" style="background:${swatch}"></div>`
+          + `<span>${name} (${count.toLocaleString()})</span></div>`;
+      }
+      html += '<div style="height:6px;"></div>';
+    }
+  }
+
   if (activeGenes.size > 0) {
     html += '<div class="leg-title">Transcripts</div>';
     for (const gene of activeGenes) {
       const gd = transcriptGenes[gene]; if (!gd) continue;
-      html += `<div class="leg-row"><div class="leg-swatch" style="background:${gd.color}"></div><span>${gene} (${gd.n.toLocaleString()})</span></div>`;
+      // Use a color input as the swatch so clicking opens the native picker.
+      const safeGene = gene.replace(/"/g, '&quot;');
+      html += `<div class="leg-row">`
+        + `<input type="color" class="leg-swatch" value="${gd.color}" `
+        +   `data-gene="${safeGene}" title="Click to change ${safeGene}'s color">`
+        + `<span>${gene} (${gd.n.toLocaleString()})</span></div>`;
     }
     html += '<div style="height:6px;"></div>';
   }
@@ -1103,6 +1272,18 @@ function updateLegend() {
     }
   }
   el.innerHTML = html;
+  // Wire up legend color pickers — keeps sidebar + legend swatches in sync
+  el.querySelectorAll('input.leg-swatch[data-gene]').forEach(inp => {
+    inp.oninput = (e) => {
+      const gene = e.target.dataset.gene;
+      const newColor = e.target.value;
+      customGeneColors[gene] = newColor;
+      if (transcriptGenes[gene]) transcriptGenes[gene].color = newColor;
+      render();
+      buildGeneList(document.getElementById('gene-search').value);
+      updateLegend();
+    };
+  });
 }
 
 // ── Scale bar ──
@@ -1186,6 +1367,12 @@ function setupEvents() {
       btn.classList.add('active');
       colorMode = btn.dataset.mode;
       activeTypes = new Set();
+      // Reset cell-type search + solo mode (type set differs per mode)
+      cellTypeSearchFilter = '';
+      soloMode = false; soloType = null;
+      const ctSearch = document.getElementById('celltype-search');
+      if (ctSearch) ctSearch.value = '';
+      document.getElementById('solo-btn')?.classList.remove('solo-active');
       // Show/hide confidence level selector
       document.getElementById('confidence-level-row').style.display = colorMode === 'confidence' ? 'block' : 'none';
       precomputeColors(); buildCellTypeFilter(); render();
@@ -1224,6 +1411,10 @@ function setupEvents() {
   document.getElementById('mol-size').oninput = (e) => { moleculeSize=parseFloat(e.target.value); document.getElementById('mol-size-val').textContent=moleculeSize; render(); };
   document.getElementById('mol-opacity').oninput = (e) => { moleculeOpacity=parseFloat(e.target.value); document.getElementById('mol-opacity-val').textContent=moleculeOpacity; render(); };
   document.getElementById('gene-search').oninput = (e) => { buildGeneList(e.target.value); };
+  document.getElementById('celltype-search').oninput = (e) => {
+    cellTypeSearchFilter = e.target.value;
+    buildCellTypeFilter();
+  };
 
   canvas.addEventListener('mousedown', (e) => { isDragging=true; dragStartX=e.clientX; dragStartY=e.clientY; dragViewX=viewX; dragViewY=viewY; canvas.style.cursor='grabbing'; });
   window.addEventListener('mousemove', (e) => { if (isDragging) { viewX=dragViewX+(e.clientX-dragStartX); viewY=dragViewY+(e.clientY-dragStartY); render(); } else { handleHover(e); } });
@@ -1240,7 +1431,7 @@ function setupEvents() {
   window.addEventListener('resize', resizeCanvas);
 
   window.addEventListener('keydown', (e) => {
-    if (e.target.id === 'gene-search') return;
+    if (e.target.id === 'gene-search' || e.target.id === 'celltype-search') return;
     if (e.key==='r') { fitView(); render(); }
     if (e.key==='a') selectAllTypes();
     if (e.key==='n') selectNeurons();
