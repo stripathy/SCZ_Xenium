@@ -1,0 +1,119 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; display: flex; height: 100vh; overflow: hidden; }
+
+/* Sidebar — scrollable column */
+#sidebar { width: 300px; background: #16213e; padding: 12px; overflow-y: auto; border-right: 1px solid #0f3460; display: flex; flex-direction: column; gap: 6px; }
+#sidebar h1 { font-size: 18px; color: #e94560; margin-bottom: 4px; }
+.section { background: #0f3460; border-radius: 8px; padding: 0; flex-shrink: 0; }
+.section label { font-size: 12px; color: #a0a0c0; display: block; margin-bottom: 4px; }
+
+/* Accordion headers */
+.section-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 12px; user-select: none; }
+.section-header h2 { font-size: 13px; font-weight: 600; color: #e94560; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+.section-header .collapse-icon { font-size: 10px; color: #666; transition: transform 0.2s; }
+.section-body { padding: 0 12px 10px 12px; }
+.section.collapsed .section-body { display: none; }
+.section.collapsed .collapse-icon { transform: rotate(-90deg); }
+.section.collapsed { padding-bottom: 0; }
+
+/* Sample selector */
+#sample-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.sample-btn { padding: 4px 8px; font-size: 11px; border: 1px solid #333; border-radius: 4px; cursor: pointer; background: #1a1a2e; color: #ccc; transition: all 0.15s; }
+.sample-btn:hover { background: #333; }
+.sample-btn.active { background: #e94560; color: white; border-color: #e94560; }
+.sample-btn.control { border-left: 3px solid #4ecdc4; }
+.sample-btn.scz { border-left: 3px solid #e94560; }
+
+/* Color mode */
+.color-mode-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+.mode-btn { padding: 5px 10px; font-size: 12px; border: 1px solid #333; border-radius: 4px; cursor: pointer; background: #1a1a2e; color: #ccc; }
+.mode-btn:hover { background: #333; }
+.mode-btn.active { background: #533483; color: white; border-color: #533483; }
+
+/* Cell type filter */
+#celltype-section { flex-shrink: 0; }
+#celltype-filter { max-height: 200px; overflow-y: auto; }
+.ct-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; font-size: 12px; }
+.ct-row:hover { background: rgba(255,255,255,0.05); }
+.ct-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+/* Color-picker swatch in cell-type sidebar (click to change type's color) */
+input.ct-swatch { padding: 0; border: none; background: transparent;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  cursor: pointer; }
+input.ct-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+input.ct-swatch::-webkit-color-swatch { border: none; border-radius: 3px; }
+input.ct-swatch::-moz-color-swatch { border: none; border-radius: 3px; }
+.ct-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ct-count { font-size: 10px; color: #888; }
+.ct-row.dimmed .ct-label { color: #555; }
+input[type="checkbox"] { accent-color: #e94560; }
+
+/* Filter controls */
+.filter-bar { display: flex; gap: 4px; margin-bottom: 6px; flex-shrink: 0; flex-wrap: wrap; }
+.filter-bar button { padding: 3px 8px; font-size: 11px; border: 1px solid #333; border-radius: 3px; cursor: pointer; background: #1a1a2e; color: #aaa; }
+.filter-bar button:hover { background: #333; }
+.filter-bar button.solo-active { background: #e94560; color: white; border-color: #e94560; }
+
+/* Cell-type search input (matches gene-search style) */
+#celltype-search { width: 100%; padding: 5px 8px; font-size: 12px; border: 1px solid #333; border-radius: 4px; background: #1a1a2e; color: #e0e0e0; margin-bottom: 6px; }
+#celltype-search::placeholder { color: #666; }
+.ct-row.solo-target { background: rgba(233, 69, 96, 0.15); border-left: 2px solid #e94560; padding-left: 4px; }
+
+/* Info panel */
+#info { font-size: 12px; color: #aaa; line-height: 1.6; }
+#info .val { color: #e0e0e0; font-weight: 600; }
+
+/* Point size slider */
+input[type="range"] { width: 100%; accent-color: #e94560; }
+
+/* Main canvas area */
+#main { flex: 1; position: relative; background: #0d0d1a; }
+canvas { position: absolute; top: 0; left: 0; }
+
+/* Status bar */
+#status { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(22,33,62,0.9); padding: 6px 12px; font-size: 11px; color: #888; display: flex; justify-content: space-between; }
+
+/* Loading overlay */
+#loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 16px; color: #e94560; display: none; }
+#loading.show { display: block; }
+
+/* Tooltip */
+#tooltip { position: absolute; background: rgba(22,33,62,0.95); border: 1px solid #e94560; border-radius: 6px; padding: 8px 12px; font-size: 12px; pointer-events: none; display: none; z-index: 100; max-width: 250px; }
+#tooltip .tt-label { font-weight: 700; color: #e94560; }
+
+/* Legend */
+#legend-overlay { position: absolute; top: 10px; right: 10px; background: rgba(22,33,62,0.9); border-radius: 8px; padding: 10px; font-size: 11px; max-height: 50vh; overflow-y: auto; }
+#legend-overlay .leg-title { font-weight: 700; color: #e94560; margin-bottom: 4px; }
+.leg-row { display: flex; align-items: center; gap: 5px; padding: 1px 0; }
+.leg-swatch { width: 10px; height: 10px; border-radius: 2px; }
+/* Color-picker swatch in legend (active transcripts — click to change) */
+input.leg-swatch { padding: 0; border: none; background: transparent;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  cursor: pointer; }
+input.leg-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+input.leg-swatch::-webkit-color-swatch { border: none; border-radius: 2px; }
+input.leg-swatch::-moz-color-swatch { border: none; border-radius: 2px; }
+
+/* Transcript panel */
+#transcript-section { display: none; flex-shrink: 0; }
+#transcript-section.visible { display: block; }
+#gene-search { width: 100%; padding: 5px 8px; font-size: 12px; border: 1px solid #333; border-radius: 4px; background: #1a1a2e; color: #e0e0e0; margin-bottom: 6px; }
+#gene-search::placeholder { color: #666; }
+#gene-list { max-height: 180px; overflow-y: auto; }
+.gene-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; font-size: 12px; }
+.gene-row:hover { background: rgba(255,255,255,0.05); }
+.gene-row.active { background: rgba(255,255,255,0.08); }
+.gene-row.loading .gene-label { color: #e94560; font-style: italic; }
+.gene-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+/* Color-picker swatch (active genes — click to change color) */
+input.gene-swatch { padding: 0; border: none; background: transparent;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  cursor: pointer; }
+input.gene-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+input.gene-swatch::-webkit-color-swatch { border: none; border-radius: 3px; }
+input.gene-swatch::-moz-color-swatch { border: none; border-radius: 3px; }
+.gene-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gene-count { font-size: 10px; color: #888; }
+#transcript-info { font-size: 11px; color: #666; margin-top: 4px; flex-shrink: 0; }
+#transcript-controls { flex-shrink: 0; margin-top: 6px; display: none; }
+#transcript-controls.visible { display: block; }
