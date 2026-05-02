@@ -1530,3 +1530,39 @@ function handleHover(e) {
 // ── Start ──
 canvas.style.cursor = 'crosshair';
 init();
+
+// ── Test/debug diagnostic exposure ──
+// Top-level `let` in a classic script is script-scoped, not on window —
+// invisible to Playwright's page.evaluate. Expose key state via getters
+// so tests can introspect without changing runtime behavior. Useful for
+// ad-hoc browser-console debugging too.
+// NOTE: Top-level function declarations (render, fitView, etc.) are already
+// on window via classic-script hoisting — do NOT re-expose them, or the
+// inner bare reference in an arrow body would resolve back into the
+// arrow and infinitely recurse.
+Object.defineProperty(window, 'sampleData', { get: () => sampleData });
+Object.defineProperty(window, 'indexData', { get: () => indexData });
+Object.defineProperty(window, 'currentSample', { get: () => currentSample });
+Object.defineProperty(window, 'colorMode', { get: () => colorMode });
+Object.defineProperty(window, 'activeTypes', { get: () => activeTypes });
+Object.defineProperty(window, 'soloMode', { get: () => soloMode });
+Object.defineProperty(window, 'soloType', { get: () => soloType });
+Object.defineProperty(window, 'cellTypeSearchFilter', { get: () => cellTypeSearchFilter });
+Object.defineProperty(window, 'showDeselectedCells', { get: () => showDeselectedCells });
+Object.defineProperty(window, 'showBoundaries', { get: () => showBoundaries });
+Object.defineProperty(window, 'showNucleus', { get: () => showNucleus });
+Object.defineProperty(window, 'hideQcFail', { get: () => hideQcFail });
+Object.defineProperty(window, 'showQcDetails', { get: () => showQcDetails });
+Object.defineProperty(window, 'confidenceLevel', { get: () => confidenceLevel });
+Object.defineProperty(window, 'showLayerOverlay', { get: () => showLayerOverlay });
+Object.defineProperty(window, 'customGeneColors', { get: () => customGeneColors });
+Object.defineProperty(window, 'customCellTypeColors', { get: () => customCellTypeColors });
+Object.defineProperty(window, 'activeGenes', { get: () => activeGenes });
+Object.defineProperty(window, 'transcriptGenes', { get: () => transcriptGenes });
+Object.defineProperty(window, 'transcriptIndex', { get: () => transcriptIndex });
+Object.defineProperty(window, 'viewScale', { get: () => viewScale });
+Object.defineProperty(window, 'viewX', { get: () => viewX });
+Object.defineProperty(window, 'viewY', { get: () => viewY });
+Object.defineProperty(window, 'baseScale', { get: () => baseScale });
+Object.defineProperty(window, 'logicalWidth', { get: () => logicalWidth });
+Object.defineProperty(window, 'logicalHeight', { get: () => logicalHeight });
