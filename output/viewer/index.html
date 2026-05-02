@@ -1055,21 +1055,22 @@ function render() {
       }
       ctx.globalAlpha = 1;
     } else {
-      // Low/medium zoom: batched-rect Path2D scatter (single fill() — α=0.55
-      // since overlapping rects in one fill don't stack alpha)
+      // Low/medium zoom: per-rect fillRect scatter. A single batched Path2D
+      // with 64K+ subpaths is faster on warm path (~5ms vs ~18ms) but
+      // cold-path browser tessellation can take 4+ seconds, freezing the UI
+      // on the first None click after page load. Per-rect fillRect has no
+      // such cold/warm cliff.
       const dr = pointSize * Math.max(1, Math.sqrt(zoomRatio));
-      ctx.globalAlpha = 0.55;
+      ctx.globalAlpha = 0.30;
       ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
       for (let i = 0; i < n; i++) {
         if (activeSet.has(filterIndices[i])) continue;
         if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
         const sx = x[i]*viewScale+viewX, sy = y[i]*viewScale+viewY;
         if (sx < -dr || sx > w+dr || sy < -dr || sy > h+dr) continue;
-        ctx.rect(sx-dr/2, sy-dr/2, dr, dr);
+        ctx.fillRect(sx-dr/2, sy-dr/2, dr, dr);
         dimShown++;
       }
-      ctx.fill();
       ctx.globalAlpha = 1;
     }
   }
