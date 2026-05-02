@@ -43,6 +43,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .ct-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; font-size: 12px; }
 .ct-row:hover { background: rgba(255,255,255,0.05); }
 .ct-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+/* Color-picker swatch in cell-type sidebar (click to change type's color) */
+input.ct-swatch { padding: 0; border: none; background: transparent;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  cursor: pointer; }
+input.ct-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+input.ct-swatch::-webkit-color-swatch { border: none; border-radius: 3px; }
+input.ct-swatch::-moz-color-swatch { border: none; border-radius: 3px; }
 .ct-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ct-count { font-size: 10px; color: #888; }
 .ct-row.dimmed .ct-label { color: #555; }
@@ -220,6 +227,10 @@ input.gene-swatch::-moz-color-swatch { border: none; border-radius: 3px; }
         <label for="show-nucleus-toggle" style="margin:0; cursor:pointer;">Nucleus boundaries <span style="color:#666; font-size:10px;">(N)</span></label>
       </div>
       <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
+        <input type="checkbox" id="show-deselected-toggle" checked>
+        <label for="show-deselected-toggle" style="margin:0; cursor:pointer;">Show deselected cells (dim) <span style="color:#666; font-size:10px;">(X)</span></label>
+      </div>
+      <div style="margin-top:4px; display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="layer-overlay-toggle">
         <label for="layer-overlay-toggle" style="margin:0; cursor:pointer;">Layer overlay <span style="color:#666; font-size:10px;">(L)</span></label>
       </div>
@@ -303,6 +314,7 @@ let cellToBoundaryIdx = null; // mapping from cell index to boundary polygon ind
 let showBoundaries = true;
 let showNucleus = true;
 let showQcDetails = false; // show HANN conf, margin, doublet info in tooltips
+let showDeselectedCells = true; // dim-render filtered-out cells + allow hover (default ON for spatial context)
 const BOUNDARY_ZOOM_THRESHOLD = 3.0; // only show when zoomed in this much
 
 // ── Transcript molecule state ──
@@ -310,6 +322,9 @@ let transcriptIndex = null;
 let transcriptGenes = {};
 let activeGenes = new Set();
 let customGeneColors = {};   // gene -> custom hex color set by user
+// Per-mode user color overrides for cell types: { mode: { typeName: '#hex' } }
+// Persists across in-session mode switches; reset on page reload.
+let customCellTypeColors = {};
 let moleculeSize = 1;
 let moleculeOpacity = 0.6;
 const MAX_ACTIVE_GENES = 5;
@@ -731,6 +746,37 @@ function precomputeColors() {
   }
 }
 
+// Apply a user-chosen color override for a cell type in a given color mode.
+// Mutates the live palette so all downstream readers see it, records the
+// override, then re-renders. Sidebar + legend swatches re-sync via rebuilds.
+function applyCellTypeColor(mode, name, color) {
+  if (!customCellTypeColors[mode]) customCellTypeColors[mode] = {};
+  customCellTypeColors[mode][name] = color;
+  // SCZ palette key convention: <mode>_colors (subclass_colors, etc.)
+  const paletteKey = mode + '_colors';
+  if (indexData[paletteKey]) {
+    indexData[paletteKey][name] = color;
+  }
+  if (colorMode === mode) precomputeColors();
+  buildCellTypeFilter();
+  render();
+  updateLegend();
+}
+
+// Normalize CSS color literal to 7-char #rrggbb (input type=color requirement)
+function _normalizeHex(c) {
+  if (!c || typeof c !== 'string') return '#666666';
+  if (c[0] === '#') {
+    if (c.length === 4) return ('#' + c[1]+c[1] + c[2]+c[2] + c[3]+c[3]).toLowerCase();
+    if (c.length >= 7) return c.toLowerCase().slice(0, 7);
+  }
+  try {
+    const ctxTmp = document.createElement('canvas').getContext('2d');
+    ctxTmp.fillStyle = c;
+    return ctxTmp.fillStyle.toLowerCase().slice(0, 7);
+  } catch (e) { return '#666666'; }
+}
+
 function buildLayerGrid() {
   if (!sampleData) return;
   const BIN = 50;
@@ -829,13 +875,19 @@ function buildCellTypeFilter() {
       if (cb.checked) activeTypes.add(name); else activeTypes.delete(name);
       row.classList.toggle('dimmed',!cb.checked); render();
     };
-    const color = palette[name] || '#666';
-    const swatch = document.createElement('div'); swatch.className='ct-swatch'; swatch.style.background=color;
+    // Color-picker swatch — click opens native picker without toggling row
+    const swatch = document.createElement('input');
+    swatch.type = 'color';
+    swatch.className = 'ct-swatch';
+    swatch.value = _normalizeHex(palette[name] || '#666666');
+    swatch.title = `Click to change ${name}'s color`;
+    swatch.onclick = (e) => e.stopPropagation();
+    swatch.oninput = (e) => applyCellTypeColor(colorMode, name, e.target.value);
     const label = document.createElement('span'); label.className='ct-label'; label.textContent=name;
     const countEl = document.createElement('span'); countEl.className='ct-count'; countEl.textContent=count.toLocaleString();
     row.appendChild(cb); row.appendChild(swatch); row.appendChild(label); row.appendChild(countEl);
     row.onclick = (e) => {
-      if (e.target===cb) return;
+      if (e.target===cb || e.target===swatch) return;
       if (soloMode) { soloRow(name); return; }
       cb.checked=!cb.checked; cb.onchange();
     };
@@ -969,6 +1021,58 @@ function render() {
   // Determine if we should render boundaries or centroids
   const renderBoundaries = showBoundaries && boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
   const bMap = cellToBoundaryIdx; // cell index → boundary index (-1 if none)
+
+  // Pre-pass: dim-render deselected cells so the user has tissue context
+  // (and can hover over them — see handleHover). Mirrors active-layer behavior:
+  // polygon outline at high zoom, scatter points at low zoom. ALSO respects
+  // hideQcFail — QC-failed cells stay hidden in both layers when filter is on.
+  let dimShown = 0;
+  if (showDeselectedCells) {
+    if (renderBoundaries) {
+      // High zoom: per-polygon stroke (matches active-layer pattern; batched
+      // Path2D was empirically 60× slower for many small subpaths)
+      const bd = boundaryData; const vpc = bd.vpc;
+      ctx.globalAlpha = 0.45;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.0;
+      for (let i = 0; i < n; i++) {
+        if (activeSet.has(filterIndices[i])) continue;
+        if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
+        const cx = x[i] * viewScale + viewX;
+        const cy = y[i] * viewScale + viewY;
+        if (cx < -50 || cx > w+50 || cy < -50 || cy > h+50) continue;
+        const bi = bMap ? bMap[i] : i;
+        if (bi < 0 || bi >= bd.n) continue;
+        const base = bi * vpc;
+        ctx.beginPath();
+        ctx.moveTo(bd.bx[base]*viewScale+viewX, bd.by[base]*viewScale+viewY);
+        for (let v = 1; v < vpc; v++) {
+          ctx.lineTo(bd.bx[base+v]*viewScale+viewX, bd.by[base+v]*viewScale+viewY);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        dimShown++;
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      // Low/medium zoom: batched-rect Path2D scatter (single fill() — α=0.55
+      // since overlapping rects in one fill don't stack alpha)
+      const dr = pointSize * Math.max(1, Math.sqrt(zoomRatio));
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        if (activeSet.has(filterIndices[i])) continue;
+        if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
+        const sx = x[i]*viewScale+viewX, sy = y[i]*viewScale+viewY;
+        if (sx < -dr || sx > w+dr || sy < -dr || sy > h+dr) continue;
+        ctx.rect(sx-dr/2, sy-dr/2, dr, dr);
+        dimShown++;
+      }
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
 
   if (renderBoundaries) {
     // ── Render cells as filled polygons (with point fallback) ──
@@ -1156,6 +1260,7 @@ function render() {
 
   document.getElementById('info-shown').textContent = shown.toLocaleString();
   let statusText = `Zoom: ${viewScale.toFixed(1)}x | ${shown.toLocaleString()} cells`;
+  if (dimShown > 0) statusText += ` (+ ${dimShown.toLocaleString()} dimmed)`;
   if (renderBoundaries) statusText += ' (boundaries)';
   if (showNucleus && nucleusData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD) statusText += ' (nuclei)';
   if (molsShown > 0) statusText += ` | ${molsShown.toLocaleString()} molecules`;
@@ -1195,9 +1300,12 @@ function updateLegend() {
       const sorted = [...activeTypes].sort((a, b) => a.localeCompare(b));
       html += '<div class="leg-title">Active cell types</div>';
       for (const name of sorted) {
-        const swatch = palette[name] || '#666';
+        const swatch = _normalizeHex(palette[name] || '#666666');
         const count = counts[name] || 0;
-        html += `<div class="leg-row"><div class="leg-swatch" style="background:${swatch}"></div>`
+        const safeName = name.replace(/"/g, '&quot;');
+        html += `<div class="leg-row">`
+          + `<input type="color" class="leg-swatch" value="${swatch}" `
+          +   `data-celltype="${safeName}" title="Click to change ${safeName}'s color">`
           + `<span>${name} (${count.toLocaleString()})</span></div>`;
       }
       html += '<div style="height:6px;"></div>';
@@ -1282,6 +1390,12 @@ function updateLegend() {
       render();
       buildGeneList(document.getElementById('gene-search').value);
       updateLegend();
+    };
+  });
+  // Cell-type legend swatches — reuse the same applyCellTypeColor pipeline
+  el.querySelectorAll('input.leg-swatch[data-celltype]').forEach(inp => {
+    inp.oninput = (e) => {
+      applyCellTypeColor(colorMode, e.target.dataset.celltype, e.target.value);
     };
   });
 }
@@ -1395,6 +1509,7 @@ function setupEvents() {
   document.getElementById('layer-overlay-opacity').oninput = (e) => { layerOverlayOpacity=parseFloat(e.target.value); document.getElementById('overlay-opacity-val').textContent=layerOverlayOpacity; render(); };
   document.getElementById('show-boundaries-toggle').onchange = (e) => { showBoundaries=e.target.checked; render(); };
   document.getElementById('show-nucleus-toggle').onchange = (e) => { showNucleus=e.target.checked; render(); };
+  document.getElementById('show-deselected-toggle').onchange = (e) => { showDeselectedCells=e.target.checked; render(); };
   document.getElementById('hide-qc-fail-toggle').onchange = (e) => { hideQcFail=e.target.checked; render(); };
   document.getElementById('show-qc-details-toggle').onchange = (e) => {
     showQcDetails = e.target.checked;
@@ -1439,6 +1554,7 @@ function setupEvents() {
     if (e.key==='l') { showLayerOverlay=!showLayerOverlay; document.getElementById('layer-overlay-toggle').checked=showLayerOverlay; document.getElementById('layer-overlay-opacity-row').style.display=showLayerOverlay?'block':'none'; render(); }
     if (e.key==='b') { showBoundaries=!showBoundaries; document.getElementById('show-boundaries-toggle').checked=showBoundaries; render(); }
     if (e.key==='n') { showNucleus=!showNucleus; document.getElementById('show-nucleus-toggle').checked=showNucleus; render(); }
+    if (e.key==='x') { showDeselectedCells=!showDeselectedCells; document.getElementById('show-deselected-toggle').checked=showDeselectedCells; render(); }
     if (e.key==='f') { hideQcFail=!hideQcFail; document.getElementById('hide-qc-fail-toggle').checked=hideQcFail; render(); }
     if (e.key==='d') { const el=document.getElementById('show-qc-details-toggle'); el.checked=!el.checked; el.onchange({target:el}); }
     if (e.key==='t') {
@@ -1535,6 +1651,18 @@ function handleHover(e) {
     else { filterCats=sampleData.subclass_cats; filterIndices=sampleData.subclass; }
     const activeSet = new Set();
     filterCats.forEach((c,i) => { if (activeTypes.has(c)) activeSet.add(i); });
+    // Per-cell flag: was this cell hovered while filtered-out (deselected)?
+    // Used to add a "deselected" badge in the tooltip when showDeselectedCells
+    // lets users hover dim cells.
+    const isDeselected = new Uint8Array(n);
+
+    // Allow hover on filtered-out cells when toggle on. Still always respect
+    // hideQcFail — QC-failed cells stay hidden in both layers when filter is on.
+    const passesCellHover = (i) => {
+      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) return false;
+      if (activeSet.has(filterIndices[i])) return true;
+      return showDeselectedCells;
+    };
 
     const zoomRatio = baseScale > 0 ? viewScale / baseScale : 1;
     const useBoundaryHit = boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
@@ -1552,7 +1680,7 @@ function handleHover(e) {
 
       const bMapH = cellToBoundaryIdx;
       for (let i = 0; i < n; i++) {
-        if (!activeSet.has(filterIndices[i])) continue;
+        if (!passesCellHover(i)) continue;
         const bi = bMapH ? bMapH[i] : i;
         if (bi < 0 || bi >= bd.n) continue; // no boundary for this cell
         // Quick centroid distance check
@@ -1572,7 +1700,10 @@ function handleHover(e) {
         if (inside) {
           // Found a cell — use centroid distance to pick the best if multiple overlap
           const d2 = cdx*cdx + cdy*cdy;
-          if (d2 < bestCellDist) { bestCellDist = d2; bestCellIdx = i; }
+          if (d2 < bestCellDist) {
+            bestCellDist = d2; bestCellIdx = i;
+            if (!activeSet.has(filterIndices[i])) isDeselected[i] = 1;
+          }
         }
       }
     } else {
@@ -1580,10 +1711,13 @@ function handleHover(e) {
       const cellThreshold = Math.max(20, pointSize*3);
       bestCellDist = cellThreshold*cellThreshold;
       for (let i=0; i<n; i++) {
-        if (!activeSet.has(filterIndices[i])) continue;
+        if (!passesCellHover(i)) continue;
         const sx=x[i]*viewScale+viewX, sy=y[i]*viewScale+viewY;
         const dx=mx-sx, dy=my-sy, d2=dx*dx+dy*dy;
-        if (d2 < bestCellDist) { bestCellDist=d2; bestCellIdx=i; }
+        if (d2 < bestCellDist) {
+          bestCellDist=d2; bestCellIdx=i;
+          if (!activeSet.has(filterIndices[i])) isDeselected[i] = 1;
+        }
       }
     }
 
@@ -1618,7 +1752,10 @@ function handleHover(e) {
         if (showMol) {
           html += `<div style="font-size:11px; color:#888;">Nearest cell:</div>`;
         }
-        html += `<div class="tt-label">${supertype}</div>`;
+        const dimBadge = isDeselected[bestCellIdx]
+          ? ' <span style="font-size:9px;color:#aaa;background:rgba(255,255,255,0.08);padding:0 4px;border-radius:3px;">deselected</span>'
+          : '';
+        html += `<div class="tt-label">${supertype}${dimBadge}</div>`;
         html += `<div>Subclass: ${subclass}</div>`;
         html += `<div>Class: ${cls}</div>`;
         html += `<div>Layer: <span style="color:${layerColor};font-weight:700;">${layer}</span></div>`;
