@@ -1,3 +1,6 @@
+// ── Shared core (loaded via core/*.js script tags before this file) ──
+const { normalizeHex, decodeBoundaryJson, buildCellToBoundaryMap, drawScaleBar } = window.SpatialViewerCore;
+
 // ── Section collapse ──
 function toggleSection(id) {
   document.getElementById(id).classList.toggle('collapsed');
@@ -157,66 +160,6 @@ async function loadSample(sampleId) {
 }
 
 // ── Boundary data loading ──
-function decodeBoundaryJson(raw) {
-  const n = raw.n_cells;
-  const vpc = raw.verts_per_cell;
-  const xOff = raw.x_offset;
-  const yOff = raw.y_offset;
-  const xScale = raw.x_scale;
-  const yScale = raw.y_scale;
-  const totalVerts = n * vpc;
-  const bx = new Float32Array(totalVerts);
-  const by = new Float32Array(totalVerts);
-  for (let i = 0; i < totalVerts; i++) {
-    bx[i] = raw.bx[i] * xScale + xOff;
-    by[i] = raw.by[i] * yScale + yOff;
-  }
-  return { n, vpc, bx, by };
-}
-
-// Build mapping from cell indices to boundary polygon indices.
-// Boundary data may have fewer entries than cell data (e.g. QC-filtered cells
-// were removed from boundaries but kept in the cell table).  The two arrays
-// are in the same spatial order, so we walk them in lockstep, skipping cell
-// entries that have no matching boundary polygon.
-function buildCellToBoundaryMap(bd) {
-  if (!bd || !sampleData) { cellToBoundaryIdx = null; return; }
-  const nCells = sampleData.n_cells;
-  const nBound = bd.n;
-  const vpc = bd.vpc;
-  const map = new Int32Array(nCells).fill(-1); // -1 = no boundary
-
-  if (nCells === nBound) {
-    // Perfect 1:1 — no mapping needed, but fill identity for uniformity
-    for (let i = 0; i < nCells; i++) map[i] = i;
-  } else {
-    // Precompute boundary centroids
-    const bcx = new Float32Array(nBound);
-    const bcy = new Float32Array(nBound);
-    for (let bi = 0; bi < nBound; bi++) {
-      const base = bi * vpc;
-      let sx = 0, sy = 0;
-      for (let v = 0; v < vpc; v++) { sx += bd.bx[base + v]; sy += bd.by[base + v]; }
-      bcx[bi] = sx / vpc;
-      bcy[bi] = sy / vpc;
-    }
-    // Walk both arrays in lockstep
-    let bi = 0;
-    const tol = 5; // µm tolerance for centroid matching
-    for (let ci = 0; ci < nCells && bi < nBound; ci++) {
-      const dx = sampleData.x[ci] - bcx[bi];
-      const dy = sampleData.y[ci] - bcy[bi];
-      if (dx * dx + dy * dy < tol * tol) {
-        map[ci] = bi;
-        bi++;
-      }
-      // else: this cell has no boundary polygon, skip it
-    }
-    console.log(`Boundary mapping: ${bi}/${nBound} boundaries matched to ${nCells} cells (${nCells - bi} cells without boundaries)`);
-  }
-  cellToBoundaryIdx = map;
-}
-
 async function loadBoundaryData(sampleId) {
   // Load cell and nucleus boundaries in parallel
   const [cellResp, nucResp] = await Promise.allSettled([
@@ -238,8 +181,13 @@ async function loadBoundaryData(sampleId) {
     nucleusData = null;
   }
 
-  // Build cell→boundary index mapping (handles mismatched counts)
-  buildCellToBoundaryMap(boundaryData);
+  cellToBoundaryIdx = buildCellToBoundaryMap(boundaryData, sampleData);
+  if (cellToBoundaryIdx && boundaryData && sampleData.n_cells !== boundaryData.n) {
+    let matched = 0;
+    for (let i = 0; i < cellToBoundaryIdx.length; i++) if (cellToBoundaryIdx[i] !== -1) matched++;
+    const unmatched = sampleData.n_cells - matched;
+    console.log(`Boundary mapping: ${matched}/${boundaryData.n} boundaries matched to ${sampleData.n_cells} cells (${unmatched} cells without boundaries)`);
+  }
 }
 
 // ── Transcript data loading ──
@@ -484,20 +432,6 @@ function applyCellTypeColor(mode, name, color) {
   updateLegend();
 }
 
-// Normalize CSS color literal to 7-char #rrggbb (input type=color requirement)
-function _normalizeHex(c) {
-  if (!c || typeof c !== 'string') return '#666666';
-  if (c[0] === '#') {
-    if (c.length === 4) return ('#' + c[1]+c[1] + c[2]+c[2] + c[3]+c[3]).toLowerCase();
-    if (c.length >= 7) return c.toLowerCase().slice(0, 7);
-  }
-  try {
-    const ctxTmp = document.createElement('canvas').getContext('2d');
-    ctxTmp.fillStyle = c;
-    return ctxTmp.fillStyle.toLowerCase().slice(0, 7);
-  } catch (e) { return '#666666'; }
-}
-
 function buildLayerGrid() {
   if (!sampleData) return;
   const BIN = 50;
@@ -600,7 +534,7 @@ function buildCellTypeFilter() {
     const swatch = document.createElement('input');
     swatch.type = 'color';
     swatch.className = 'ct-swatch';
-    swatch.value = _normalizeHex(palette[name] || '#666666');
+    swatch.value = normalizeHex(palette[name] || '#666666');
     swatch.title = `Click to change ${name}'s color`;
     swatch.onclick = (e) => e.stopPropagation();
     swatch.oninput = (e) => applyCellTypeColor(colorMode, name, e.target.value);
@@ -978,7 +912,7 @@ function render() {
   }
 
   // Draw persistent scale bar
-  drawScaleBar();
+  if (sampleData) drawScaleBar(ctx, { viewScale, logicalWidth, logicalHeight });
 
   document.getElementById('info-shown').textContent = shown.toLocaleString();
   let statusText = `Zoom: ${viewScale.toFixed(1)}x | ${shown.toLocaleString()} cells`;
@@ -1022,7 +956,7 @@ function updateLegend() {
       const sorted = [...activeTypes].sort((a, b) => a.localeCompare(b));
       html += '<div class="leg-title">Active cell types</div>';
       for (const name of sorted) {
-        const swatch = _normalizeHex(palette[name] || '#666666');
+        const swatch = normalizeHex(palette[name] || '#666666');
         const count = counts[name] || 0;
         const safeName = name.replace(/"/g, '&quot;');
         html += `<div class="leg-row">`
@@ -1120,79 +1054,6 @@ function updateLegend() {
       applyCellTypeColor(colorMode, e.target.dataset.celltype, e.target.value);
     };
   });
-}
-
-// ── Scale bar ──
-function drawScaleBar() {
-  if (!sampleData) return;
-  const padding = 20;
-  const statusBarH = 30;
-  const barY = logicalHeight - statusBarH - 20;  // above the status bar
-  const barX = padding;
-
-  // viewScale = pixels per µm
-  // Pick a nice round µm value that gives a bar ~100-200px wide
-  const targetPx = 150;
-  const targetUm = targetPx / viewScale;
-  // Find nice round number: 1, 2, 5 × 10^n
-  const pow = Math.pow(10, Math.floor(Math.log10(targetUm)));
-  const d = targetUm / pow;
-  let niceUm;
-  if (d < 1.5) niceUm = pow;
-  else if (d < 3.5) niceUm = 2 * pow;
-  else if (d < 7.5) niceUm = 5 * pow;
-  else niceUm = 10 * pow;
-  // Clamp to at least 1 µm
-  niceUm = Math.max(1, Math.round(niceUm));
-
-  const barPx = niceUm * viewScale;
-
-  // Format label
-  let label;
-  if (niceUm >= 1000) label = `${niceUm / 1000} mm`;
-  else label = `${niceUm} µm`;
-
-  // Draw with semi-transparent background for contrast
-  ctx.save();
-  ctx.globalAlpha = 0.85;
-
-  // Background pill behind the scale bar + label
-  const bgPad = 6;
-  ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
-  const textW = ctx.measureText(label).width;
-  const bgW = Math.max(barPx, textW) + bgPad * 2;
-  const bgH = 32;
-  const bgX = barX - bgPad;
-  const bgY = barY - 22;
-  ctx.fillStyle = 'rgba(13,13,26,0.7)';
-  ctx.beginPath();
-  ctx.roundRect(bgX, bgY, bgW, bgH, 4);
-  ctx.fill();
-
-  // Scale bar line (thin white)
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(barX, barY);
-  ctx.lineTo(barX + barPx, barY);
-  ctx.stroke();
-
-  // Small end ticks
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(barX, barY - 3);
-  ctx.lineTo(barX, barY + 3);
-  ctx.moveTo(barX + barPx, barY - 3);
-  ctx.lineTo(barX + barPx, barY + 3);
-  ctx.stroke();
-
-  // Label text above the bar
-  ctx.fillStyle = '#ffffff';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText(label, barX + barPx / 2, barY - 5);
-
-  ctx.restore();
 }
 
 // ── Events ──
