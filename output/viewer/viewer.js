@@ -1,5 +1,11 @@
 // ── Shared core (loaded via core/*.js script tags before this file) ──
-const { normalizeHex, decodeBoundaryJson, buildCellToBoundaryMap, drawScaleBar } = window.SpatialViewerCore;
+const {
+  normalizeHex,
+  decodeBoundaryJson, buildCellToBoundaryMap,
+  drawDimLayer, drawBoundaryLayer, drawNucleusOnlyLayer, drawScatterLayer, drawTranscriptOverlay,
+  hitTestMolecule, hitTestCell,
+  drawScaleBar,
+} = window.SpatialViewerCore;
 
 // ── Section collapse ──
 function toggleSection(id) {
@@ -639,6 +645,7 @@ function render() {
   const x = sampleData.x, y = sampleData.y;
   const colors = sampleData._colors;
 
+  // Build per-cell `passes` mask from current colorMode + activeTypes.
   let filterCats, filterIndices;
   if (colorMode==='supertype') { filterCats=sampleData.supertype_cats; filterIndices=sampleData.supertype; }
   else if (colorMode==='layer') { filterCats=sampleData.layer_cats; filterIndices=sampleData.layer; }
@@ -646,12 +653,20 @@ function render() {
   else { filterCats=sampleData.subclass_cats; filterIndices=sampleData.subclass; }
   const activeSet = new Set();
   filterCats.forEach((c,i) => { if (activeTypes.has(c)) activeSet.add(i); });
+  const passes = new Uint8Array(n);
+  for (let i = 0; i < n; i++) {
+    if (activeSet.has(filterIndices[i])) passes[i] = 1;
+  }
+  const qcMask = (hideQcFail && sampleData.qc_status) ? sampleData.qc_status : null;
 
   const zoomRatio = baseScale > 0 ? viewScale / baseScale : 1;
   const r = pointSize * Math.max(1, Math.sqrt(zoomRatio));
-  let shown = 0;
+  const renderBoundaries = showBoundaries && boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
+  const showNuc = showNucleus && nucleusData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
+  const bMap = cellToBoundaryIdx;
+  const baseOpts = { x, y, n, viewScale, viewX, viewY, w, h };
 
-  // Layer overlay
+  // ── Layer overlay (study-specific: SCZ-only binned grid of layer colors) ──
   if (showLayerOverlay && colorMode !== 'layer' && sampleData._layerGrid) {
     const grid = sampleData._layerGrid;
     const layerPalette = indexData.layer_colors;
@@ -673,252 +688,51 @@ function render() {
     ctx.globalAlpha = 1;
   }
 
-  // Determine if we should render boundaries or centroids
-  const renderBoundaries = showBoundaries && boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
-  const bMap = cellToBoundaryIdx; // cell index → boundary index (-1 if none)
-
-  // Pre-pass: dim-render deselected cells so the user has tissue context
-  // (and can hover over them — see handleHover). Mirrors active-layer behavior:
-  // polygon outline at high zoom, scatter points at low zoom. ALSO respects
-  // hideQcFail — QC-failed cells stay hidden in both layers when filter is on.
+  // Dim layer: deselected cells (passes[i]===0) so the user has tissue context.
   let dimShown = 0;
   if (showDeselectedCells) {
-    if (renderBoundaries) {
-      // High zoom: per-polygon stroke (matches active-layer pattern; batched
-      // Path2D was empirically 60× slower for many small subpaths)
-      const bd = boundaryData; const vpc = bd.vpc;
-      ctx.globalAlpha = 0.45;
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.0;
-      for (let i = 0; i < n; i++) {
-        if (activeSet.has(filterIndices[i])) continue;
-        if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
-        const cx = x[i] * viewScale + viewX;
-        const cy = y[i] * viewScale + viewY;
-        if (cx < -50 || cx > w+50 || cy < -50 || cy > h+50) continue;
-        const bi = bMap ? bMap[i] : i;
-        if (bi < 0 || bi >= bd.n) continue;
-        const base = bi * vpc;
-        ctx.beginPath();
-        ctx.moveTo(bd.bx[base]*viewScale+viewX, bd.by[base]*viewScale+viewY);
-        for (let v = 1; v < vpc; v++) {
-          ctx.lineTo(bd.bx[base+v]*viewScale+viewX, bd.by[base+v]*viewScale+viewY);
-        }
-        ctx.closePath();
-        ctx.stroke();
-        dimShown++;
-      }
-      ctx.globalAlpha = 1;
-    } else {
-      // Low/medium zoom: per-rect fillRect scatter. A single batched Path2D
-      // with 64K+ subpaths is faster on warm path (~5ms vs ~18ms) but
-      // cold-path browser tessellation can take 4+ seconds, freezing the UI
-      // on the first None click after page load. Per-rect fillRect has no
-      // such cold/warm cliff.
-      const dr = pointSize * Math.max(1, Math.sqrt(zoomRatio));
-      ctx.globalAlpha = 0.30;
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < n; i++) {
-        if (activeSet.has(filterIndices[i])) continue;
-        if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
-        const sx = x[i]*viewScale+viewX, sy = y[i]*viewScale+viewY;
-        if (sx < -dr || sx > w+dr || sy < -dr || sy > h+dr) continue;
-        ctx.fillRect(sx-dr/2, sy-dr/2, dr, dr);
-        dimShown++;
-      }
-      ctx.globalAlpha = 1;
-    }
+    dimShown = drawDimLayer(ctx, {
+      ...baseOpts, passes, qcMask, useBoundaries: renderBoundaries,
+      boundaryData, bMap, r,
+    }).shown;
   }
 
+  // Active cells: pick the fastest path that covers what we need to draw.
+  let shown = 0;
   if (renderBoundaries) {
-    // ── Render cells as filled polygons (with point fallback) ──
-    const bd = boundaryData;
-    const vpc = bd.vpc;
-    ctx.globalAlpha = pointOpacity;
-
-    // Batch by color, separating cells with/without boundary polygons
-    const colorPolygons = {};  // cells that have boundary data
-    const colorPoints = {};    // cells without boundary data (fallback to dots)
-
-    for (let i = 0; i < n; i++) {
-      if (!activeSet.has(filterIndices[i])) continue;
-      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
-
-      // Quick check: is centroid on screen?
-      const cx = x[i] * viewScale + viewX;
-      const cy = y[i] * viewScale + viewY;
-      if (cx < -50 || cx > w + 50 || cy < -50 || cy > h + 50) continue;
-
-      const c = colors[i];
-      const bi = bMap ? bMap[i] : i;
-      if (bi >= 0 && bi < bd.n) {
-        if (!colorPolygons[c]) colorPolygons[c] = [];
-        colorPolygons[c].push(bi);
-      } else {
-        // No boundary polygon for this cell — render as point
-        if (!colorPoints[c]) colorPoints[c] = [];
-        colorPoints[c].push(cx, cy);
-      }
-      shown++;
-    }
-
-    // Draw filled boundary polygons
-    for (const [color, boundaryIndices] of Object.entries(colorPolygons)) {
-      ctx.fillStyle = color;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 0.5;
-
-      for (const bi of boundaryIndices) {
-        const base = bi * vpc;
-        ctx.beginPath();
-        const sx0 = bd.bx[base] * viewScale + viewX;
-        const sy0 = bd.by[base] * viewScale + viewY;
-        ctx.moveTo(sx0, sy0);
-        for (let v = 1; v < vpc; v++) {
-          ctx.lineTo(bd.bx[base+v] * viewScale + viewX, bd.by[base+v] * viewScale + viewY);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-      }
-    }
-
-    // Draw fallback points for cells without boundaries
-    for (const [color, pts] of Object.entries(colorPoints)) {
-      ctx.fillStyle = color;
-      for (let j = 0; j < pts.length; j += 2) ctx.fillRect(pts[j]-r/2, pts[j+1]-r/2, r, r);
-    }
-    ctx.globalAlpha = 1;
-
-    // ── Render nucleus outlines (stroke only, no fill) ──
-    if (showNucleus && nucleusData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD) {
-      const nd = nucleusData;
-      const nvpc = nd.vpc;
-      ctx.globalAlpha = pointOpacity * 0.8;
-      ctx.lineWidth = 1.0;
-
-      for (const [color, boundaryIndices] of Object.entries(colorPolygons)) {
-        ctx.strokeStyle = color;
-        for (const bi of boundaryIndices) {
-          if (bi >= nd.n) continue;
-          const base = bi * nvpc;
-          ctx.beginPath();
-          ctx.moveTo(nd.bx[base] * viewScale + viewX, nd.by[base] * viewScale + viewY);
-          for (let v = 1; v < nvpc; v++) {
-            ctx.lineTo(nd.bx[base+v] * viewScale + viewX, nd.by[base+v] * viewScale + viewY);
-          }
-          ctx.closePath();
-          ctx.stroke();
-        }
-      }
-      ctx.globalAlpha = 1;
-    }
-
-  } else if (showNucleus && nucleusData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD) {
-    // ── Render nucleus outlines without cell boundaries ──
-    const nd = nucleusData;
-    const nvpc = nd.vpc;
-    ctx.globalAlpha = pointOpacity * 0.8;
-    ctx.lineWidth = 1.0;
-
-    const colorPolygons = {};
-    const colorPoints = {};
-    for (let i = 0; i < n; i++) {
-      if (!activeSet.has(filterIndices[i])) continue;
-      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
-      const cx = x[i] * viewScale + viewX;
-      const cy = y[i] * viewScale + viewY;
-      if (cx < -50 || cx > w + 50 || cy < -50 || cy > h + 50) continue;
-      const c = colors[i];
-      const bi = bMap ? bMap[i] : i;
-      if (bi >= 0 && bi < nd.n) {
-        if (!colorPolygons[c]) colorPolygons[c] = [];
-        colorPolygons[c].push({ci: i, bi: bi});
-      } else {
-        if (!colorPoints[c]) colorPoints[c] = [];
-        colorPoints[c].push(cx, cy);
-      }
-      shown++;
-    }
-
-    // Draw point centroids first (for all visible cells)
-    for (const [color, items] of Object.entries(colorPolygons)) {
-      ctx.fillStyle = color;
-      for (const {ci} of items) {
-        const sx = x[ci] * viewScale + viewX;
-        const sy = y[ci] * viewScale + viewY;
-        ctx.fillRect(sx - r/2, sy - r/2, r, r);
-      }
-    }
-    for (const [color, pts] of Object.entries(colorPoints)) {
-      ctx.fillStyle = color;
-      for (let j = 0; j < pts.length; j += 2) ctx.fillRect(pts[j]-r/2, pts[j+1]-r/2, r, r);
-    }
-
-    // Draw nucleus outlines on top
-    for (const [color, items] of Object.entries(colorPolygons)) {
-      ctx.strokeStyle = color;
-      for (const {bi} of items) {
-        const base = bi * nvpc;
-        ctx.beginPath();
-        ctx.moveTo(nd.bx[base] * viewScale + viewX, nd.by[base] * viewScale + viewY);
-        for (let v = 1; v < nvpc; v++) {
-          ctx.lineTo(nd.bx[base+v] * viewScale + viewX, nd.by[base+v] * viewScale + viewY);
-        }
-        ctx.closePath();
-        ctx.stroke();
-      }
-    }
-    ctx.globalAlpha = 1;
-
+    shown = drawBoundaryLayer(ctx, {
+      ...baseOpts, colors, passes, qcMask, boundaryData, bMap, r,
+      alpha: pointOpacity,
+      nucleusData: showNuc ? nucleusData : null,
+      nucleusAlpha: pointOpacity * 0.8,
+    }).shown;
+  } else if (showNuc) {
+    shown = drawNucleusOnlyLayer(ctx, {
+      ...baseOpts, colors, passes, qcMask, nucleusData, bMap, r, alpha: pointOpacity,
+    }).shown;
   } else {
-    // ── Render cells as point centroids (original behavior) ──
-    const colorBuckets = {};
-    for (let i = 0; i < n; i++) {
-      if (!activeSet.has(filterIndices[i])) continue;
-      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) continue;
-      const sx = x[i]*viewScale+viewX, sy = y[i]*viewScale+viewY;
-      if (sx < -r || sx > w+r || sy < -r || sy > h+r) continue;
-      const c = colors[i];
-      if (!colorBuckets[c]) colorBuckets[c] = [];
-      colorBuckets[c].push(sx, sy);
-      shown++;
-    }
-    ctx.globalAlpha = pointOpacity;
-    for (const [color, pts] of Object.entries(colorBuckets)) {
-      ctx.fillStyle = color;
-      for (let i = 0; i < pts.length; i += 2) ctx.fillRect(pts[i]-r/2, pts[i+1]-r/2, r, r);
-    }
-    ctx.globalAlpha = 1;
+    shown = drawScatterLayer(ctx, {
+      ...baseOpts, colors, passes, qcMask, r, alpha: pointOpacity,
+    }).shown;
   }
 
-  // ── Render transcript molecules on top ──
+  // Transcript molecules on top.
   let molsShown = 0;
   if (activeGenes.size > 0) {
-    const mr = moleculeSize * Math.max(0.5, Math.sqrt(zoomRatio) * 0.5);
-    ctx.globalAlpha = moleculeOpacity;
-    for (const gene of activeGenes) {
-      const gd = transcriptGenes[gene]; if (!gd) continue;
-      ctx.fillStyle = gd.color;
-      const gx = gd.x, gy = gd.y, gn = gd.n;
-      for (let i = 0; i < gn; i++) {
-        const sx = gx[i]*viewScale+viewX, sy = gy[i]*viewScale+viewY;
-        if (sx < -mr || sx > w+mr || sy < -mr || sy > h+mr) continue;
-        ctx.fillRect(sx-mr/2, sy-mr/2, mr, mr);
-        molsShown++;
-      }
-    }
-    ctx.globalAlpha = 1;
+    molsShown = drawTranscriptOverlay(ctx, {
+      transcriptGenes, activeGenes,
+      viewScale, viewX, viewY, w, h,
+      moleculeSize, moleculeOpacity, zoomRatio,
+    }).shown;
   }
 
-  // Draw persistent scale bar
-  if (sampleData) drawScaleBar(ctx, { viewScale, logicalWidth, logicalHeight });
+  drawScaleBar(ctx, { viewScale, logicalWidth, logicalHeight });
 
   document.getElementById('info-shown').textContent = shown.toLocaleString();
   let statusText = `Zoom: ${viewScale.toFixed(1)}x | ${shown.toLocaleString()} cells`;
   if (dimShown > 0) statusText += ` (+ ${dimShown.toLocaleString()} dimmed)`;
   if (renderBoundaries) statusText += ' (boundaries)';
-  if (showNucleus && nucleusData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD) statusText += ' (nuclei)';
+  if (showNuc) statusText += ' (nuclei)';
   if (molsShown > 0) statusText += ` | ${molsShown.toLocaleString()} molecules`;
   document.getElementById('status-right').textContent = statusText;
   updateLegend();
@@ -1188,45 +1002,16 @@ function handleHover(e) {
     const mx = e.clientX-rect.left, my = e.clientY-rect.top;
     const tooltip = document.getElementById('tooltip');
     const sidebarWidth = document.getElementById('sidebar').offsetWidth;
+    const x = sampleData.x, y = sampleData.y, n = sampleData.n_cells;
 
-    // ── Check transcript molecules first (they render on top) ──
-    // Work in data coordinates to avoid per-molecule screen transform
-    let bestMolDist = Infinity, bestMolGene = null, bestMolIdx = -1;
-    if (activeGenes.size > 0) {
-      const molThreshPx = Math.max(15, moleculeSize * 5);
-      const molThreshData = molThreshPx / viewScale; // threshold in data coords
-      const molThreshData2 = molThreshData * molThreshData;
-      // Mouse position in data coordinates
-      const mxData = (mx - viewX) / viewScale;
-      const myData = (my - viewY) / viewScale;
-      // Visible data range for frustum culling
-      const dataXMin = -viewX / viewScale - 20/viewScale;
-      const dataXMax = (logicalWidth - viewX) / viewScale + 20/viewScale;
-      const dataYMin = -viewY / viewScale - 20/viewScale;
-      const dataYMax = (logicalHeight - viewY) / viewScale + 20/viewScale;
+    // Molecule hover (rendered on top → checked first).
+    const molHit = activeGenes.size > 0 ? hitTestMolecule({
+      mx, my, transcriptGenes, activeGenes,
+      viewScale, viewX, viewY, w: logicalWidth, h: logicalHeight,
+      moleculeSize,
+    }) : null;
 
-      for (const gene of activeGenes) {
-        const gd = transcriptGenes[gene]; if (!gd) continue;
-        const gx = gd.x, gy = gd.y, gn = gd.n;
-        for (let i = 0; i < gn; i++) {
-          const px = gx[i], py = gy[i];
-          // Skip off-screen molecules (frustum cull in data space)
-          if (px < dataXMin || px > dataXMax || py < dataYMin || py > dataYMax) continue;
-          const dx = mxData-px, dy = myData-py, d2 = dx*dx+dy*dy;
-          if (d2 < molThreshData2 && d2 < bestMolDist) {
-            bestMolDist = d2;
-            bestMolGene = gene;
-            bestMolIdx = i;
-          }
-        }
-      }
-    }
-
-    // ── Check cells ──
-    // Strategy: if boundaries are loaded and we're zoomed in enough, use point-in-polygon
-    // hit testing. Otherwise fall back to centroid distance.
-    let bestCellDist = Infinity, bestCellIdx = -1;
-    const n=sampleData.n_cells, x=sampleData.x, y=sampleData.y;
+    // Build hover masks. Same colorMode → filterIndices switch as render().
     let filterCats, filterIndices;
     if (colorMode==='supertype') { filterCats=sampleData.supertype_cats; filterIndices=sampleData.supertype; }
     else if (colorMode==='layer') { filterCats=sampleData.layer_cats; filterIndices=sampleData.layer; }
@@ -1234,80 +1019,37 @@ function handleHover(e) {
     else { filterCats=sampleData.subclass_cats; filterIndices=sampleData.subclass; }
     const activeSet = new Set();
     filterCats.forEach((c,i) => { if (activeTypes.has(c)) activeSet.add(i); });
-    // Per-cell flag: was this cell hovered while filtered-out (deselected)?
-    // Used to add a "deselected" badge in the tooltip when showDeselectedCells
-    // lets users hover dim cells.
+
+    // passesHover: respect hideQcFail; allow filtered-out cells when showDeselectedCells.
+    // isDeselected: flag the ones we let through despite being filtered, so the
+    // tooltip can render a badge.
+    const passesHover = new Uint8Array(n);
     const isDeselected = new Uint8Array(n);
-
-    // Allow hover on filtered-out cells when toggle on. Still always respect
-    // hideQcFail — QC-failed cells stay hidden in both layers when filter is on.
-    const passesCellHover = (i) => {
-      if (hideQcFail && sampleData.qc_status && sampleData.qc_status[i] > 0) return false;
-      if (activeSet.has(filterIndices[i])) return true;
-      return showDeselectedCells;
-    };
-
-    const zoomRatio = baseScale > 0 ? viewScale / baseScale : 1;
-    const useBoundaryHit = boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
-
-    if (useBoundaryHit) {
-      // Point-in-polygon test using boundary data
-      // Convert mouse to data coordinates
-      const mxD = (mx - viewX) / viewScale;
-      const myD = (my - viewY) / viewScale;
-      const bd = boundaryData;
-      const vpc = bd.vpc;
-      // Pre-filter: only check cells whose centroid is reasonably close (within ~50µm)
-      const searchRadius = 50;
-      const sr2 = searchRadius * searchRadius;
-
-      const bMapH = cellToBoundaryIdx;
-      for (let i = 0; i < n; i++) {
-        if (!passesCellHover(i)) continue;
-        const bi = bMapH ? bMapH[i] : i;
-        if (bi < 0 || bi >= bd.n) continue; // no boundary for this cell
-        // Quick centroid distance check
-        const cdx = mxD - x[i], cdy = myD - y[i];
-        if (cdx*cdx + cdy*cdy > sr2) continue;
-        // Ray-casting point-in-polygon test
-        const base = bi * vpc;
-        let inside = false;
-        for (let v = 0, w = vpc - 1; v < vpc; w = v++) {
-          const vx = bd.bx[base+v], vy = bd.by[base+v];
-          const wx = bd.bx[base+w], wy = bd.by[base+w];
-          if (((vy > myD) !== (wy > myD)) &&
-              (mxD < (wx - vx) * (myD - vy) / (wy - vy) + vx)) {
-            inside = !inside;
-          }
-        }
-        if (inside) {
-          // Found a cell — use centroid distance to pick the best if multiple overlap
-          const d2 = cdx*cdx + cdy*cdy;
-          if (d2 < bestCellDist) {
-            bestCellDist = d2; bestCellIdx = i;
-            if (!activeSet.has(filterIndices[i])) isDeselected[i] = 1;
-          }
-        }
-      }
-    } else {
-      // Fallback: centroid distance
-      const cellThreshold = Math.max(20, pointSize*3);
-      bestCellDist = cellThreshold*cellThreshold;
-      for (let i=0; i<n; i++) {
-        if (!passesCellHover(i)) continue;
-        const sx=x[i]*viewScale+viewX, sy=y[i]*viewScale+viewY;
-        const dx=mx-sx, dy=my-sy, d2=dx*dx+dy*dy;
-        if (d2 < bestCellDist) {
-          bestCellDist=d2; bestCellIdx=i;
-          if (!activeSet.has(filterIndices[i])) isDeselected[i] = 1;
-        }
+    const qcFail = sampleData.qc_status;
+    for (let i = 0; i < n; i++) {
+      if (hideQcFail && qcFail && qcFail[i] > 0) continue;
+      if (activeSet.has(filterIndices[i])) {
+        passesHover[i] = 1;
+      } else if (showDeselectedCells) {
+        passesHover[i] = 1;
+        isDeselected[i] = 1;
       }
     }
 
-    // ── Determine what to show ──
-    // Molecules take priority if one is found (they're rendered on top)
-    const showMol = bestMolGene !== null;
-    const showCell = bestCellIdx >= 0;
+    const zoomRatio = baseScale > 0 ? viewScale / baseScale : 1;
+    const useBoundary = boundaryData && zoomRatio >= BOUNDARY_ZOOM_THRESHOLD;
+    const cellHit = hitTestCell({
+      mx, my, x, y, n, passes: passesHover, isDeselected,
+      viewScale, viewX, viewY,
+      useBoundary, boundaryData, bMap: cellToBoundaryIdx,
+      pointSize,
+    });
+
+    const showMol = molHit !== null;
+    const showCell = cellHit !== null;
+    const bestMolGene = molHit ? molHit.gene : null;
+    const bestMolIdx = molHit ? molHit.idx : -1;
+    const bestCellIdx = showCell ? cellHit.idx : -1;
 
     if (showMol || showCell) {
       let html = '';
