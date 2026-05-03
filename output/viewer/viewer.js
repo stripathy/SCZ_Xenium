@@ -5,6 +5,8 @@ const {
   drawDimLayer, drawBoundaryLayer, drawNucleusOnlyLayer, drawScatterLayer, drawTranscriptOverlay,
   hitTestMolecule, hitTestCell,
   drawScaleBar,
+  renderTooltip,
+  createApp, features,
 } = window.SpatialViewerCore;
 
 // ── Section collapse ──
@@ -18,9 +20,6 @@ let sampleData = null;
 let indexData = null;
 let colorMode = 'subclass';
 let activeTypes = new Set();
-let cellTypeSearchFilter = '';
-let soloMode = false;
-let soloType = null;
 let pointSize = 2;
 let pointOpacity = 0.8;
 let showLayerOverlay = false;
@@ -44,7 +43,6 @@ let cellToBoundaryIdx = null; // mapping from cell index to boundary polygon ind
 let showBoundaries = true;
 let showNucleus = true;
 let showQcDetails = false; // show HANN conf, margin, doublet info in tooltips
-let showDeselectedCells = true; // dim-render filtered-out cells + allow hover (default ON for spatial context)
 const BOUNDARY_ZOOM_THRESHOLD = 3.0; // only show when zoomed in this much
 
 // ── Transcript molecule state ──
@@ -62,6 +60,44 @@ const MAX_ACTIVE_GENES = 5;
 const GENE_COLORS = [
   '#FF4444', '#44FF44', '#FFFF44', '#FF44FF', '#44FFFF',
 ];
+
+// ── App + adapter ──
+// State that features own (showDeselectedCells, soloMode, soloType,
+// cellTypeSearchFilter, geneSearchFilter) lives in app.state. Everything
+// else stays as module-scope `let` for now — narrowest possible refactor.
+const adapter = createSczAdapter({
+  getSampleData: () => sampleData,
+  getIndexData: () => indexData,
+  getColorMode: () => colorMode,
+  getActiveTypes: () => activeTypes,
+  setActiveTypes: (s) => { activeTypes = s; },
+  getCustomCellTypeColors: () => customCellTypeColors,
+  getCustomGeneColors: () => customGeneColors,
+  getTranscriptGenes: () => transcriptGenes,
+  getShowQcDetails: () => showQcDetails,
+  precomputeColors: () => precomputeColors(),
+  buildCellTypeFilter: () => buildCellTypeFilter(),
+  buildGeneList: (q) => buildGeneList(q),
+  updateLegend: () => updateLegend(),
+  render: () => render(),
+});
+const app = createApp({
+  adapter,
+  initialState: {
+    showDeselectedCells: true,
+    cellTypeSearchFilter: '',
+    geneSearchFilter: '',
+    soloMode: false,
+    soloType: null,
+    colorMode: 'subclass',
+  },
+});
+app.use(features.showDeselected)
+   .use(features.cellTypeSearch)
+   .use(features.geneSearch)
+   .use(features.solo)
+   .use(features.colorPicker);
+app.on('render', () => render());
 
 // ── Depth colormap (viridis-like) ──
 function depthColor(d) {
@@ -139,11 +175,10 @@ async function loadSample(sampleId) {
   transcriptGenes = {};
   transcriptIndex = null;
   // Reset cell-type search + solo mode (type set is sample-scoped)
-  cellTypeSearchFilter = '';
-  soloMode = false; soloType = null;
-  const ctSearch = document.getElementById('celltype-search');
-  if (ctSearch) ctSearch.value = '';
-  document.getElementById('solo-btn')?.classList.remove('solo-active');
+  app.setState({
+    cellTypeSearchFilter: '',
+    soloMode: false, soloType: null,
+  });
   const resp = await fetch(`${sampleId}.json`);
   sampleData = await resp.json();
   precomputeColors();
@@ -495,7 +530,7 @@ function buildCellTypeFilter() {
   const sorted = cats.map((c,i) => ({name:c, count:counts[i], idx:i})).sort((a,b) => a.name.localeCompare(b.name));
 
   // Apply search filter (selection state unchanged)
-  const q = cellTypeSearchFilter.toLowerCase();
+  const q = (app.state.cellTypeSearchFilter || '').toLowerCase();
   const visible = q ? sorted.filter(({name}) => name.toLowerCase().includes(q)) : sorted;
 
   // Show solo-mode hint banner when waiting for user to pick a target
@@ -521,35 +556,38 @@ function buildCellTypeFilter() {
 
   visible.forEach(({name, count}) => {
     const row = document.createElement('div');
-    const isSoloTarget = soloMode && soloType === name;
+    const isSoloTarget = app.state.soloMode && app.state.soloType === name;
     row.className = 'ct-row'
       + (activeTypes.has(name) ? '' : ' dimmed')
       + (isSoloTarget ? ' solo-target' : '');
     const cb = document.createElement('input');
     cb.type = 'checkbox'; cb.checked = activeTypes.has(name);
     cb.onchange = () => {
-      if (soloMode) {
-        // In solo mode, any click = make THAT row the only active
-        soloRow(name);
+      if (app.state.soloMode) {
+        // In solo mode, any click = make THAT row the only active.
+        // The solo feature's enterSolo() updates state + calls adapter.
+        app.enterSolo(name);
         return;
       }
       if (cb.checked) activeTypes.add(name); else activeTypes.delete(name);
       row.classList.toggle('dimmed',!cb.checked); render();
     };
-    // Color-picker swatch — click opens native picker without toggling row
+    // Color-picker swatch — click opens native picker without toggling row.
+    // The colorPicker feature handles input via delegation on #celltype-filter.
     const swatch = document.createElement('input');
     swatch.type = 'color';
     swatch.className = 'ct-swatch';
     swatch.value = normalizeHex(palette[name] || '#666666');
     swatch.title = `Click to change ${name}'s color`;
+    swatch.setAttribute('data-color-celltype', name);
+    swatch.setAttribute('data-color-mode', colorMode);
     swatch.onclick = (e) => e.stopPropagation();
-    swatch.oninput = (e) => applyCellTypeColor(colorMode, name, e.target.value);
     const label = document.createElement('span'); label.className='ct-label'; label.textContent=name;
     const countEl = document.createElement('span'); countEl.className='ct-count'; countEl.textContent=count.toLocaleString();
     row.appendChild(cb); row.appendChild(swatch); row.appendChild(label); row.appendChild(countEl);
     row.onclick = (e) => {
       if (e.target===cb || e.target===swatch) return;
-      if (soloMode) { soloRow(name); return; }
+      if (app.state.soloMode) { app.enterSolo(name); return; }
       cb.checked=!cb.checked; cb.onchange();
     };
     el.appendChild(row);
@@ -563,8 +601,7 @@ function getFilterCats() {
   return sampleData.subclass_cats; // subclass, depth, confidence
 }
 function _exitSoloMode() {
-  soloMode = false; soloType = null;
-  document.getElementById('solo-btn')?.classList.remove('solo-active');
+  if (app.state.soloMode) app.exitSolo();
 }
 function selectAllTypes() { _exitSoloMode(); activeTypes = new Set(getFilterCats()); buildCellTypeFilter(); render(); }
 function selectNoneTypes() { _exitSoloMode(); activeTypes = new Set(); activeTypes._explicitEmpty = true; buildCellTypeFilter(); render(); }
@@ -582,31 +619,18 @@ function selectGlia() {
 }
 
 function soloRow(name) {
-  // Set the solo target (only this type active). soloMode stays on.
-  activeTypes = new Set([name]);
-  delete activeTypes._explicitEmpty;
-  soloType = name;
-  buildCellTypeFilter(); render();
+  // Legacy entry point — delegate to the solo feature.
+  app.enterSolo(name);
 }
 
 function toggleSoloMode() {
   if (!sampleData) return;
-  const btn = document.getElementById('solo-btn');
-  if (soloMode) {
-    // Exit solo mode: restore All
-    soloMode = false; soloType = null;
-    activeTypes = new Set(getFilterCats());
-    delete activeTypes._explicitEmpty;
-    btn?.classList.remove('solo-active');
+  if (app.state.soloMode) {
+    app.exitSolo();
   } else {
-    // Enter solo mode. If exactly one type is currently active, lock that as
-    // the solo target; otherwise wait for the user to click a row.
-    soloMode = true;
-    if (activeTypes.size === 1) soloType = [...activeTypes][0];
-    else soloType = null;
-    btn?.classList.add('solo-active');
+    const seed = activeTypes.size === 1 ? [...activeTypes][0] : null;
+    app.enterSolo(seed);
   }
-  buildCellTypeFilter(); render();
 }
 
 // ── View ──
@@ -690,7 +714,7 @@ function render() {
 
   // Dim layer: deselected cells (passes[i]===0) so the user has tissue context.
   let dimShown = 0;
-  if (showDeselectedCells) {
+  if (app.state.showDeselectedCells) {
     dimShown = drawDimLayer(ctx, {
       ...baseOpts, passes, qcMask, useBoundaries: renderBoundaries,
       boundaryData, bMap, r,
@@ -850,23 +874,14 @@ function updateLegend() {
     }
   }
   el.innerHTML = html;
-  // Wire up legend color pickers — keeps sidebar + legend swatches in sync
+  // Tag legend swatches with the data attributes the colorPicker feature
+  // reads; the feature handles input via delegation on #legend-overlay.
   el.querySelectorAll('input.leg-swatch[data-gene]').forEach(inp => {
-    inp.oninput = (e) => {
-      const gene = e.target.dataset.gene;
-      const newColor = e.target.value;
-      customGeneColors[gene] = newColor;
-      if (transcriptGenes[gene]) transcriptGenes[gene].color = newColor;
-      render();
-      buildGeneList(document.getElementById('gene-search').value);
-      updateLegend();
-    };
+    inp.setAttribute('data-color-gene', inp.dataset.gene);
   });
-  // Cell-type legend swatches — reuse the same applyCellTypeColor pipeline
   el.querySelectorAll('input.leg-swatch[data-celltype]').forEach(inp => {
-    inp.oninput = (e) => {
-      applyCellTypeColor(colorMode, e.target.dataset.celltype, e.target.value);
-    };
+    inp.setAttribute('data-color-celltype', inp.dataset.celltype);
+    inp.setAttribute('data-color-mode', colorMode);
   });
 }
 
@@ -878,12 +893,14 @@ function setupEvents() {
       btn.classList.add('active');
       colorMode = btn.dataset.mode;
       activeTypes = new Set();
-      // Reset cell-type search + solo mode (type set differs per mode)
-      cellTypeSearchFilter = '';
-      soloMode = false; soloType = null;
-      const ctSearch = document.getElementById('celltype-search');
-      if (ctSearch) ctSearch.value = '';
-      document.getElementById('solo-btn')?.classList.remove('solo-active');
+      // Reset cell-type search + solo mode (type set differs per mode).
+      // app.state.colorMode mirrors `colorMode` so the colorPicker feature
+      // resolves the right palette via data-color-mode-less fallback.
+      app.setState({
+        cellTypeSearchFilter: '',
+        soloMode: false, soloType: null,
+        colorMode: btn.dataset.mode,
+      });
       // Show/hide confidence level selector
       document.getElementById('confidence-level-row').style.display = colorMode === 'confidence' ? 'block' : 'none';
       precomputeColors(); buildCellTypeFilter(); render();
@@ -906,7 +923,7 @@ function setupEvents() {
   document.getElementById('layer-overlay-opacity').oninput = (e) => { layerOverlayOpacity=parseFloat(e.target.value); document.getElementById('overlay-opacity-val').textContent=layerOverlayOpacity; render(); };
   document.getElementById('show-boundaries-toggle').onchange = (e) => { showBoundaries=e.target.checked; render(); };
   document.getElementById('show-nucleus-toggle').onchange = (e) => { showNucleus=e.target.checked; render(); };
-  document.getElementById('show-deselected-toggle').onchange = (e) => { showDeselectedCells=e.target.checked; render(); };
+  // The show-deselected toggle is wired by the show-deselected feature.
   document.getElementById('hide-qc-fail-toggle').onchange = (e) => { hideQcFail=e.target.checked; render(); };
   document.getElementById('show-qc-details-toggle').onchange = (e) => {
     showQcDetails = e.target.checked;
@@ -914,6 +931,7 @@ function setupEvents() {
     // If hiding QC modes while one is active, switch back to subclass
     if (!showQcDetails && (colorMode === 'confidence' || colorMode === 'margin')) {
       colorMode = 'subclass';
+      app.setState({ colorMode: 'subclass' });
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'subclass'));
       document.getElementById('confidence-level-row').style.display = 'none';
       activeTypes = new Set();
@@ -922,11 +940,7 @@ function setupEvents() {
   };
   document.getElementById('mol-size').oninput = (e) => { moleculeSize=parseFloat(e.target.value); document.getElementById('mol-size-val').textContent=moleculeSize; render(); };
   document.getElementById('mol-opacity').oninput = (e) => { moleculeOpacity=parseFloat(e.target.value); document.getElementById('mol-opacity-val').textContent=moleculeOpacity; render(); };
-  document.getElementById('gene-search').oninput = (e) => { buildGeneList(e.target.value); };
-  document.getElementById('celltype-search').oninput = (e) => {
-    cellTypeSearchFilter = e.target.value;
-    buildCellTypeFilter();
-  };
+  // Gene-search and celltype-search inputs are wired by the search features.
 
   canvas.addEventListener('mousedown', (e) => { isDragging=true; dragStartX=e.clientX; dragStartY=e.clientY; dragViewX=viewX; dragViewY=viewY; canvas.style.cursor='grabbing'; });
   window.addEventListener('mousemove', (e) => { if (isDragging) { viewX=dragViewX+(e.clientX-dragStartX); viewY=dragViewY+(e.clientY-dragStartY); render(); } else { handleHover(e); } });
@@ -951,7 +965,7 @@ function setupEvents() {
     if (e.key==='l') { showLayerOverlay=!showLayerOverlay; document.getElementById('layer-overlay-toggle').checked=showLayerOverlay; document.getElementById('layer-overlay-opacity-row').style.display=showLayerOverlay?'block':'none'; render(); }
     if (e.key==='b') { showBoundaries=!showBoundaries; document.getElementById('show-boundaries-toggle').checked=showBoundaries; render(); }
     if (e.key==='n') { showNucleus=!showNucleus; document.getElementById('show-nucleus-toggle').checked=showNucleus; render(); }
-    if (e.key==='x') { showDeselectedCells=!showDeselectedCells; document.getElementById('show-deselected-toggle').checked=showDeselectedCells; render(); }
+    // 'x' (show-deselected toggle) is owned by the show-deselected feature.
     if (e.key==='f') { hideQcFail=!hideQcFail; document.getElementById('hide-qc-fail-toggle').checked=hideQcFail; render(); }
     if (e.key==='d') { const el=document.getElementById('show-qc-details-toggle'); el.checked=!el.checked; el.onchange({target:el}); }
     if (e.key==='t') {
@@ -966,6 +980,7 @@ function setupEvents() {
       } else {
         colorMode = 'subclass';
       }
+      app.setState({ colorMode });
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === colorMode));
       document.getElementById('confidence-level-row').style.display = colorMode === 'confidence' ? 'block' : 'none';
       activeTypes = new Set();
@@ -1030,7 +1045,7 @@ function handleHover(e) {
       if (hideQcFail && qcFail && qcFail[i] > 0) continue;
       if (activeSet.has(filterIndices[i])) {
         passesHover[i] = 1;
-      } else if (showDeselectedCells) {
+      } else if (app.state.showDeselectedCells) {
         passesHover[i] = 1;
         isDeselected[i] = 1;
       }
@@ -1047,81 +1062,38 @@ function handleHover(e) {
 
     const showMol = molHit !== null;
     const showCell = cellHit !== null;
-    const bestMolGene = molHit ? molHit.gene : null;
-    const bestMolIdx = molHit ? molHit.idx : -1;
-    const bestCellIdx = showCell ? cellHit.idx : -1;
 
     if (showMol || showCell) {
+      // Build the field-list via the adapter, let features mutate it
+      // through the tooltipReady event, then render to HTML via core.
       let html = '';
-
-      // Molecule info (if found)
       if (showMol) {
-        const gd = transcriptGenes[bestMolGene];
-        const molX = gd.x[bestMolIdx].toFixed(1);
-        const molY = gd.y[bestMolIdx].toFixed(1);
-        html += `<div class="tt-label" style="color:${gd.color}">${bestMolGene}</div>`;
-        html += `<div style="font-size:11px; color:#aaa;">Transcript molecule</div>`;
-        html += `<div style="color:#666;font-size:10px;">x=${molX}, y=${molY}</div>`;
+        const molFields = adapter.getMoleculeTooltip(molHit);
+        const molEv = { kind: 'molecule', hit: molHit, fields: molFields };
+        app.emit('tooltipReady', molEv);
+        // Color the molecule title with the gene's color (replicates pre-3c).
+        const gd = transcriptGenes[molHit.gene];
+        let molHtml = renderTooltip(molEv.fields);
+        if (gd && gd.color) {
+          molHtml = molHtml.replace(
+            'class="tt-label"',
+            `class="tt-label" style="color:${gd.color}"`,
+          );
+        }
+        html += molHtml;
       }
-
-      // Cell info (if found) — show below molecule info, or as primary
       if (showCell) {
-        if (showMol) html += '<div style="border-top:1px solid #333; margin:4px 0;"></div>';
-        const subclass=sampleData.subclass_cats[sampleData.subclass[bestCellIdx]];
-        const supertype=sampleData.supertype_cats[sampleData.supertype[bestCellIdx]];
-        const cls=sampleData.class_cats[sampleData.class[bestCellIdx]];
-        const depth=sampleData.depth[bestCellIdx];
-        const layerIdx=sampleData.layer[bestCellIdx];
-        const layer=sampleData.layer_cats[layerIdx]||'Outside';
-        const layerColor=indexData.layer_colors[layer]||'#888';
         if (showMol) {
+          html += '<div style="border-top:1px solid #333; margin:4px 0;"></div>';
           html += `<div style="font-size:11px; color:#888;">Nearest cell:</div>`;
         }
-        const dimBadge = isDeselected[bestCellIdx]
-          ? ' <span style="font-size:9px;color:#aaa;background:rgba(255,255,255,0.08);padding:0 4px;border-radius:3px;">deselected</span>'
-          : '';
-        html += `<div class="tt-label">${supertype}${dimBadge}</div>`;
-        html += `<div>Subclass: ${subclass}</div>`;
-        html += `<div>Class: ${cls}</div>`;
-        html += `<div>Layer: <span style="color:${layerColor};font-weight:700;">${layer}</span></div>`;
-        html += `<div>Depth: ${depth.toFixed(3)}</div>`;
-        // QC details (gated behind Cell QC mode toggle)
-        if (showQcDetails) {
-          // Confidence scores (HANN mapping quality)
-          const confC = sampleData.conf_class ? (sampleData.conf_class[bestCellIdx] / 200).toFixed(2) : '?';
-          const confS = sampleData.conf_subclass ? (sampleData.conf_subclass[bestCellIdx] / 200).toFixed(2) : '?';
-          const confT = sampleData.conf_supertype ? (sampleData.conf_supertype[bestCellIdx] / 200).toFixed(2) : '?';
-          function confSpan(val) {
-            const v = parseFloat(val);
-            const color = v >= 0.5 ? '#28f03c' : v >= 0.28 ? '#e0d020' : '#dc3030';
-            return `<span style="color:${color};font-weight:600;">${val}</span>`;
-          }
-          html += `<div style="margin-top:4px;border-top:1px solid #333;padding-top:4px;font-size:10px;color:#e94560;font-weight:600;">QC Details</div>`;
-          html += `<div style="font-size:11px;color:#888;">HANN conf: ${confSpan(confC)} / ${confSpan(confS)} / ${confSpan(confT)}</div>`;
-          html += `<div style="font-size:9px;color:#555;">class / subclass / supertype</div>`;
-          // Correlation margin and QC status
-          if (sampleData.corr_margin) {
-            const margin = (sampleData.corr_margin[bestCellIdx] / 1000).toFixed(3);
-            html += `<div style="font-size:11px;">Corr margin: ${margin}</div>`;
-          }
-          if (sampleData.qc_status) {
-            const qcVal = sampleData.qc_status[bestCellIdx];
-            const qcReasons = {0: null, 1: 'Spatial QC Fail', 2: 'Low Margin', 3: 'Doublet Suspect'};
-            if (qcVal > 0) {
-              html += `<div style="font-size:11px;"><span style="color:#e94560;font-weight:700;">QC-FAIL: ${qcReasons[qcVal] || 'Unknown'}</span></div>`;
-            }
-          }
-          // HANN subclass comparison (if different)
-          if (sampleData.hann_subclass_cats && sampleData.hann_subclass) {
-            const hannSub = sampleData.hann_subclass_cats[sampleData.hann_subclass[bestCellIdx]];
-            if (hannSub !== subclass) {
-              html += `<div style="font-size:10px;color:#888;">HANN: ${hannSub}</div>`;
-            }
-          }
-        }
-        html += `<div style="color:#666;font-size:10px;">x=${x[bestCellIdx].toFixed(1)}, y=${y[bestCellIdx].toFixed(1)}</div>`;
+        const cellFields = adapter.getCellTooltip(cellHit.idx, cellHit);
+        const cellEv = {
+          kind: 'cell', idx: cellHit.idx, hit: cellHit, fields: cellFields,
+        };
+        app.emit('tooltipReady', cellEv);
+        html += renderTooltip(cellEv.fields);
       }
-
       tooltip.innerHTML = html;
       tooltip.style.display = 'block';
       tooltip.style.left = (e.clientX-sidebarWidth+12)+'px';
@@ -1133,6 +1105,7 @@ function handleHover(e) {
 // ── Start ──
 canvas.style.cursor = 'crosshair';
 init();
+app.start();
 
 // ── Test/debug diagnostic exposure ──
 // Top-level `let` in a classic script is script-scoped, not on window —
@@ -1148,10 +1121,12 @@ Object.defineProperty(window, 'indexData', { get: () => indexData });
 Object.defineProperty(window, 'currentSample', { get: () => currentSample });
 Object.defineProperty(window, 'colorMode', { get: () => colorMode });
 Object.defineProperty(window, 'activeTypes', { get: () => activeTypes });
-Object.defineProperty(window, 'soloMode', { get: () => soloMode });
-Object.defineProperty(window, 'soloType', { get: () => soloType });
-Object.defineProperty(window, 'cellTypeSearchFilter', { get: () => cellTypeSearchFilter });
-Object.defineProperty(window, 'showDeselectedCells', { get: () => showDeselectedCells });
+Object.defineProperty(window, 'soloMode', { get: () => app.state.soloMode });
+Object.defineProperty(window, 'soloType', { get: () => app.state.soloType });
+Object.defineProperty(window, 'cellTypeSearchFilter', { get: () => app.state.cellTypeSearchFilter || '' });
+Object.defineProperty(window, 'showDeselectedCells', { get: () => app.state.showDeselectedCells });
+Object.defineProperty(window, 'app', { get: () => app });
+Object.defineProperty(window, 'adapter', { get: () => adapter });
 Object.defineProperty(window, 'showBoundaries', { get: () => showBoundaries });
 Object.defineProperty(window, 'showNucleus', { get: () => showNucleus });
 Object.defineProperty(window, 'hideQcFail', { get: () => hideQcFail });
