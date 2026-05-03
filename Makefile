@@ -25,10 +25,10 @@ test:
 	npx playwright test
 
 # SCZ deploys from output/deploy/ (which has its own copy of viewer files +
-# per-sample JSON). Mirror viewer.js, index.html, style.css, AND core/ before
-# pushing to Netlify.
+# per-sample JSON). Mirror viewer.js, index.html, style.css, scz-data.js,
+# AND core/ before pushing to Netlify.
 deploy:
-	cp output/viewer/index.html output/viewer/style.css output/viewer/viewer.js $(DEPLOY_DIR)/
+	cp output/viewer/index.html output/viewer/style.css output/viewer/viewer.js output/viewer/scz-data.js $(DEPLOY_DIR)/
 	mkdir -p $(DEPLOY_DIR)/core
 	rsync -av --delete $(CORE_DIR)/ $(DEPLOY_DIR)/core/
 	cd $(DEPLOY_DIR) && netlify deploy --prod --dir=.
